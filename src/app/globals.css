@@ -302,24 +302,25 @@ h2 {
   font-weight: 800;
 }
 
-.progressSection {
+.storeIntroSection {
   background: #ffffff;
 }
 
-.progressGrid {
+.storeIntroGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid var(--line);
 }
 
-.progressItem {
-  min-height: 310px;
-  padding: 28px 24px 0 0;
+.storeIntroItem {
+  min-height: 300px;
+  padding: 30px clamp(26px, 4vw, 54px) 0 0;
   border-right: 1px solid var(--line);
 }
 
-.progressItem:last-child {
+.storeIntroItem:last-child {
   border-right: 0;
+  padding-left: clamp(0px, 2vw, 28px);
 }
 
 .pill {
@@ -341,7 +342,7 @@ h3 {
   font-weight: 500;
 }
 
-.progressItem p:last-child {
+.storeIntroItem p:last-child {
   margin: 0;
   color: var(--muted);
   line-height: 1.75;
@@ -354,15 +355,6 @@ h3 {
   gap: clamp(34px, 7vw, 112px);
   align-items: center;
   background: #f7f1e8;
-}
-
-.businessSection {
-  display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(280px, 0.78fr);
-  gap: clamp(34px, 7vw, 112px);
-  align-items: start;
-  background: #ffffff;
-  border-top: 1px solid var(--line);
 }
 
 .pickupSection p:last-child {
@@ -485,9 +477,8 @@ h3 {
   .heroStatus,
   .split,
   .bowlGrid,
-  .progressGrid,
-  .pickupSection,
-  .businessSection {
+  .storeIntroGrid,
+  .pickupSection {
     grid-template-columns: 1fr;
   }
 
@@ -508,15 +499,19 @@ h3 {
     border-bottom: 0;
   }
 
-  .progressGrid {
+  .storeIntroGrid {
     border-top: 0;
   }
 
-  .progressItem {
+  .storeIntroItem {
     min-height: auto;
     border-right: 0;
     border-top: 1px solid var(--line);
     padding: 28px 0;
+  }
+
+  .storeIntroItem:last-child {
+    padding-left: 0;
   }
 }
 

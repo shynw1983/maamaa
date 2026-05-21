@@ -1,25 +1,15 @@
 import Image from "next/image";
 
-const progress = [
+const stores = [
   {
-    label: "Now",
-    title: "Delivery",
-    body: "Uber Eats などのデリバリーでご注文いただけます。注文を受けてから一杯ずつ仕上げます。",
+    label: "1st store",
+    title: "まぁ麻 テイクアウト店",
+    body: "現在営業中の店舗です。Uber Eats などのデリバリーとテイクアウトに対応し、ご注文を受けてから一杯ずつ出来立てで仕上げます。",
   },
   {
-    label: "Soon",
-    title: "Pickup",
-    body: "事前に注文して、指定時間に受け取れる店頭ピックアップを準備しています。",
-  },
-  {
-    label: "Next",
-    title: "Eat-in",
-    body: "店内で出来立てを楽しめる追加店舗の準備を進めています。",
-  },
-  {
-    label: "Future",
-    title: "Partnership",
-    body: "出店や業務提携について、ブランドの成長に合わせて相談窓口を整えていきます。",
+    label: "2nd store",
+    title: "まぁ麻 イートイン店",
+    body: "次に準備している追加店舗です。店内でも出来立ての麻辣湯を楽しめる、イートイン対応の店舗として計画しています。",
   },
 ];
 
@@ -39,9 +29,8 @@ export default function Home() {
         </a>
         <nav className="nav" aria-label="ページナビゲーション">
           <a href="#concept">Concept</a>
-          <a href="#progress">Status</a>
+          <a href="#stores">Stores</a>
           <a href="#pickup">Pickup</a>
-          <a href="#business">Business</a>
           <a href="#contact">Contact</a>
         </nav>
       </header>
@@ -62,8 +51,8 @@ export default function Home() {
             ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。
           </p>
           <div className="heroActions">
-            <a className="button primary" href="#progress">
-              現在の営業状況
+            <a className="button primary" href="#stores">
+              店舗紹介
             </a>
             <a className="button quiet" href="#pickup">
               ピックアップ予定
@@ -108,14 +97,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="progress" className="section progressSection" aria-labelledby="progressTitle">
+      <section id="stores" className="section storeIntroSection" aria-labelledby="storesTitle">
         <div className="sectionIntro">
-          <p className="kicker">Operation roadmap</p>
-          <h2 id="progressTitle">Delivery から、Pickup、Eat-in へ。</h2>
+          <p className="kicker">Shop information</p>
+          <h2 id="storesTitle">出来立てを受け取る店から、店内で味わう店へ。</h2>
         </div>
-        <div className="progressGrid">
-          {progress.map((item) => (
-            <article className="progressItem" key={item.title}>
+        <div className="storeIntroGrid">
+          {stores.map((item) => (
+            <article className="storeIntroItem" key={item.title}>
               <p className="pill">{item.label}</p>
               <h3>{item.title}</h3>
               <p>{item.body}</p>
@@ -144,21 +133,6 @@ export default function Home() {
           <h2 id="pickupTitle">店頭ピックアップで、もっと近く、もっと早く。</h2>
           <p>
             ピックアップ機能では、スープ、具材、辛さを事前に選び、指定時間に受け取れる導線を想定しています。受け取り直前に仕上げることで、近隣のお客様にも出来立ての一杯を届けます。
-          </p>
-        </div>
-      </section>
-
-      <section id="business" className="section businessSection" aria-labelledby="businessTitle">
-        <div>
-          <p className="kicker">Business / Partnership</p>
-          <h2 id="businessTitle">出店・業務提携について。</h2>
-        </div>
-        <div className="copyStack">
-          <p>
-            まぁ麻は、デリバリー、ピックアップ、イートインを組み合わせた小さく始めやすいブランドモデルを育てています。
-          </p>
-          <p>
-            フランチャイズ募集を前面に出す段階ではありませんが、出店や業務提携に関心のある方からのご相談は受け付けています。
           </p>
         </div>
       </section>
