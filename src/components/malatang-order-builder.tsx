@@ -10,6 +10,7 @@ import {
   specialFlavors,
   type MenuChoice,
 } from "@/data/malatang-menu";
+import { MalatangBowlPreview } from "@/components/malatang-bowl-preview";
 import { useI18n } from "@/components/i18n-provider";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
@@ -229,6 +230,8 @@ export function MalatangOrderBuilder() {
           <p>{t(baseSoup.note || "")}</p>
           <strong>{yen(baseSoup.price)}</strong>
         </div>
+
+        <MalatangBowlPreview heat={heat} flavors={flavors} selectedItems={selectedItems} />
 
         <section className="currentBowlBar" aria-label={t("現在の一杯")}>
           <div>

@@ -705,6 +705,337 @@ h3 {
   font-weight: 500;
 }
 
+.bowlPreviewPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(240px, 0.58fr);
+  gap: clamp(18px, 3vw, 34px);
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(20px, 3vw, 34px);
+  background: linear-gradient(135deg, #ffffff 0%, #fffafa 100%);
+}
+
+.bowlPreviewCopy h2 {
+  max-width: 520px;
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.85rem);
+  line-height: 1.28;
+  font-weight: 500;
+}
+
+.bowlPreviewStage {
+  position: relative;
+  min-height: 260px;
+}
+
+.previewBowl {
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  width: min(100%, 330px);
+  aspect-ratio: 1.08;
+}
+
+.previewSoup {
+  position: absolute;
+  inset: 18% 4% 34%;
+  overflow: hidden;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 38%, rgba(255, 238, 210, 0.74) 0 16%, transparent 17%),
+    radial-gradient(circle at 62% 56%, rgba(92, 20, 12, 0.18) 0 13%, transparent 14%),
+    linear-gradient(130deg, #e96a35, #b81717 52%, #7a1613);
+  box-shadow:
+    inset 0 8px 18px rgba(255, 224, 178, 0.32),
+    inset 0 -14px 24px rgba(71, 10, 8, 0.22);
+}
+
+.bowlPreviewStage[data-heat="mild"] .previewSoup {
+  background:
+    radial-gradient(circle at 38% 38%, rgba(255, 238, 210, 0.76) 0 16%, transparent 17%),
+    linear-gradient(130deg, #ef8d4d, #cf3b24 56%, #8f2118);
+}
+
+.bowlPreviewStage[data-heat="medium"] .previewSoup {
+  background:
+    radial-gradient(circle at 38% 38%, rgba(255, 238, 210, 0.64) 0 16%, transparent 17%),
+    linear-gradient(130deg, #ed6f34, #b81717 54%, #72130f);
+}
+
+.bowlPreviewStage[data-heat="deep"] .previewSoup {
+  background:
+    radial-gradient(circle at 38% 38%, rgba(255, 220, 180, 0.48) 0 14%, transparent 15%),
+    linear-gradient(130deg, #d6461f, #8f0f13 52%, #3e0b0a);
+}
+
+.bowlRim {
+  position: absolute;
+  inset: 15% 0 29%;
+  border: 16px solid #171311;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.08),
+    0 18px 40px rgba(29, 23, 22, 0.18);
+}
+
+.bowlBody {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 4%;
+  height: 42%;
+  border-radius: 0 0 42% 42%;
+  background: linear-gradient(160deg, #171311, #050505);
+  box-shadow: 0 18px 36px rgba(29, 23, 22, 0.16);
+}
+
+.ingredientLayer,
+.previewFlavor,
+.previewSteam {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+.ingredientLayer {
+  width: 44px;
+  height: 28px;
+  animation: ingredientIn 220ms ease both;
+}
+
+.previewFlavor.vinegar {
+  left: 30%;
+  top: 40%;
+  width: 56px;
+  height: 12px;
+  transform: rotate(-22deg);
+  border-radius: 999px;
+  background: rgba(41, 18, 13, 0.28);
+}
+
+.previewFlavor.spice {
+  left: 58%;
+  top: 33%;
+  width: 76px;
+  height: 48px;
+  transform: rotate(18deg);
+  background:
+    radial-gradient(circle, rgba(77, 10, 8, 0.65) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(217, 91, 79, 0.72) 0 2px, transparent 3px);
+  background-position:
+    0 0,
+    11px 9px;
+  background-size:
+    18px 18px,
+    17px 17px;
+}
+
+.previewSteam {
+  left: 45%;
+  top: 28%;
+  width: 60px;
+  height: 70px;
+  border-left: 2px solid rgba(183, 0, 18, 0.18);
+  border-radius: 50%;
+  transform: rotate(12deg);
+}
+
+.ingredient-noodle,
+.ingredient-wideNoodle,
+.ingredient-sweetNoodle {
+  width: 72px;
+  height: 28px;
+  border-top: 5px solid rgba(248, 231, 190, 0.92);
+  border-bottom: 5px solid rgba(248, 231, 190, 0.72);
+  border-radius: 50%;
+}
+
+.ingredient-wideNoodle {
+  border-width: 8px;
+}
+
+.ingredient-noodleDark {
+  width: 70px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(129, 74, 42, 0.82);
+}
+
+.ingredient-ball,
+.ingredient-ballDark,
+.ingredient-fishBall,
+.ingredient-shrimpBall {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #fff6e7, #d7a76e);
+}
+
+.ingredient-ballDark {
+  background: radial-gradient(circle at 32% 30%, #e7c49a, #8e4c2c);
+}
+
+.ingredient-fishBall,
+.ingredient-shrimpBall {
+  background: radial-gradient(circle at 32% 30%, #fff7ed, #efc2ab);
+}
+
+.ingredient-egg {
+  width: 34px;
+  height: 28px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 52% 48%, #f1c24e 0 24%, transparent 25%),
+    #fffaf0;
+}
+
+.ingredient-leaf,
+.ingredient-greens,
+.ingredient-cilantro,
+.ingredient-greensThin {
+  width: 58px;
+  height: 40px;
+  border-radius: 50% 10% 50% 10%;
+  background: linear-gradient(135deg, #88a865, #2d6d39);
+}
+
+.ingredient-cilantro,
+.ingredient-greensThin {
+  width: 64px;
+  height: 30px;
+  background:
+    radial-gradient(ellipse at 20% 50%, #5f9c4c 0 22%, transparent 23%),
+    radial-gradient(ellipse at 44% 45%, #4d8d40 0 24%, transparent 25%),
+    radial-gradient(ellipse at 68% 52%, #6aa94d 0 22%, transparent 23%);
+}
+
+.ingredient-woodEar,
+.ingredient-wakame,
+.ingredient-liver,
+.ingredient-offal {
+  width: 42px;
+  height: 32px;
+  border-radius: 44% 56% 38% 62%;
+  background: #221918;
+}
+
+.ingredient-tofu,
+.ingredient-cheese,
+.ingredient-mozzarella,
+.ingredient-mochi {
+  width: 38px;
+  height: 32px;
+  border-radius: 8px;
+  background: #fff6db;
+}
+
+.ingredient-lotus {
+  width: 42px;
+  height: 42px;
+  border: 5px solid #efe1bf;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 20%, #efe1bf 21% 28%, transparent 29%),
+    radial-gradient(circle at 32% 35%, transparent 0 9%, #efe1bf 10% 15%, transparent 16%),
+    radial-gradient(circle at 68% 35%, transparent 0 9%, #efe1bf 10% 15%, transparent 16%),
+    radial-gradient(circle at 50% 70%, transparent 0 9%, #efe1bf 10% 15%, transparent 16%);
+}
+
+.ingredient-carrot,
+.ingredient-corn,
+.ingredient-sausage,
+.ingredient-frankfurt {
+  width: 58px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ea7b2c;
+}
+
+.ingredient-corn {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.34) 0 2px, transparent 2px 8px),
+    #f0c64f;
+}
+
+.ingredient-meatSlice,
+.ingredient-meatSliceLight,
+.ingredient-spam {
+  width: 58px;
+  height: 32px;
+  border-radius: 50% 44% 52% 48%;
+  background: linear-gradient(135deg, #c87a64, #8d3d35);
+}
+
+.ingredient-meatSliceLight {
+  background: linear-gradient(135deg, #efc2ab, #d88974);
+}
+
+.ingredient-shrimp {
+  width: 58px;
+  height: 38px;
+  border-radius: 60% 40% 60% 40%;
+  border: 8px solid #ef8a5b;
+  border-left-color: transparent;
+  background: transparent;
+}
+
+.ingredient-broccoli {
+  width: 50px;
+  height: 38px;
+  border-radius: 50% 50% 38% 38%;
+  background:
+    radial-gradient(circle at 28% 42%, #4a8a3e 0 26%, transparent 27%),
+    radial-gradient(circle at 52% 30%, #5b9d47 0 30%, transparent 31%),
+    radial-gradient(circle at 72% 46%, #3d7835 0 25%, transparent 26%);
+}
+
+.ingredient-default,
+.ingredient-mushroom,
+.ingredient-enoki,
+.ingredient-shiitake,
+.ingredient-yuba,
+.ingredient-tofuSkin,
+.ingredient-tteok,
+.ingredient-wonton,
+.ingredient-gyoza,
+.ingredient-kanikama,
+.ingredient-asparagus,
+.ingredient-potato,
+.ingredient-negi,
+.ingredient-taro,
+.ingredient-pumpkin,
+.ingredient-whiteWoodEar,
+.ingredient-eggplant,
+.ingredient-celery,
+.ingredient-hamburg,
+.ingredient-scallop,
+.ingredient-squidRing,
+.ingredient-fish,
+.ingredient-clam,
+.ingredient-cartilage,
+.ingredient-suji,
+.ingredient-octopus,
+.ingredient-oyster,
+.ingredient-seafood,
+.ingredient-stemLettuce {
+  border-radius: 999px;
+  background: #efd6b3;
+}
+
+@keyframes ingredientIn {
+  from {
+    opacity: 0;
+    scale: 0.84;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
 .currentBowlBar {
   position: sticky;
   top: 94px;
@@ -932,6 +1263,20 @@ h3 {
 
   .optionGrid {
     grid-template-columns: 1fr;
+  }
+
+  .bowlPreviewPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .bowlPreviewStage {
+    min-height: 300px;
+  }
+
+  .previewBowl {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 }
 
