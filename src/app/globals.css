@@ -300,6 +300,14 @@ h2 {
   background: #ffffff;
 }
 
+.bowlSection .sectionIntro {
+  max-width: none;
+}
+
+.bowlSection h2 {
+  white-space: nowrap;
+}
+
 .bowlGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -874,6 +882,10 @@ h3 {
   }
 
   .menuPageHero h1 {
+    white-space: normal;
+  }
+
+  .bowlSection h2 {
     white-space: normal;
   }
 
