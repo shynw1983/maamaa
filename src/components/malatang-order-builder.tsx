@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   baseSoup,
   heatLevels,
@@ -37,6 +37,12 @@ type CartItem = {
   summary: string[];
 };
 
+type ProductState = {
+  drinkId: string;
+  isAvailable: boolean;
+  websiteEnabled: boolean;
+};
+
 export function MalatangOrderBuilder() {
   const { t } = useI18n();
   const [spice, setSpice] = useState(medicinalSpiceOptions[0].id);
@@ -53,6 +59,7 @@ export function MalatangOrderBuilder() {
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [hiddenChoiceIds, setHiddenChoiceIds] = useState<Set<string>>(new Set());
 
   const allChoices = useMemo(
     () => [
@@ -65,14 +72,17 @@ export function MalatangOrderBuilder() {
     [],
   );
   const choiceMap = useMemo(() => new Map(allChoices.map((choice) => [choice.id, choice])), [allChoices]);
+  const isChoiceOpen = (id: string) => !hiddenChoiceIds.has(id);
   const selectedSpice = choiceMap.get(spice) || medicinalSpiceOptions[0];
   const selectedHeat = choiceMap.get(heat) || heatLevels[0];
   const selectedNumb = choiceMap.get(numb) || numbLevels[0];
-  const selectedFlavors = flavors.map((id) => choiceMap.get(id)).filter(Boolean) as MenuChoice[];
+  const selectedFlavors = flavors
+    .map((id) => choiceMap.get(id))
+    .filter((item): item is MenuChoice => (item ? isChoiceOpen(item.id) : false));
   const selectedItems = Object.entries(items)
     .map(([id, quantity]) => {
       const item = choiceMap.get(id);
-      return item && quantity > 0 ? { ...item, quantity } : null;
+      return item && quantity > 0 && isChoiceOpen(id) ? { ...item, quantity } : null;
     })
     .filter(Boolean) as Array<MenuChoice & { quantity: number }>;
 
@@ -84,6 +94,37 @@ export function MalatangOrderBuilder() {
     selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/products", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body) => {
+        if (!active) return;
+        const products = (body?.products || []) as ProductState[];
+        const hiddenIds = products
+          .filter((product) => !product.isAvailable || !product.websiteEnabled)
+          .map((product) => product.drinkId);
+        setHiddenChoiceIds(new Set(hiddenIds));
+      })
+      .catch(() => {
+        if (active) setHiddenChoiceIds(new Set());
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    setFlavors((current) => current.filter((id) => isChoiceOpen(id)));
+    setItems((current) =>
+      Object.fromEntries(Object.entries(current).filter(([id]) => isChoiceOpen(id))),
+    );
+    if (!isChoiceOpen(spice)) setSpice(medicinalSpiceOptions.find((item) => isChoiceOpen(item.id))?.id || medicinalSpiceOptions[0].id);
+    if (!isChoiceOpen(heat)) setHeat(heatLevels.find((item) => isChoiceOpen(item.id))?.id || heatLevels[0].id);
+    if (!isChoiceOpen(numb)) setNumb(numbLevels.find((item) => isChoiceOpen(item.id))?.id || numbLevels[0].id);
+  }, [hiddenChoiceIds, spice, heat, numb]);
 
   const toggleFlavor = (id: string) => {
     setFlavors((current) =>
@@ -273,9 +314,9 @@ export function MalatangOrderBuilder() {
           </button>
         </section>
 
-        <ChoiceGroup title="薬膳の有無を選ぶ" items={medicinalSpiceOptions} value={spice} onChange={setSpice} />
-        <ChoiceGroup title="辛さレベルを選ぶ" items={heatLevels} value={heat} onChange={setHeat} />
-        <ChoiceGroup title="痺れレベルを選ぶ" items={numbLevels} value={numb} onChange={setNumb} />
+        <ChoiceGroup title="薬膳の有無を選ぶ" items={medicinalSpiceOptions.filter((item) => isChoiceOpen(item.id))} value={spice} onChange={setSpice} />
+        <ChoiceGroup title="辛さレベルを選ぶ" items={heatLevels.filter((item) => isChoiceOpen(item.id))} value={heat} onChange={setHeat} />
+        <ChoiceGroup title="痺れレベルを選ぶ" items={numbLevels.filter((item) => isChoiceOpen(item.id))} value={numb} onChange={setNumb} />
 
         <section className="menuPanel">
           <div className="menuPanelHeader">
@@ -284,7 +325,7 @@ export function MalatangOrderBuilder() {
             <span>{t("6個まで")}</span>
           </div>
           <div className="optionGrid">
-            {specialFlavors.map((item) => (
+            {specialFlavors.filter((item) => isChoiceOpen(item.id)).map((item) => (
               <button
                 className={flavors.includes(item.id) ? "optionButton selected" : "optionButton"}
                 key={item.id}
@@ -306,7 +347,7 @@ export function MalatangOrderBuilder() {
               <span>{section.limit}{t("個まで")}</span>
             </div>
             <div className="toppingList">
-              {section.items.map((item) => (
+              {section.items.filter((item) => isChoiceOpen(item.id)).map((item) => (
                 <div className="toppingRow" key={item.id}>
                   <div>
                     <strong>

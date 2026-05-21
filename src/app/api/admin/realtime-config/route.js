@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
-const { getSessionFromCookieStore } = require("../../../../server/admin-auth");
+const { getSessionFromCookieStore, filterAccessibleStores } = require("../../../../server/admin-auth");
+const { listActiveStores } = require("../../../../server/store-products");
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -8,10 +9,11 @@ export async function GET() {
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const stores = filterAccessibleStores(session, await listActiveStores());
 
   return Response.json({
     key: process.env.PUSHER_KEY || "",
     cluster: process.env.PUSHER_CLUSTER || "",
-    channels: process.env.PUSHER_KEY ? ["private-admin-orders-maamaa"] : [],
+    channels: stores.map((store) => `private-admin-orders-${store.id}`),
   });
 }
