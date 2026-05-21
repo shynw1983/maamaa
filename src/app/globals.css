@@ -772,12 +772,32 @@ h3 {
   background: #fff5f3;
 }
 
-.optionButton span {
+.optionButton > span,
+.optionName {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.optionButton > span {
   font-weight: 600;
 }
 
 .optionButton small {
   color: var(--muted);
+}
+
+.recommendIcon {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid rgba(183, 0, 18, 0.34);
+  border-radius: 999px;
+  color: var(--brand);
+  font-size: 0.62rem;
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
 .toppingList {

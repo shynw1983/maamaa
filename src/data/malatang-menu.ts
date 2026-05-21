@@ -43,7 +43,7 @@ export const numbLevels: MenuChoice[] = [
 ];
 
 export const specialFlavors: MenuChoice[] = [
-  { id: "aroma", name: "香味", price: 150, note: "おすすめ" },
+  { id: "aroma", name: "香酢", price: 150, note: "おすすめ" },
   { id: "shacha", name: "サーチャージャン / 沙茶醤", price: 150 },
   { id: "fermented-tofu", name: "発酵豆腐タレ", price: 150 },
   { id: "extra-spice", name: "薬膳スパイス追加", price: 150 },

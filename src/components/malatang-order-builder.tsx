@@ -13,6 +13,8 @@ import {
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
+const optionPrice = (price: number) => `+${yen(price)}`;
+const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 
 type Reservation = {
   code: string;
@@ -251,8 +253,8 @@ export function MalatangOrderBuilder() {
                 onClick={() => toggleFlavor(item.id)}
                 type="button"
               >
-                <span>{item.name}</span>
-                <small>{item.note || yen(item.price)}</small>
+                <OptionName item={item} />
+                <small>{optionPrice(item.price)}</small>
               </button>
             ))}
           </div>
@@ -269,7 +271,9 @@ export function MalatangOrderBuilder() {
               {section.items.map((item) => (
                 <div className="toppingRow" key={item.id}>
                   <div>
-                    <strong>{item.name}</strong>
+                    <strong>
+                      <OptionName item={item} />
+                    </strong>
                     <span>{yen(item.price)}</span>
                   </div>
                   <div className="quantityControl">
@@ -317,11 +321,24 @@ function ChoiceGroup({
             onClick={() => onChange(item.id)}
             type="button"
           >
-            <span>{item.name}</span>
-            <small>{item.note || (item.price ? `+${yen(item.price)}` : "追加料金なし")}</small>
+            <OptionName item={item} />
+            <small>{optionPrice(item.price)}</small>
           </button>
         ))}
       </div>
     </section>
+  );
+}
+
+function OptionName({ item }: { item: MenuChoice }) {
+  return (
+    <span className="optionName">
+      {item.name}
+      {isRecommended(item) ? (
+        <span aria-label="おすすめ" className="recommendIcon" title="おすすめ">
+          ★
+        </span>
+      ) : null}
+    </span>
   );
 }
