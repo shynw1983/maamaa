@@ -38,7 +38,7 @@ export default function Home() {
       <section id="top" className="hero" aria-labelledby="heroTitle">
         <Image
           className="heroImage"
-          src="/images/maamaa-uber-hero.jpg"
+          src="/images/maamaa-hero-bowl.jpg"
           alt=""
           fill
           priority
