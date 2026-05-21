@@ -68,16 +68,12 @@ p {
   font-weight: 700;
 }
 
-.brandStamp {
-  display: grid;
+.brandLogo {
+  display: block;
   width: 42px;
   height: 42px;
-  place-items: center;
-  border: 1px solid var(--line);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.78);
-  font-size: 0.85rem;
-  backdrop-filter: blur(16px);
+  object-fit: contain;
 }
 
 .nav {

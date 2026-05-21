@@ -27,7 +27,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
   return (
     <header className="siteHeader" aria-label={t("メインナビゲーション")}>
       <a className="brand" href={menu ? homeHref : "#top"} aria-label={t("まぁ麻 ホーム")}>
-        <span className="brandStamp">まぁ</span>
+        <img className="brandLogo" src="/icon.png" alt="" aria-hidden="true" />
         <span>まぁ麻</span>
       </a>
       <nav className="nav" aria-label={t("ページナビゲーション")}>
