@@ -457,11 +457,12 @@ h3 {
 }
 
 .menuPageHero h1 {
-  max-width: 820px;
+  max-width: none;
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3.8rem);
+  font-size: clamp(2rem, 3.4vw, 3.4rem);
   line-height: 1.14;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .menuPageHero p:last-child {
@@ -883,6 +884,10 @@ h3 {
 
   .currentBowlBar {
     top: 86px;
+  }
+
+  .menuPageHero h1 {
+    white-space: normal;
   }
 
   .optionGrid {
