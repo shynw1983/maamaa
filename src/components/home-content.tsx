@@ -34,7 +34,7 @@ export function HomeContent() {
       <section id="top" className="hero" aria-labelledby="heroTitle">
         <div className="heroContent">
           <p className="kicker">{t("出来立て麻辣湯")}</p>
-          <h1 id="heroTitle">まぁ麻</h1>
+          <h1 id="heroTitle" className="heroTitle">まぁ麻</h1>
           <p className="heroLead">
             {t(
               "ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。",

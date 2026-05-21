@@ -164,6 +164,10 @@ h1 {
   letter-spacing: 0;
 }
 
+.heroTitle {
+  font-size: clamp(3.2rem, 7.2vw, 6rem);
+}
+
 .heroLead {
   max-width: 650px;
   margin: 24px 0 0;
@@ -859,7 +863,7 @@ h3 {
     padding-top: 108px;
   }
 
-  h1 {
+  .heroTitle {
     font-size: clamp(3.2rem, 19vw, 5.4rem);
   }
 
