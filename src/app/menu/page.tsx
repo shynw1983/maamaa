@@ -1,3 +1,4 @@
+import { ClientLocaleRedirect } from "@/components/client-locale-redirect";
 import { LocalizedShell } from "@/components/localized-shell";
 import { MenuPageContent } from "@/components/menu-page-content";
 import { languageAlternates } from "@/data/locales";
@@ -14,6 +15,7 @@ export const metadata = {
 export default function MenuPage() {
   return (
     <LocalizedShell language="ja">
+      <ClientLocaleRedirect path="/menu" />
       <MenuPageContent />
     </LocalizedShell>
   );

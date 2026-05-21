@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { localeConfig, type Locale } from "@/data/locales";
 
 const LANGUAGE_STORAGE_KEY = "maamaa-language";
@@ -47,14 +47,18 @@ export function I18nProvider({
   const [language, setLanguage] = useState<Locale>(initialLanguage);
   const [dictionary, setDictionary] = useState<Dictionary>(initialLanguage === "ja" ? {} : initialDictionary);
 
-  useEffect(() => {
-    document.documentElement.lang = localeConfig[language]?.htmlLang || "ja";
+  const selectLanguage = useCallback((nextLanguage: Locale) => {
+    setLanguage(nextLanguage);
 
     try {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
     } catch {
       // Continue without persistence.
     }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = localeConfig[language]?.htmlLang || "ja";
 
     if (language === "ja") {
       setDictionary({});
@@ -114,10 +118,10 @@ export function I18nProvider({
   const value = useMemo(
     () => ({
       language,
-      setLanguage,
+      setLanguage: selectLanguage,
       t: (text: string) => translateText(text, dictionary),
     }),
-    [dictionary, language],
+    [dictionary, language, selectLanguage],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
