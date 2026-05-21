@@ -323,6 +323,7 @@ export function AdminOrdersBoard({ initialOrders }) {
           </span>
         ) : null}
         <span className={`admin-realtime-status is-${realtimeStatus}`}>
+          <i aria-hidden="true" />
           リアルタイム接続：
           {realtimeStatus === "connected"
             ? "接続済み"

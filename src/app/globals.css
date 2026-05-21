@@ -1049,6 +1049,43 @@ h3 {
   background: #12b76a;
 }
 
+.admin-realtime-status {
+  gap: 8px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(29, 23, 22, 0.06);
+}
+
+.admin-realtime-status i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #b54708;
+  box-shadow: 0 0 0 4px rgba(247, 144, 9, 0.12);
+}
+
+.admin-realtime-status.is-connected {
+  color: #067647;
+}
+
+.admin-realtime-status.is-connected i {
+  background: #12b76a;
+  box-shadow: 0 0 0 4px rgba(18, 183, 106, 0.14);
+}
+
+.admin-realtime-status.is-failed,
+.admin-realtime-status.is-unavailable,
+.admin-realtime-status.is-disconnected {
+  color: #b42318;
+}
+
+.admin-realtime-status.is-failed i,
+.admin-realtime-status.is-unavailable i,
+.admin-realtime-status.is-disconnected i {
+  background: #f04438;
+  box-shadow: 0 0 0 4px rgba(240, 68, 56, 0.12);
+}
+
 .admin-inline-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 180px));
