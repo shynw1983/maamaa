@@ -76,6 +76,12 @@ p {
   object-fit: contain;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 3vw, 36px);
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -87,6 +93,26 @@ p {
 
 .nav a:hover {
   color: var(--ink);
+}
+
+.navToggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(29, 23, 22, 0.12);
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--ink);
+  cursor: pointer;
+  place-items: center;
+}
+
+.navToggle span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .languagePicker {
@@ -833,29 +859,71 @@ h3 {
 
 @media (max-width: 580px) {
   .siteHeader {
-    position: absolute;
-    padding: 16px 18px;
+    padding: 14px 18px;
   }
 
   .brand > span:last-child {
     display: none;
   }
 
-  .nav {
-    max-width: 242px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 10px 13px;
-    font-size: 0.82rem;
+  .navToggle {
+    position: relative;
+    z-index: 12;
+    display: grid;
+    align-content: center;
+    gap: 4px;
   }
 
-  .languagePicker span {
-    display: none;
+  .headerActions {
+    position: fixed;
+    top: 72px;
+    right: 14px;
+    left: 14px;
+    z-index: 11;
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+    border: 1px solid rgba(29, 23, 22, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 22px 60px rgba(29, 23, 22, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  }
+
+  .headerActions.isOpen {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .nav {
+    display: grid;
+    gap: 0;
+    color: var(--ink);
+    font-size: 0.92rem;
+  }
+
+  .nav a {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(29, 23, 22, 0.08);
+  }
+
+  .languagePicker {
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 0.78rem;
   }
 
   .languagePicker select {
-    width: 74px;
-    padding-left: 10px;
+    width: 118px;
+    padding-left: 12px;
   }
 
   .hero {
