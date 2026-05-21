@@ -65,7 +65,24 @@ p {
   align-items: center;
   gap: 10px;
   color: var(--ink);
+}
+
+.brandText {
+  display: grid;
+  gap: 2px;
+  line-height: 1.08;
+}
+
+.brandName {
+  font-size: 1rem;
   font-weight: 700;
+}
+
+.brandSlogan {
+  color: var(--brand);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
 }
 
 .brandLogo {
@@ -870,8 +887,16 @@ h3 {
     padding: 14px 18px;
   }
 
-  .brand > span:last-child {
-    display: none;
+  .brandText {
+    gap: 1px;
+  }
+
+  .brandName {
+    font-size: 0.94rem;
+  }
+
+  .brandSlogan {
+    font-size: 0.58rem;
   }
 
   .navToggle {
