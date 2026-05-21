@@ -36,14 +36,6 @@ export default function Home() {
       </header>
 
       <section id="top" className="hero" aria-labelledby="heroTitle">
-        <Image
-          className="heroImage"
-          src="/images/maamaa-hero-bowl.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-        />
         <div className="heroContent">
           <p className="kicker">出来立て麻辣湯</p>
           <h1 id="heroTitle">まぁ麻</h1>
@@ -58,6 +50,17 @@ export default function Home() {
               ピックアップ予定
             </a>
           </div>
+        </div>
+        <div className="heroVisual" aria-hidden="true">
+          <Image
+            className="heroImage"
+            src="/images/maamaa-hero-bowl.jpg"
+            alt=""
+            width={990}
+            height={1152}
+            priority
+            sizes="(max-width: 920px) 90vw, 46vw"
+          />
         </div>
         <div className="heroStatus" aria-label="ブランドステータス">
           <span>出来立て調理</span>

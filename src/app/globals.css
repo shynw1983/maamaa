@@ -92,18 +92,28 @@ p {
   position: relative;
   min-height: 90svh;
   display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.82fr);
+  gap: clamp(28px, 5vw, 76px);
   align-items: center;
   overflow: hidden;
   padding: 118px clamp(20px, 6vw, 86px) 96px;
+  background: var(--paper);
+}
+
+.heroVisual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .heroImage {
-  position: absolute;
-  inset: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 58% 52%;
+  max-width: min(46vw, 640px);
+  height: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .hero::after {
@@ -113,7 +123,7 @@ p {
 .heroContent {
   position: relative;
   z-index: 1;
-  max-width: 760px;
+  max-width: 660px;
 }
 
 .kicker {
@@ -468,12 +478,25 @@ h3 {
 }
 
 @media (max-width: 920px) {
+  .hero,
   .heroStatus,
   .split,
   .bowlGrid,
   .storeIntroGrid,
   .pickupSection {
     grid-template-columns: 1fr;
+  }
+
+  .hero {
+    align-items: start;
+  }
+
+  .heroVisual {
+    justify-content: center;
+  }
+
+  .heroImage {
+    max-width: min(88vw, 520px);
   }
 
   .heroStatus {
