@@ -28,7 +28,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
     <header className="siteHeader" aria-label={t("メインナビゲーション")}>
       <a className="brand" href={menu ? homeHref : "#top"} aria-label={t("まぁ麻 ホーム")}>
         <img className="brandLogo" src="/icon.png" alt="" aria-hidden="true" />
-        <span>まぁ麻</span>
+        <span>まぁ麻・出来立て麻辣湯</span>
       </a>
       <nav className="nav" aria-label={t("ページナビゲーション")}>
         {menu ? <a href={homeHref}>{t("Home")}</a> : <a href="#concept">{t("Concept")}</a>}
