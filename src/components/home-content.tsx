@@ -9,6 +9,7 @@ const stores = [
   {
     label: "1st store",
     title: "まぁ麻 テイクアウト店",
+    address: "福岡市南区清水 1-2-8-103",
     body: "現在営業中の店舗です。Uber Eats などのデリバリーとテイクアウトに対応し、ご注文を受けてから一杯ずつ出来立てで仕上げます。",
   },
   {
@@ -103,7 +104,8 @@ export function HomeContent() {
             <article className="storeIntroItem" key={item.title}>
               <p className="pill">{t(item.label)}</p>
               <h3>{t(item.title)}</h3>
-              <p>{t(item.body)}</p>
+              {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
+              <p className="storeCopy">{t(item.body)}</p>
             </article>
           ))}
         </div>

@@ -365,7 +365,15 @@ h3 {
   font-weight: 500;
 }
 
-.storeIntroItem p:last-child {
+.storeAddress {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.storeCopy {
   margin: 0;
   color: var(--muted);
   line-height: 1.75;
