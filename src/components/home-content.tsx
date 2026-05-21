@@ -44,9 +44,6 @@ export function HomeContent() {
             <a className="button primary" href={localizedPath(language, "/menu")}>
               {t("メニューを見る")}
             </a>
-            <a className="button quiet" href="#pickup">
-              {t("ピックアップ予定")}
-            </a>
           </div>
         </div>
         <div className="heroVisual" aria-hidden="true">
@@ -109,32 +106,6 @@ export function HomeContent() {
               <p>{t(item.body)}</p>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section id="pickup" className="section pickupSection" aria-labelledby="pickupTitle">
-        <div className="pickupVisual" aria-hidden="true">
-          <div className="phone">
-            <div className="phoneLine wide" />
-            <div className="phoneLine" />
-            <div className="phoneList">
-              <span />
-              <span />
-              <span />
-            </div>
-          </div>
-          <div className="takeoutBag">
-            <span />
-          </div>
-        </div>
-        <div>
-          <p className="kicker">Pickup plan</p>
-          <h2 id="pickupTitle">{t("店頭ピックアップで、もっと近く、もっと早く。")}</h2>
-          <p>
-            {t(
-              "ピックアップ機能では、スープ、具材、辛さを事前に選び、指定時間に受け取れる導線を想定しています。受け取り直前に仕上げることで、近隣のお客様にも出来立ての一杯を届けます。",
-            )}
-          </p>
         </div>
       </section>
 

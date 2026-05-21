@@ -36,7 +36,6 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
           {t("Menu")}
         </a>
         <a href={sectionHref("#stores")}>{t("Stores")}</a>
-        {!menu ? <a href="#pickup">{t("Pickup")}</a> : null}
         <a href={sectionHref("#contact")}>{t("Contact")}</a>
       </nav>
       <label className="languagePicker">

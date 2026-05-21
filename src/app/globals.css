@@ -236,7 +236,6 @@ h2 {
 }
 
 .copyStack p,
-.pickupSection p,
 .footer p {
   margin: 0;
   color: var(--muted);
@@ -341,108 +340,6 @@ h3 {
   color: var(--muted);
   line-height: 1.75;
   font-weight: 600;
-}
-
-.pickupSection {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.78fr) minmax(0, 0.86fr);
-  gap: clamp(34px, 7vw, 112px);
-  align-items: center;
-  background: #ffffff;
-}
-
-.pickupSection p:last-child {
-  margin-top: 24px;
-}
-
-.pickupVisual {
-  position: relative;
-  min-height: 430px;
-  overflow: hidden;
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 78% 22%, rgba(183, 0, 18, 0.12), transparent 24%),
-    linear-gradient(140deg, #f7e6e2, #ffffff 58%, #f8d8d2);
-}
-
-.phone {
-  position: absolute;
-  top: 60px;
-  left: 12%;
-  width: min(230px, 42%);
-  height: 310px;
-  border: 10px solid var(--ink);
-  border-radius: 30px;
-  background: #ffffff;
-  box-shadow: 0 26px 60px rgba(29, 23, 22, 0.16);
-}
-
-.phoneLine {
-  width: 54%;
-  height: 10px;
-  margin: 24px auto 0;
-  border-radius: 999px;
-  background: var(--mint);
-}
-
-.phoneLine.wide {
-  width: 68%;
-  background: var(--tomato);
-}
-
-.phoneList {
-  display: grid;
-  gap: 12px;
-  margin: 36px 24px;
-}
-
-.phoneList span {
-  height: 42px;
-  border-radius: 8px;
-  background: #f7e6e2;
-}
-
-.takeoutBag {
-  position: absolute;
-  right: 13%;
-  bottom: 54px;
-  width: min(230px, 42%);
-  height: 250px;
-  border-radius: 18px 18px 26px 26px;
-  background: #ffffff;
-  box-shadow: 0 26px 60px rgba(29, 23, 22, 0.14);
-}
-
-.takeoutBag::before {
-  content: "";
-  position: absolute;
-  top: -42px;
-  left: 50%;
-  width: 86px;
-  height: 70px;
-  transform: translateX(-50%);
-  border: 10px solid var(--brand);
-  border-bottom: 0;
-  border-radius: 60px 60px 0 0;
-}
-
-.takeoutBag span {
-  position: absolute;
-  top: 82px;
-  left: 50%;
-  display: grid;
-  width: 88px;
-  height: 88px;
-  place-items: center;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: #f7d7d1;
-}
-
-.takeoutBag span::after {
-  content: "まぁ";
-  color: var(--ink);
-  font-weight: 900;
 }
 
 .footer {
@@ -880,8 +777,7 @@ h3 {
   .menuBuilder,
   .split,
   .bowlGrid,
-  .storeIntroGrid,
-  .pickupSection {
+  .storeIntroGrid {
     grid-template-columns: 1fr;
   }
 
@@ -969,16 +865,6 @@ h3 {
 
   .button {
     width: 100%;
-  }
-
-  .phone {
-    left: 8%;
-    width: 48%;
-  }
-
-  .takeoutBag {
-    right: 8%;
-    width: 48%;
   }
 
   .footer {
