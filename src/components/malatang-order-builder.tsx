@@ -175,7 +175,7 @@ export function MalatangOrderBuilder() {
             ))
           ) : (
             <div className="emptyCart">
-              {t("右側で一杯をカスタムして、予約リストに追加してください。")}
+              {t("メニューから一杯をカスタムして、予約リストに追加してください。")}
             </div>
           )}
         </div>
