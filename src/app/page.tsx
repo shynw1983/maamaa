@@ -29,6 +29,7 @@ export default function Home() {
         </a>
         <nav className="nav" aria-label="ページナビゲーション">
           <a href="#concept">Concept</a>
+          <a href="/menu">Menu</a>
           <a href="#stores">Stores</a>
           <a href="#pickup">Pickup</a>
           <a href="#contact">Contact</a>
@@ -43,8 +44,8 @@ export default function Home() {
             ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。
           </p>
           <div className="heroActions">
-            <a className="button primary" href="#stores">
-              店舗紹介
+            <a className="button primary" href="/menu">
+              メニューを見る
             </a>
             <a className="button quiet" href="#pickup">
               ピックアップ予定

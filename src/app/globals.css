@@ -451,8 +451,300 @@ h3 {
   color: var(--paper);
 }
 
+.menuPageHero {
+  padding: 140px clamp(20px, 6vw, 86px) 48px;
+  background: #ffffff;
+}
+
+.menuPageHero h1 {
+  max-width: 820px;
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  line-height: 1.14;
+  font-weight: 500;
+}
+
+.menuPageHero p:last-child {
+  max-width: 720px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: clamp(0.98rem, 1.18vw, 1.08rem);
+  line-height: 1.85;
+  font-weight: 500;
+}
+
+.menuBuilder {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 56px);
+  align-items: start;
+  padding: 0 clamp(20px, 6vw, 86px) clamp(72px, 8vw, 110px);
+  background: #ffffff;
+}
+
+.orderSummary {
+  position: sticky;
+  top: 94px;
+  display: grid;
+  gap: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.orderSummary h2 {
+  font-size: 1.45rem;
+}
+
+.orderSummary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  font-weight: 500;
+}
+
+.summaryTotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 0;
+}
+
+.summaryTotal span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.summaryTotal strong {
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+.pickupFields {
+  display: grid;
+  gap: 12px;
+}
+
+.pickupFields label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pickupFields input,
+.pickupFields textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.pickupFields textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.reserveButton {
+  width: 100%;
+}
+
+.reserveButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.reservationResult {
+  display: grid;
+  gap: 4px;
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8f5f2;
+}
+
+.reservationResult strong {
+  color: var(--leaf);
+}
+
+.reservationResult span,
+.reservationResult small {
+  color: var(--muted);
+}
+
+.menuForm {
+  display: grid;
+  gap: 18px;
+}
+
+.menuHeroCard,
+.menuPanel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.menuHeroCard {
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.menuHeroCard h1 {
+  max-width: 780px;
+  margin: 0;
+  font-size: clamp(1.6rem, 3.2vw, 3rem);
+  line-height: 1.15;
+  font-weight: 500;
+}
+
+.menuHeroCard p {
+  max-width: 620px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.75;
+  font-weight: 500;
+}
+
+.menuHeroCard strong {
+  display: inline-flex;
+  margin-top: 24px;
+  color: var(--leaf);
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.menuPanel {
+  overflow: hidden;
+}
+
+.menuPanelHeader {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 18px;
+  align-items: end;
+  border-bottom: 1px solid var(--line);
+  padding: 22px;
+}
+
+.menuPanelHeader .kicker {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.menuPanelHeader h2 {
+  margin: 0;
+  font-size: clamp(1.18rem, 1.8vw, 1.55rem);
+}
+
+.menuPanelHeader span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px;
+}
+
+.optionButton {
+  display: grid;
+  gap: 6px;
+  min-height: 74px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.optionButton.selected {
+  border-color: rgba(183, 0, 18, 0.38);
+  background: #fff5f3;
+}
+
+.optionButton span {
+  font-weight: 600;
+}
+
+.optionButton small {
+  color: var(--muted);
+}
+
+.toppingList {
+  display: grid;
+}
+
+.toppingRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  min-height: 70px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 16px;
+}
+
+.toppingRow:last-child {
+  border-bottom: 0;
+}
+
+.toppingRow div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.toppingRow strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.toppingRow span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.quantityControl {
+  display: inline-grid;
+  grid-template-columns: 32px 34px 32px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.quantityControl button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.quantityControl span {
+  color: var(--ink);
+  text-align: center;
+  font-weight: 600;
+}
+
 @media (max-width: 920px) {
   .hero,
+  .menuBuilder,
   .split,
   .bowlGrid,
   .storeIntroGrid,
@@ -485,6 +777,14 @@ h3 {
 
   .storeIntroItem:last-child {
     padding-left: 0;
+  }
+
+  .orderSummary {
+    position: static;
+  }
+
+  .optionGrid {
+    grid-template-columns: 1fr;
   }
 }
 
