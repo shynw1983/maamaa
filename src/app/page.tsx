@@ -62,12 +62,6 @@ export default function Home() {
             sizes="(max-width: 920px) 90vw, 46vw"
           />
         </div>
-        <div className="heroStatus" aria-label="ブランドステータス">
-          <span>出来立て調理</span>
-          <span>Uber Eats 対応</span>
-          <span>Pickup 準備中</span>
-          <span>Eat-in 準備中</span>
-        </div>
       </section>
 
       <section id="concept" className="section split">
