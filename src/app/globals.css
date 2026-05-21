@@ -85,7 +85,7 @@ p {
   align-items: center;
   gap: clamp(14px, 2.4vw, 32px);
   color: rgba(23, 33, 29, 0.74);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 600;
 }
 
@@ -134,7 +134,7 @@ p {
 .kicker {
   margin: 0 0 16px;
   color: var(--leaf);
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -142,18 +142,18 @@ p {
 
 h1 {
   margin: 0;
-  font-size: clamp(5.6rem, 17vw, 13rem);
-  line-height: 0.88;
+  font-size: clamp(4rem, 10vw, 8.2rem);
+  line-height: 0.98;
   font-weight: 500;
   letter-spacing: 0;
 }
 
 .heroLead {
   max-width: 650px;
-  margin: 30px 0 0;
+  margin: 24px 0 0;
   color: rgba(23, 33, 29, 0.72);
-  font-size: clamp(1.06rem, 1.55vw, 1.34rem);
-  line-height: 1.9;
+  font-size: clamp(0.96rem, 1.12vw, 1.08rem);
+  line-height: 1.85;
   font-weight: 500;
 }
 
@@ -172,7 +172,7 @@ h1 {
   border: 1px solid transparent;
   border-radius: 999px;
   padding: 0 20px;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 600;
   transition:
     transform 180ms ease,
@@ -196,7 +196,7 @@ h1 {
 }
 
 .section {
-  padding: clamp(74px, 9vw, 126px) clamp(20px, 6vw, 86px);
+  padding: clamp(58px, 7vw, 98px) clamp(20px, 6vw, 86px);
 }
 
 .split {
@@ -208,8 +208,8 @@ h1 {
 
 h2 {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  line-height: 1.08;
+  font-size: clamp(1.55rem, 3.4vw, 3.1rem);
+  line-height: 1.16;
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -224,8 +224,8 @@ h2 {
 .footer p {
   margin: 0;
   color: var(--muted);
-  font-size: clamp(1rem, 1.35vw, 1.16rem);
-  line-height: 1.95;
+  font-size: clamp(0.92rem, 1.08vw, 1rem);
+  line-height: 1.85;
   font-weight: 600;
 }
 
@@ -273,9 +273,9 @@ h2 {
 }
 
 .bowlCard p {
-  margin: 58px 0 0;
+  margin: 48px 0 0;
   color: rgba(23, 33, 29, 0.74);
-  font-size: 1.08rem;
+  font-size: 0.96rem;
   line-height: 1.72;
   font-weight: 800;
 }
@@ -315,7 +315,7 @@ h2 {
 
 h3 {
   margin: 0 0 14px;
-  font-size: clamp(1.24rem, 2vw, 1.72rem);
+  font-size: clamp(1.08rem, 1.5vw, 1.34rem);
   line-height: 1.24;
   font-weight: 500;
 }
@@ -441,7 +441,7 @@ h3 {
 .footerLogo {
   margin: 0 0 6px;
   color: var(--paper) !important;
-  font-size: 1.6rem !important;
+  font-size: 1.34rem !important;
   font-weight: 600 !important;
   line-height: 1.1 !important;
 }
@@ -512,7 +512,7 @@ h3 {
   }
 
   h1 {
-    font-size: clamp(4.6rem, 28vw, 7.5rem);
+    font-size: clamp(3.2rem, 19vw, 5.4rem);
   }
 
   .button {
