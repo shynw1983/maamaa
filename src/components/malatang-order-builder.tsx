@@ -19,10 +19,13 @@ const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 
 type Reservation = {
   code: string;
+  status: "new";
+  createdAt: string;
   name: string;
   phone: string;
   pickupDate: string;
   pickupTime: string;
+  note: string;
   total: number;
   items: CartItem[];
 };
@@ -48,6 +51,8 @@ export function MalatangOrderBuilder() {
   const [note, setNote] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const allChoices = useMemo(
     () => [
@@ -132,21 +137,48 @@ export function MalatangOrderBuilder() {
     setCartItems((current) => current.filter((item) => item.id !== id));
   };
 
-  const createReservation = () => {
+  const createReservation = async () => {
     if (!cartItems.length) return;
 
-    const nextReservation = {
-      code: `M-${Math.floor(1000 + Math.random() * 9000)}`,
-      name,
-      phone,
-      pickupDate,
-      pickupTime,
-      total: cartTotal,
-      items: cartItems,
-    };
+    setIsSubmitting(true);
+    setSubmitError("");
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          phone,
+          pickupDate,
+          pickupTime,
+          note,
+          total: cartTotal,
+          items: cartItems,
+        }),
+      });
 
-    setReservation(nextReservation);
-    window.localStorage.setItem("maamaa-latest-reservation", JSON.stringify(nextReservation));
+      if (!response.ok) throw new Error("request failed");
+      const body = await response.json();
+      const nextReservation = {
+        code: body.order?.pickupCode || `M-${Math.floor(1000 + Math.random() * 9000)}`,
+        status: "new" as const,
+        createdAt: body.order?.createdAt || new Date().toISOString(),
+        name,
+        phone,
+        pickupDate,
+        pickupTime,
+        note,
+        total: cartTotal,
+        items: cartItems,
+      };
+
+      setReservation(nextReservation);
+      window.localStorage.setItem("maamaa-latest-reservation", JSON.stringify(nextReservation));
+    } catch {
+      setSubmitError(t("予約を送信できませんでした。后台のデータベース設定を確認してください。"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -205,9 +237,10 @@ export function MalatangOrderBuilder() {
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length} onClick={createReservation}>
-          {t("予約内容を作成")}
+        <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length || isSubmitting} onClick={createReservation}>
+          {isSubmitting ? t("送信中...") : t("予約内容を作成")}
         </button>
+        {submitError ? <p className="formError">{submitError}</p> : null}
         {reservation ? (
           <div className="reservationResult">
             <strong>{t("予約番号")} {reservation.code}</strong>
