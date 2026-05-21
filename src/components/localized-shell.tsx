@@ -1,0 +1,17 @@
+import { I18nProvider } from "@/components/i18n-provider";
+import type { Locale } from "@/data/locales";
+
+import en from "../../public/locales/en.json";
+import ja from "../../public/locales/ja.json";
+import ko from "../../public/locales/ko.json";
+import zh from "../../public/locales/zh.json";
+
+const dictionaries = { en, ja, ko, zh };
+
+export function LocalizedShell({ language, children }: { language: Locale; children: React.ReactNode }) {
+  return (
+    <I18nProvider initialLanguage={language} initialDictionary={dictionaries[language] || {}}>
+      {children}
+    </I18nProvider>
+  );
+}

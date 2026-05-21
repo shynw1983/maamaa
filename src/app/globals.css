@@ -93,6 +93,26 @@ p {
   color: var(--ink);
 }
 
+.languagePicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(29, 23, 22, 0.68);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.languagePicker select {
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 28px 0 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
 .hero {
   position: relative;
   min-height: 90svh;
@@ -931,6 +951,15 @@ h3 {
     flex-wrap: wrap;
     gap: 10px 13px;
     font-size: 0.82rem;
+  }
+
+  .languagePicker span {
+    display: none;
+  }
+
+  .languagePicker select {
+    width: 74px;
+    padding-left: 10px;
   }
 
   .hero {

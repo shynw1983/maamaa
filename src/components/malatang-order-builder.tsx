@@ -10,6 +10,7 @@ import {
   specialFlavors,
   type MenuChoice,
 } from "@/data/malatang-menu";
+import { useI18n } from "@/components/i18n-provider";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
@@ -34,6 +35,7 @@ type CartItem = {
 };
 
 export function MalatangOrderBuilder() {
+  const { t } = useI18n();
   const [spice, setSpice] = useState(medicinalSpiceOptions[0].id);
   const [heat, setHeat] = useState("normal");
   const [numb, setNumb] = useState("tiny");
@@ -104,11 +106,11 @@ export function MalatangOrderBuilder() {
 
   const buildCurrentSummary = () =>
     [
-      selectedSpice.name,
-      selectedHeat.name,
-      selectedNumb.name,
-      ...selectedFlavors.map((item) => item.name),
-      ...selectedItems.map((item) => `${item.name} x${item.quantity}`),
+      t(selectedSpice.name),
+      t(selectedHeat.name),
+      t(selectedNumb.name),
+      ...selectedFlavors.map((item) => t(item.name)),
+      ...selectedItems.map((item) => `${t(item.name)} x${item.quantity}`),
     ].filter(Boolean);
 
   const addCurrentBowl = () => {
@@ -117,7 +119,7 @@ export function MalatangOrderBuilder() {
       ...current,
       {
         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        title: `${baseSoup.name} #${bowlNumber}`,
+        title: `${t(baseSoup.name)} #${bowlNumber}`,
         total,
         summary: buildCurrentSummary(),
       },
@@ -149,11 +151,11 @@ export function MalatangOrderBuilder() {
 
   return (
     <div className="menuBuilder">
-      <aside className="orderSummary" aria-label="予約内容">
-        <p className="kicker">Pickup reservation</p>
-        <h2>予約リスト</h2>
+      <aside className="orderSummary" aria-label={t("予約内容")}>
+        <p className="kicker">{t("Pickup reservation")}</p>
+        <h2>{t("予約リスト")}</h2>
         <p>
-          カスタムした一杯をリストに追加して、複数の商品をまとめて受け取り予約できます。
+          {t("カスタムした一杯をリストに追加して、複数の商品をまとめて受け取り予約できます。")}
         </p>
         <div className="cartList">
           {cartItems.length ? (
@@ -167,71 +169,74 @@ export function MalatangOrderBuilder() {
                 </div>
                 <p>{item.summary.slice(0, 5).join(" / ")}</p>
                 <button type="button" onClick={() => removeCartItem(item.id)}>
-                  削除
+                  {t("削除")}
                 </button>
               </article>
             ))
           ) : (
             <div className="emptyCart">
-              右側で一杯をカスタムして、予約リストに追加してください。
+              {t("右側で一杯をカスタムして、予約リストに追加してください。")}
             </div>
           )}
         </div>
         <div className="summaryTotal">
-          <span>合計</span>
+          <span>{t("合計")}</span>
           <strong>{yen(cartTotal)}</strong>
         </div>
         <div className="pickupFields">
           <label>
-            お名前
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="例: 山田" />
+            {t("お名前")}
+            <input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("例: 山田")} />
           </label>
           <label>
-            電話番号
+            {t("電話番号")}
             <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="090..." />
           </label>
           <label>
-            受け取り日
+            {t("受け取り日")}
             <input type="date" min={today()} value={pickupDate} onChange={(event) => setPickupDate(event.target.value)} />
           </label>
           <label>
-            受け取り時間
+            {t("受け取り時間")}
             <input type="time" value={pickupTime} onChange={(event) => setPickupTime(event.target.value)} />
           </label>
           <label>
-            メモ
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="香菜なし、袋分けなど" />
+            {t("メモ")}
+            <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
         <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length} onClick={createReservation}>
-          予約内容を作成
+          {t("予約内容を作成")}
         </button>
         {reservation ? (
           <div className="reservationResult">
-            <strong>予約番号 {reservation.code}</strong>
+            <strong>{t("予約番号")} {reservation.code}</strong>
             <span>
               {reservation.pickupDate} {reservation.pickupTime} / {yen(reservation.total)}
             </span>
-            <small>{reservation.items.length}点。店頭でこの番号をお伝えください。</small>
+            <small>
+              {reservation.items.length}
+              {t("点。店頭でこの番号をお伝えください。")}
+            </small>
           </div>
         ) : null}
       </aside>
 
-      <section className="menuForm" aria-label="まぁ麻 メニュー">
+      <section className="menuForm" aria-label={t("まぁ麻 メニュー")}>
         <div className="menuHeroCard">
-          <p className="kicker">Base soup</p>
-          <h1>{baseSoup.name}</h1>
-          <p>{baseSoup.note}</p>
+          <p className="kicker">{t("Base soup")}</p>
+          <h1>{t(baseSoup.name)}</h1>
+          <p>{t(baseSoup.note || "")}</p>
           <strong>{yen(baseSoup.price)}</strong>
         </div>
 
-        <section className="currentBowlBar" aria-label="現在の一杯">
+        <section className="currentBowlBar" aria-label={t("現在の一杯")}>
           <div>
-            <span>現在の一杯</span>
+            <span>{t("現在の一杯")}</span>
             <strong>{yen(total)}</strong>
           </div>
           <button className="button primary" type="button" onClick={addCurrentBowl}>
-            予約リストに追加
+            {t("予約リストに追加")}
           </button>
         </section>
 
@@ -242,8 +247,8 @@ export function MalatangOrderBuilder() {
         <section className="menuPanel">
           <div className="menuPanelHeader">
             <p className="kicker">Special flavor</p>
-            <h2>スペシャルな味変</h2>
-            <span>6個まで</span>
+            <h2>{t("スペシャルな味変")}</h2>
+            <span>{t("6個まで")}</span>
           </div>
           <div className="optionGrid">
             {specialFlavors.map((item) => (
@@ -264,8 +269,8 @@ export function MalatangOrderBuilder() {
           <section className="menuPanel" key={section.id}>
             <div className="menuPanelHeader">
               <p className="kicker">{section.id}</p>
-              <h2>{section.title}</h2>
-              <span>{section.limit}個まで</span>
+              <h2>{t(section.title)}</h2>
+              <span>{section.limit}{t("個まで")}</span>
             </div>
             <div className="toppingList">
               {section.items.map((item) => (
@@ -306,12 +311,14 @@ function ChoiceGroup({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <section className="menuPanel">
       <div className="menuPanelHeader">
         <p className="kicker">Required</p>
-        <h2>{title}</h2>
-        <span>1個選択</span>
+        <h2>{t(title)}</h2>
+        <span>{t("1個選択")}</span>
       </div>
       <div className="optionGrid">
         {items.map((item) => (
@@ -331,11 +338,13 @@ function ChoiceGroup({
 }
 
 function OptionName({ item }: { item: MenuChoice }) {
+  const { t } = useI18n();
+
   return (
     <span className="optionName">
-      {item.name}
+      {t(item.name)}
       {isRecommended(item) ? (
-        <span aria-label="おすすめ" className="recommendIcon" title="おすすめ">
+        <span aria-label={t("おすすめ")} className="recommendIcon" title={t("おすすめ")}>
           ★
         </span>
       ) : null}
