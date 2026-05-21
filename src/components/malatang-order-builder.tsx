@@ -21,6 +21,13 @@ type Reservation = {
   pickupDate: string;
   pickupTime: string;
   total: number;
+  items: CartItem[];
+};
+
+type CartItem = {
+  id: string;
+  title: string;
+  total: number;
   summary: string[];
 };
 
@@ -35,6 +42,7 @@ export function MalatangOrderBuilder() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [reservation, setReservation] = useState<Reservation | null>(null);
 
   const allChoices = useMemo(
@@ -66,6 +74,7 @@ export function MalatangOrderBuilder() {
     selectedNumb.price +
     selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
 
   const toggleFlavor = (id: string) => {
     setFlavors((current) =>
@@ -83,16 +92,44 @@ export function MalatangOrderBuilder() {
     });
   };
 
-  const createReservation = () => {
-    const summary = [
-      baseSoup.name,
+  const resetCurrentBowl = () => {
+    setSpice(medicinalSpiceOptions[0].id);
+    setHeat("normal");
+    setNumb("tiny");
+    setFlavors([]);
+    setItems({});
+  };
+
+  const buildCurrentSummary = () =>
+    [
       selectedSpice.name,
       selectedHeat.name,
       selectedNumb.name,
       ...selectedFlavors.map((item) => item.name),
       ...selectedItems.map((item) => `${item.name} x${item.quantity}`),
-      note ? `メモ: ${note}` : "",
     ].filter(Boolean);
+
+  const addCurrentBowl = () => {
+    const bowlNumber = cartItems.length + 1;
+    setCartItems((current) => [
+      ...current,
+      {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        title: `${baseSoup.name} #${bowlNumber}`,
+        total,
+        summary: buildCurrentSummary(),
+      },
+    ]);
+    setReservation(null);
+    resetCurrentBowl();
+  };
+
+  const removeCartItem = (id: string) => {
+    setCartItems((current) => current.filter((item) => item.id !== id));
+  };
+
+  const createReservation = () => {
+    if (!cartItems.length) return;
 
     const nextReservation = {
       code: `M-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -100,8 +137,8 @@ export function MalatangOrderBuilder() {
       phone,
       pickupDate,
       pickupTime,
-      total,
-      summary,
+      total: cartTotal,
+      items: cartItems,
     };
 
     setReservation(nextReservation);
@@ -112,13 +149,35 @@ export function MalatangOrderBuilder() {
     <div className="menuBuilder">
       <aside className="orderSummary" aria-label="予約内容">
         <p className="kicker">Pickup reservation</p>
-        <h2>受け取り予約</h2>
+        <h2>予約リスト</h2>
         <p>
-          Uber のメニュー構成をもとに、店頭受け取り用のカスタムを選べます。お支払い連携は次の段階で追加予定です。
+          カスタムした一杯をリストに追加して、複数の商品をまとめて受け取り予約できます。
         </p>
+        <div className="cartList">
+          {cartItems.length ? (
+            cartItems.map((item, index) => (
+              <article className="cartItem" key={item.id}>
+                <div>
+                  <strong>
+                    {index + 1}. {item.title}
+                  </strong>
+                  <span>{yen(item.total)}</span>
+                </div>
+                <p>{item.summary.slice(0, 5).join(" / ")}</p>
+                <button type="button" onClick={() => removeCartItem(item.id)}>
+                  削除
+                </button>
+              </article>
+            ))
+          ) : (
+            <div className="emptyCart">
+              右側で一杯をカスタムして、予約リストに追加してください。
+            </div>
+          )}
+        </div>
         <div className="summaryTotal">
           <span>合計</span>
-          <strong>{yen(total)}</strong>
+          <strong>{yen(cartTotal)}</strong>
         </div>
         <div className="pickupFields">
           <label>
@@ -142,7 +201,7 @@ export function MalatangOrderBuilder() {
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="香菜なし、袋分けなど" />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={!name || !phone} onClick={createReservation}>
+        <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length} onClick={createReservation}>
           予約内容を作成
         </button>
         {reservation ? (
@@ -151,7 +210,7 @@ export function MalatangOrderBuilder() {
             <span>
               {reservation.pickupDate} {reservation.pickupTime} / {yen(reservation.total)}
             </span>
-            <small>店頭でこの番号をお伝えください。</small>
+            <small>{reservation.items.length}点。店頭でこの番号をお伝えください。</small>
           </div>
         ) : null}
       </aside>
@@ -163,6 +222,16 @@ export function MalatangOrderBuilder() {
           <p>{baseSoup.note}</p>
           <strong>{yen(baseSoup.price)}</strong>
         </div>
+
+        <section className="currentBowlBar" aria-label="現在の一杯">
+          <div>
+            <span>現在の一杯</span>
+            <strong>{yen(total)}</strong>
+          </div>
+          <button className="button primary" type="button" onClick={addCurrentBowl}>
+            予約リストに追加
+          </button>
+        </section>
 
         <ChoiceGroup title="薬膳の有無を選ぶ" items={medicinalSpiceOptions} value={spice} onChange={setSpice} />
         <ChoiceGroup title="辛さレベルを選ぶ" items={heatLevels} value={heat} onChange={setHeat} />

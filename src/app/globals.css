@@ -487,6 +487,9 @@ h3 {
   top: 94px;
   display: grid;
   gap: 18px;
+  max-height: calc(100svh - 112px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 22px;
@@ -524,6 +527,66 @@ h3 {
 .summaryTotal strong {
   font-size: 1.7rem;
   font-weight: 500;
+}
+
+.cartList {
+  display: grid;
+  gap: 10px;
+}
+
+.cartItem {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.cartItem div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cartItem strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cartItem span {
+  color: var(--leaf);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cartItem p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.cartItem button {
+  justify-self: start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.emptyCart {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
 }
 
 .pickupFields {
@@ -618,6 +681,39 @@ h3 {
   margin-top: 24px;
   color: var(--leaf);
   font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.currentBowlBar {
+  position: sticky;
+  top: 94px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 42px rgba(23, 33, 29, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.currentBowlBar div {
+  display: grid;
+  gap: 2px;
+}
+
+.currentBowlBar span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.currentBowlBar strong {
+  font-size: 1.2rem;
   font-weight: 500;
 }
 
@@ -781,6 +877,12 @@ h3 {
 
   .orderSummary {
     position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .currentBowlBar {
+    top: 86px;
   }
 
   .optionGrid {
