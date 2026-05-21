@@ -1,14 +1,14 @@
 :root {
-  --ink: #17211d;
-  --muted: #65756d;
+  --ink: #1d1716;
+  --muted: #706866;
   --paper: #ffffff;
   --wash: #f8f5f2;
   --mint: #f3dfdc;
-  --leaf: #b70012;
+  --brand: #b70012;
   --tomato: #d95b4f;
   --sun: #f0d3a2;
-  --line: rgba(23, 33, 29, 0.12);
-  --shadow: 0 24px 80px rgba(26, 46, 37, 0.12);
+  --line: rgba(29, 23, 22, 0.12);
+  --shadow: 0 24px 80px rgba(29, 23, 22, 0.1);
 }
 
 * {
@@ -53,9 +53,9 @@ p {
   justify-content: space-between;
   width: 100%;
   padding: 20px clamp(20px, 5vw, 72px);
-  border-bottom: 1px solid rgba(23, 33, 29, 0.08);
+  border-bottom: 1px solid rgba(29, 23, 22, 0.08);
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 14px 38px rgba(23, 33, 29, 0.06);
+  box-shadow: 0 14px 38px rgba(29, 23, 22, 0.06);
   backdrop-filter: blur(18px) saturate(1.08);
   -webkit-backdrop-filter: blur(18px) saturate(1.08);
 }
@@ -84,7 +84,7 @@ p {
   display: flex;
   align-items: center;
   gap: clamp(14px, 2.4vw, 32px);
-  color: rgba(23, 33, 29, 0.74);
+  color: rgba(29, 23, 22, 0.72);
   font-size: 0.86rem;
   font-weight: 600;
 }
@@ -133,7 +133,7 @@ p {
 
 .kicker {
   margin: 0 0 16px;
-  color: var(--leaf);
+  color: var(--brand);
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -151,7 +151,7 @@ h1 {
 .heroLead {
   max-width: 650px;
   margin: 24px 0 0;
-  color: rgba(23, 33, 29, 0.72);
+  color: rgba(29, 23, 22, 0.7);
   font-size: clamp(1.02rem, 1.2vw, 1.16rem);
   line-height: 1.85;
   font-weight: 500;
@@ -274,7 +274,7 @@ h2 {
 
 .bowlCard p {
   margin: 48px 0 0;
-  color: rgba(23, 33, 29, 0.74);
+  color: rgba(29, 23, 22, 0.72);
   font-size: 0.96rem;
   line-height: 1.72;
   font-weight: 800;
@@ -307,7 +307,7 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 6px 10px;
-  color: var(--leaf);
+  color: var(--brand);
   font-size: 0.74rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -358,7 +358,7 @@ h3 {
   border: 10px solid var(--ink);
   border-radius: 30px;
   background: #ffffff;
-  box-shadow: 0 26px 60px rgba(23, 33, 29, 0.18);
+  box-shadow: 0 26px 60px rgba(29, 23, 22, 0.16);
 }
 
 .phoneLine {
@@ -394,7 +394,7 @@ h3 {
   height: 250px;
   border-radius: 18px 18px 26px 26px;
   background: #ffffff;
-  box-shadow: 0 26px 60px rgba(23, 33, 29, 0.16);
+  box-shadow: 0 26px 60px rgba(29, 23, 22, 0.14);
 }
 
 .takeoutBag::before {
@@ -405,7 +405,7 @@ h3 {
   width: 86px;
   height: 70px;
   transform: translateX(-50%);
-  border: 10px solid var(--leaf);
+  border: 10px solid var(--brand);
   border-bottom: 0;
   border-radius: 60px 60px 0 0;
 }
@@ -556,7 +556,7 @@ h3 {
 }
 
 .cartItem span {
-  color: var(--leaf);
+  color: var(--brand);
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -636,7 +636,7 @@ h3 {
 }
 
 .reservationResult strong {
-  color: var(--leaf);
+  color: var(--brand);
 }
 
 .reservationResult span,
@@ -679,7 +679,7 @@ h3 {
 .menuHeroCard strong {
   display: inline-flex;
   margin-top: 24px;
-  color: var(--leaf);
+  color: var(--brand);
   font-size: 1.45rem;
   font-weight: 500;
 }
@@ -696,7 +696,7 @@ h3 {
   border-radius: 8px;
   padding: 14px 16px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 16px 42px rgba(23, 33, 29, 0.08);
+  box-shadow: 0 16px 42px rgba(29, 23, 22, 0.08);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
