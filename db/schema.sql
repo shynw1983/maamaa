@@ -5,17 +5,16 @@ create table if not exists orders (
   store_name text not null,
   status text not null,
   payment_status text not null,
-  square_order_id text unique,
-  square_payment_id text,
-  square_receipt_url text,
-  square_payment_updated_at timestamptz,
-  drink text not null,
-  size text not null,
-  temperature text not null,
-  sweetness text not null,
-  ice text not null,
-  option_label text not null,
-  toppings_label text not null,
+  payment_provider text not null default 'counter',
+  payment_reference text,
+  receipt_url text,
+  payment_updated_at timestamptz,
+  order_title text not null,
+  item_summary text not null,
+  customer_name text not null,
+  customer_phone text not null,
+  customer_note text not null default '',
+  fulfillment_label text not null default '店頭ピックアップ',
   pickup_date text not null,
   pickup_time text not null,
   amount integer not null,
@@ -27,15 +26,16 @@ create table if not exists orders (
 
 create index if not exists orders_pickup_idx on orders (pickup_date, pickup_time);
 create index if not exists orders_status_idx on orders (status, payment_status);
+create index if not exists orders_store_idx on orders (store_id);
 
 create table if not exists store_products (
   store_id text not null,
-  drink_id text not null,
+  product_id text not null,
   is_available boolean not null default true,
   website_enabled boolean not null default true,
   price_override integer,
   updated_at timestamptz not null default now(),
-  primary key (store_id, drink_id)
+  primary key (store_id, product_id)
 );
 
 create index if not exists store_products_store_idx on store_products (store_id);

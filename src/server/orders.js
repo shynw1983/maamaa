@@ -21,17 +21,17 @@ const normalizeOrder = (row) => ({
   storeName: row.store_name,
   status: row.status,
   paymentStatus: row.payment_status,
-  squareOrderId: row.square_order_id || "",
-  squarePaymentId: row.square_payment_id || "",
-  squareReceiptUrl: row.square_receipt_url || "",
-  squarePaymentUpdatedAt: row.square_payment_updated_at ? new Date(row.square_payment_updated_at).toISOString() : "",
-  drink: row.drink,
-  size: row.size,
-  temperature: row.temperature,
-  sweetness: row.sweetness,
-  ice: row.ice,
-  option: row.option_label,
-  toppings: row.toppings_label,
+  paymentProvider: row.payment_provider || "counter",
+  paymentReference: row.payment_reference || "",
+  receiptUrl: row.receipt_url || "",
+  paymentUpdatedAt: row.payment_updated_at ? new Date(row.payment_updated_at).toISOString() : "",
+  drink: row.order_title,
+  size: row.item_summary,
+  temperature: row.customer_name,
+  sweetness: row.customer_phone,
+  ice: row.customer_note || "",
+  option: row.fulfillment_label,
+  toppings: row.item_summary,
   pickupDate: row.pickup_date,
   pickupTime: row.pickup_time,
   amount: Number(row.amount),
@@ -55,7 +55,8 @@ const listOrders = async ({ status, paymentStatus, storeId, storeIds, query } = 
         and (
           ${query || null}::text is null
           or pickup_code ilike ${query ? `%${query}%` : null}
-          or drink ilike ${query ? `%${query}%` : null}
+          or order_title ilike ${query ? `%${query}%` : null}
+          or customer_name ilike ${query ? `%${query}%` : null}
         )
       order by pickup_date desc, pickup_time desc, created_at desc
     `;
@@ -71,7 +72,8 @@ const listOrders = async ({ status, paymentStatus, storeId, storeIds, query } = 
       and (
         ${query || null}::text is null
         or pickup_code ilike ${query ? `%${query}%` : null}
-        or drink ilike ${query ? `%${query}%` : null}
+        or order_title ilike ${query ? `%${query}%` : null}
+        or customer_name ilike ${query ? `%${query}%` : null}
       )
     order by pickup_date desc, pickup_time desc, created_at desc
   `;
@@ -105,13 +107,12 @@ const createOrder = async ({
       store_name,
       status,
       payment_status,
-      drink,
-      size,
-      temperature,
-      sweetness,
-      ice,
-      option_label,
-      toppings_label,
+      order_title,
+      item_summary,
+      customer_name,
+      customer_phone,
+      customer_note,
+      fulfillment_label,
       pickup_date,
       pickup_time,
       amount,
@@ -129,7 +130,6 @@ const createOrder = async ({
       ${sweetness},
       ${ice},
       ${option},
-      ${toppings},
       ${pickupDate},
       ${pickupTime},
       ${amount},
@@ -147,10 +147,10 @@ const updateOrder = async (order, fields) => {
     set
       status = coalesce(${fields.status ?? null}, status),
       payment_status = coalesce(${fields.paymentStatus ?? null}, payment_status),
-      square_order_id = coalesce(${fields.squareOrderId ?? null}, square_order_id),
-      square_payment_id = coalesce(${fields.squarePaymentId ?? null}, square_payment_id),
-      square_receipt_url = coalesce(${fields.squareReceiptUrl ?? null}, square_receipt_url),
-      square_payment_updated_at = coalesce(${fields.squarePaymentUpdatedAt ?? null}, square_payment_updated_at),
+      payment_provider = coalesce(${fields.paymentProvider ?? null}, payment_provider),
+      payment_reference = coalesce(${fields.paymentReference ?? null}, payment_reference),
+      receipt_url = coalesce(${fields.receiptUrl ?? null}, receipt_url),
+      payment_updated_at = coalesce(${fields.paymentUpdatedAt ?? null}, payment_updated_at),
       paid_at = coalesce(${fields.paidAt ?? null}, paid_at),
       updated_at = now()
     where order_id = ${order.orderId}

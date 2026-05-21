@@ -1,7 +1,12 @@
 import Link from "next/link";
 
 const navItems = [
+  { href: "/admin/dashboard", label: "ダッシュボード" },
   { href: "/admin/orders", label: "注文" },
+  { href: "/admin/products", label: "商品" },
+  { href: "/admin/reports", label: "レポート" },
+  { href: "/admin/stores", label: "店舗", roles: ["owner", "manager"] },
+  { href: "/admin/staff", label: "スタッフ", roles: ["owner"] },
 ];
 
 const roleLabels = {

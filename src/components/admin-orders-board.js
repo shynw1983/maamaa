@@ -400,41 +400,32 @@ export function AdminOrdersBoard({ initialOrders }) {
                   </>
                 ) : (
                   <>
-                    <dt>内容</dt>
-                    <dd>
-                      {[
-                        selectedOrder.size,
-                        selectedOrder.temperature,
-                        formatLabeledValue("甘さ", selectedOrder.sweetness),
-                        formatLabeledValue("氷", selectedOrder.ice),
-                      ]
-                        .filter(Boolean)
-                        .join(" / ")}
-                    </dd>
-                    <dt>オプション</dt>
-                    <dd>{selectedOrder.option}</dd>
-                    <dt>トッピング</dt>
-                    <dd>{selectedOrder.toppings}</dd>
+                <dt>お客様</dt>
+                <dd>
+                  {[selectedOrder.temperature, selectedOrder.sweetness].filter(Boolean).join(" / ")}
+                </dd>
+                {selectedOrder.ice ? (
+                  <>
+                    <dt>メモ</dt>
+                    <dd>{selectedOrder.ice}</dd>
                   </>
-                )}
-                <dt>合計</dt>
-                <dd>¥{selectedOrder.amount}</dd>
-                <dt>支払い</dt>
-                <dd>{paymentStatusLabels[selectedOrder.paymentStatus] || selectedOrder.paymentStatus}</dd>
-                <dt>Square 注文ID</dt>
-                <dd>{selectedOrder.squareOrderId || "—"}</dd>
-                <dt>Square 支払ID</dt>
-                <dd>{selectedOrder.squarePaymentId || "—"}</dd>
-                <dt>支払時刻</dt>
-                <dd>{selectedOrder.paidAt || "—"}</dd>
-                <dt>作成時刻</dt>
-                <dd>{selectedOrder.createdAt || "—"}</dd>
-              </dl>
-              {selectedOrder.squareReceiptUrl ? (
-                <a className="admin-inline-link" href={selectedOrder.squareReceiptUrl} target="_blank" rel="noreferrer">
-                  Square レシートを開く
-                </a>
-              ) : null}
+                ) : null}
+              </>
+            )}
+            <dt>合計</dt>
+            <dd>¥{selectedOrder.amount}</dd>
+            <dt>支払い</dt>
+            <dd>{paymentStatusLabels[selectedOrder.paymentStatus] || selectedOrder.paymentStatus}</dd>
+            <dt>支払時刻</dt>
+            <dd>{selectedOrder.paidAt || "—"}</dd>
+            <dt>作成時刻</dt>
+            <dd>{selectedOrder.createdAt || "—"}</dd>
+          </dl>
+          {selectedOrder.receiptUrl ? (
+            <a className="admin-inline-link" href={selectedOrder.receiptUrl} target="_blank" rel="noreferrer">
+              レシートを開く
+            </a>
+          ) : null}
               <div className="admin-order-actions">
                 {(nextActions[selectedOrder.status] || []).map((action) => (
                   <button key={action.status} type="button" onClick={() => updateStatus(selectedOrder.orderId, action.status)}>
