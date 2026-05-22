@@ -294,7 +294,7 @@ export function MalatangOrderBuilder() {
                   </strong>
                   <span>{yen(item.total)}</span>
                 </div>
-                <p>{item.summary.slice(0, 5).join(" / ")}</p>
+                <p>{item.summary.join(" / ")}</p>
                 <div className="cartItemActions">
                   <button type="button" onClick={() => editCartItem(item)}>
                     {editingCartItemId === item.id ? t("編集中") : t("編集")}
