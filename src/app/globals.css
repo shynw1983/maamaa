@@ -563,6 +563,11 @@ h3 {
   text-underline-offset: 3px;
 }
 
+.cartItemActions button.isEditing {
+  color: var(--brand);
+  font-weight: 800;
+}
+
 .emptyCart {
   border: 1px dashed var(--line);
   border-radius: 8px;
@@ -698,6 +703,10 @@ h3 {
 
 .currentBowlBar .successText {
   color: #027a48;
+}
+
+.currentBowlBar .editingText {
+  color: var(--brand);
 }
 
 .currentBowlBar strong {

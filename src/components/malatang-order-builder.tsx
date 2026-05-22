@@ -306,7 +306,7 @@ export function MalatangOrderBuilder() {
                 </div>
                 <p>{item.summary.join(" / ")}</p>
                 <div className="cartItemActions">
-                  <button type="button" onClick={() => editCartItem(item)}>
+                  <button className={editingCartItemId === item.id ? "isEditing" : ""} type="button" onClick={() => editCartItem(item)}>
                     {editingCartItemId === item.id ? t("編集中") : t("編集")}
                   </button>
                   <button type="button" onClick={() => removeCartItem(item.id)}>
@@ -382,7 +382,9 @@ export function MalatangOrderBuilder() {
               </>
             ) : (
               <>
-                <span>{editingCartItemId ? t("編集中の一杯") : t("現在の一杯")}</span>
+                <span className={editingCartItemId ? "editingText" : undefined}>
+                  {editingCartItemId ? t("編集中の一杯") : t("現在の一杯")}
+                </span>
                 <strong>{yen(total)}</strong>
               </>
             )}
