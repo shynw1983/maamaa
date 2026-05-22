@@ -695,6 +695,10 @@ h3 {
   font-weight: 600;
 }
 
+.currentBowlBar .successText {
+  color: #027a48;
+}
+
 .currentBowlBar strong {
   font-size: 1.2rem;
   font-weight: 500;

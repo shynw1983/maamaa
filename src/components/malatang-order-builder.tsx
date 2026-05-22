@@ -70,6 +70,7 @@ export function MalatangOrderBuilder() {
   const [submitError, setSubmitError] = useState("");
   const [hiddenChoiceIds, setHiddenChoiceIds] = useState<Set<string>>(new Set());
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
+  const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
 
   const allChoices = useMemo(
     () => [
@@ -188,10 +189,11 @@ export function MalatangOrderBuilder() {
 
   const addCurrentBowl = () => {
     const bowlNumber = cartItems.length + 1;
+    const currentTotal = total;
     const nextItem = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       title: `${t(baseSoup.name)} #${bowlNumber}`,
-      total,
+      total: currentTotal,
       summary: buildCurrentSummary(),
       selections: getCurrentSelections(),
     };
@@ -209,6 +211,7 @@ export function MalatangOrderBuilder() {
         ),
       );
       setReservation(null);
+      setLastAddedTotal(currentTotal);
       resetCurrentBowl();
       return;
     }
@@ -218,6 +221,7 @@ export function MalatangOrderBuilder() {
       nextItem,
     ]);
     setReservation(null);
+    setLastAddedTotal(currentTotal);
     resetCurrentBowl();
   };
 
@@ -231,6 +235,12 @@ export function MalatangOrderBuilder() {
     setCartItems((current) => current.filter((item) => item.id !== id));
     if (editingCartItemId === id) resetCurrentBowl();
   };
+
+  useEffect(() => {
+    if (lastAddedTotal === null) return;
+    const timeout = window.setTimeout(() => setLastAddedTotal(null), 1800);
+    return () => window.clearTimeout(timeout);
+  }, [lastAddedTotal]);
 
   const createReservation = async () => {
     if (!cartItems.length) return;
@@ -365,11 +375,20 @@ export function MalatangOrderBuilder() {
 
         <section className="currentBowlBar" aria-label={t("現在の一杯")}>
           <div>
-            <span>{t("現在の一杯")}</span>
-            <strong>{yen(total)}</strong>
+            {lastAddedTotal !== null && !editingCartItemId ? (
+              <>
+                <span className="successText">{t("予約リストに追加しました")}</span>
+                <strong>{yen(lastAddedTotal)}</strong>
+              </>
+            ) : (
+              <>
+                <span>{editingCartItemId ? t("編集中の一杯") : t("現在の一杯")}</span>
+                <strong>{yen(total)}</strong>
+              </>
+            )}
           </div>
           <button className="button primary" type="button" onClick={addCurrentBowl}>
-            {editingCartItemId ? t("変更を保存") : t("予約リストに追加")}
+            {editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
           </button>
         </section>
 
