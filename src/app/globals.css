@@ -674,25 +674,26 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
+  min-height: 132px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px 16px;
+  padding: 28px 32px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 16px 42px rgba(29, 23, 22, 0.08);
+  box-shadow: 0 20px 52px rgba(29, 23, 22, 0.12);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
 
 .currentBowlBar div {
   display: grid;
-  gap: 2px;
+  gap: 8px;
 }
 
 .currentBowlBar span {
   color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .currentBowlBar .successText {
@@ -700,8 +701,16 @@ h3 {
 }
 
 .currentBowlBar strong {
-  font-size: 1.2rem;
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  line-height: 1;
   font-weight: 500;
+}
+
+.currentBowlBar .button {
+  min-height: 72px;
+  padding: 0 36px;
+  font-size: 1.1rem;
+  font-weight: 800;
 }
 
 .menuPanel {
@@ -1669,6 +1678,8 @@ h3 {
 
   .currentBowlBar {
     top: 86px;
+    min-height: 112px;
+    padding: 22px;
   }
 
   .menuPageHero h1 {
@@ -1788,6 +1799,17 @@ h3 {
 
   .button {
     width: 100%;
+  }
+
+  .currentBowlBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .currentBowlBar .button {
+    min-height: 58px;
+    width: 100%;
+    font-size: 1rem;
   }
 
   .footer {
