@@ -383,7 +383,7 @@ export function MalatangOrderBuilder() {
             ) : (
               <>
                 <span className={editingCartItemId ? "editingText" : undefined}>
-                  {editingCartItemId ? t("編集中の一杯") : t("現在の一杯")}
+                  {editingCartItemId ? t("編集中の一杯") : cartItems.length ? t("次の一杯") : t("現在の一杯")}
                 </span>
                 <strong>{yen(total)}</strong>
               </>
