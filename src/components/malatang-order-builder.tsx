@@ -35,6 +35,15 @@ type CartItem = {
   title: string;
   total: number;
   summary: string[];
+  selections: BowlSelections;
+};
+
+type BowlSelections = {
+  spice: string;
+  heat: string;
+  numb: string;
+  flavors: string[];
+  items: Record<string, number>;
 };
 
 type ProductState = {
@@ -60,6 +69,7 @@ export function MalatangOrderBuilder() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [hiddenChoiceIds, setHiddenChoiceIds] = useState<Set<string>>(new Set());
+  const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
 
   const allChoices = useMemo(
     () => [
@@ -148,6 +158,23 @@ export function MalatangOrderBuilder() {
     setNumb("tiny");
     setFlavors([]);
     setItems({});
+    setEditingCartItemId(null);
+  };
+
+  const getCurrentSelections = (): BowlSelections => ({
+    spice,
+    heat,
+    numb,
+    flavors,
+    items,
+  });
+
+  const applySelections = (selections: BowlSelections) => {
+    setSpice(selections.spice);
+    setHeat(selections.heat);
+    setNumb(selections.numb);
+    setFlavors(selections.flavors);
+    setItems(selections.items);
   };
 
   const buildCurrentSummary = () =>
@@ -161,21 +188,48 @@ export function MalatangOrderBuilder() {
 
   const addCurrentBowl = () => {
     const bowlNumber = cartItems.length + 1;
+    const nextItem = {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      title: `${t(baseSoup.name)} #${bowlNumber}`,
+      total,
+      summary: buildCurrentSummary(),
+      selections: getCurrentSelections(),
+    };
+
+    if (editingCartItemId) {
+      setCartItems((current) =>
+        current.map((item) =>
+          item.id === editingCartItemId
+            ? {
+                ...nextItem,
+                id: item.id,
+                title: item.title,
+              }
+            : item,
+        ),
+      );
+      setReservation(null);
+      resetCurrentBowl();
+      return;
+    }
+
     setCartItems((current) => [
       ...current,
-      {
-        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        title: `${t(baseSoup.name)} #${bowlNumber}`,
-        total,
-        summary: buildCurrentSummary(),
-      },
+      nextItem,
     ]);
     setReservation(null);
     resetCurrentBowl();
   };
 
+  const editCartItem = (item: CartItem) => {
+    applySelections(item.selections);
+    setEditingCartItemId(item.id);
+    setReservation(null);
+  };
+
   const removeCartItem = (id: string) => {
     setCartItems((current) => current.filter((item) => item.id !== id));
+    if (editingCartItemId === id) resetCurrentBowl();
   };
 
   const createReservation = async () => {
@@ -241,9 +295,14 @@ export function MalatangOrderBuilder() {
                   <span>{yen(item.total)}</span>
                 </div>
                 <p>{item.summary.slice(0, 5).join(" / ")}</p>
-                <button type="button" onClick={() => removeCartItem(item.id)}>
-                  {t("削除")}
-                </button>
+                <div className="cartItemActions">
+                  <button type="button" onClick={() => editCartItem(item)}>
+                    {editingCartItemId === item.id ? t("編集中") : t("編集")}
+                  </button>
+                  <button type="button" onClick={() => removeCartItem(item.id)}>
+                    {t("削除")}
+                  </button>
+                </div>
               </article>
             ))
           ) : (
@@ -310,7 +369,7 @@ export function MalatangOrderBuilder() {
             <strong>{yen(total)}</strong>
           </div>
           <button className="button primary" type="button" onClick={addCurrentBowl}>
-            {t("予約リストに追加")}
+            {editingCartItemId ? t("変更を保存") : t("予約リストに追加")}
           </button>
         </section>
 

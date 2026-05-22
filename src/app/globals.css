@@ -544,7 +544,13 @@ h3 {
   line-height: 1.55;
 }
 
-.cartItem button {
+.cartItemActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.cartItemActions button {
   justify-self: start;
   border: 0;
   padding: 0;
