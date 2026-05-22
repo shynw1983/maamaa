@@ -162,5 +162,13 @@
   "特選海鮮3種盛り": "Premium 3-seafood set",
   "丸ごとモッツァレラ1個": "Whole mozzarella x1",
   "山クラゲ": "Stem lettuce",
-  "コーラ1ショット": "Cola shot"
+  "コーラ1ショット": "Cola shot",
+  "予約を送信できませんでした。后台のデータベース設定を確認してください。": "Could not send the reservation. Please check the admin database settings.",
+  "編集中": "Editing",
+  "編集": "Edit",
+  "送信中...": "Sending...",
+  "予約リストに追加しました": "Added to reservation list",
+  "編集中の一杯": "Editing this bowl",
+  "変更を保存": "Save changes",
+  "追加しました": "Added"
 }
