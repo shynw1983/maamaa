@@ -115,9 +115,17 @@ export function HomeContent() {
         <div>
           <p className="footerLogo">まぁ麻</p>
           <p>{t("出来立て麻辣湯 for delivery, pickup, and dine-in.")}</p>
-          <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
-            {t("特定商取引法に基づく表記")}
-          </a>
+          <div className="footerLegalLinks">
+            <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
+              {t("特定商取引法に基づく表記")}
+            </a>
+            <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/terms")}>
+              {t("利用規約")}
+            </a>
+            <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/privacy")}>
+              {t("プライバシーポリシー")}
+            </a>
+          </div>
         </div>
         <a className="button footerButton" href="mailto:hello@maamaa.example">
           Contact

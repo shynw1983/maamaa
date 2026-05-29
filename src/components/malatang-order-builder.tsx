@@ -364,9 +364,17 @@ export function MalatangOrderBuilder() {
             </small>
           </div>
         ) : null}
-        <a className="legalSummaryLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
-          {t("特定商取引法に基づく表記")}
-        </a>
+        <div className="legalSummaryLinks">
+          <a className="legalSummaryLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
+            {t("特定商取引法に基づく表記")}
+          </a>
+          <a className="legalSummaryLink" href={localizedPath(language, "/stores/shimizu/legal/terms")}>
+            {t("利用規約")}
+          </a>
+          <a className="legalSummaryLink" href={localizedPath(language, "/stores/shimizu/legal/privacy")}>
+            {t("プライバシーポリシー")}
+          </a>
+        </div>
       </aside>
 
       <section className="menuForm" aria-label={t("まぁ麻 メニュー")}>

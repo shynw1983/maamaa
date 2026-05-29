@@ -437,9 +437,15 @@ h3 {
   color: var(--paper);
 }
 
+.footerLegalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 12px;
+}
+
 .footerLegalLink {
   display: inline-flex;
-  margin-top: 12px;
   color: rgba(251, 250, 246, 0.76);
   font-size: 0.82rem;
   font-weight: 600;
@@ -514,6 +520,12 @@ h3 {
   text-underline-offset: 4px;
 }
 
+.legalSummaryLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
 .legalHero {
   padding: 140px clamp(20px, 6vw, 86px) 44px;
   background: #ffffff;
@@ -568,6 +580,42 @@ h3 {
   font-size: 0.95rem;
   line-height: 1.75;
   font-weight: 600;
+}
+
+.legalDocument {
+  display: grid;
+  gap: 30px;
+  max-width: 980px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+
+.legalDocumentSection {
+  display: grid;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 28px;
+}
+
+.legalDocumentSection h2 {
+  font-size: clamp(1.08rem, 1.4vw, 1.28rem);
+  font-weight: 800;
+}
+
+.legalDocumentSection p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.85;
+  font-weight: 600;
+  white-space: pre-line;
+}
+
+.legalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin-top: 24px;
 }
 
 .summaryTotal {

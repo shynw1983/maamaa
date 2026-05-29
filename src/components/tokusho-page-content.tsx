@@ -83,9 +83,17 @@ export function TokushoPageContent() {
             </div>
           ))}
         </dl>
-        <a className="textLink" href={localizedPath(language, "/stores/shimizu/menu")}>
-          {t("清水店の受け取り予約へ戻る")}
-        </a>
+        <div className="legalLinks">
+          <a className="textLink" href={localizedPath(language, "/stores/shimizu/legal/terms")}>
+            {t("利用規約")}
+          </a>
+          <a className="textLink" href={localizedPath(language, "/stores/shimizu/legal/privacy")}>
+            {t("プライバシーポリシー")}
+          </a>
+          <a className="textLink" href={localizedPath(language, "/stores/shimizu/menu")}>
+            {t("清水店の受け取り予約へ戻る")}
+          </a>
+        </div>
       </section>
     </main>
   );

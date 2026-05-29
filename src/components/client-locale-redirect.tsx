@@ -28,7 +28,13 @@ const localePath = (language: Locale, path: string) => {
 export function ClientLocaleRedirect({
   path,
 }: {
-  path: "/" | "/stores/shimizu/menu" | "/stores/shimizu/legal/tokusho" | "/stores/shimizu/login";
+  path:
+    | "/"
+    | "/stores/shimizu/menu"
+    | "/stores/shimizu/legal/tokusho"
+    | "/stores/shimizu/legal/terms"
+    | "/stores/shimizu/legal/privacy"
+    | "/stores/shimizu/login";
 }) {
   const router = useRouter();
 
