@@ -1,7 +1,10 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { ClientLocaleRedirect } from "@/components/client-locale-redirect";
 import { LocalizedShell } from "@/components/localized-shell";
 import { MenuPageContent } from "@/components/menu-page-content";
 import { languageAlternates } from "@/data/locales";
+import { isReservationAuthenticated } from "@/server/shimizu-reservation-auth";
 
 const shimizuMenuPath = "/stores/shimizu/menu";
 
@@ -14,7 +17,12 @@ export const metadata = {
   },
 };
 
-export default function ShimizuMenuPage() {
+export default async function ShimizuMenuPage() {
+  const cookieStore = await cookies();
+  if (!isReservationAuthenticated(cookieStore)) {
+    redirect("/stores/shimizu/login?next=/stores/shimizu/menu");
+  }
+
   return (
     <LocalizedShell language="ja">
       <ClientLocaleRedirect path={shimizuMenuPath} />

@@ -11,6 +11,7 @@ import {
   type MenuChoice,
 } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
+import { localizedPath } from "@/components/localized-path";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
@@ -53,7 +54,7 @@ type ProductState = {
 };
 
 export function MalatangOrderBuilder() {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
   const [spice, setSpice] = useState(medicinalSpiceOptions[0].id);
   const [heat, setHeat] = useState("normal");
   const [numb, setNumb] = useState("tiny");
@@ -363,6 +364,9 @@ export function MalatangOrderBuilder() {
             </small>
           </div>
         ) : null}
+        <a className="legalSummaryLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
+          {t("特定商取引法に基づく表記")}
+        </a>
       </aside>
 
       <section className="menuForm" aria-label={t("まぁ麻 メニュー")}>

@@ -437,6 +437,16 @@ h3 {
   color: var(--paper);
 }
 
+.footerLegalLink {
+  display: inline-flex;
+  margin-top: 12px;
+  color: rgba(251, 250, 246, 0.76);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .menuPageHero {
   padding: 140px clamp(20px, 6vw, 86px) 48px;
   background: #ffffff;
@@ -494,6 +504,70 @@ h3 {
   font-size: 0.92rem;
   line-height: 1.75;
   font-weight: 500;
+}
+
+.legalSummaryLink {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.legalHero {
+  padding: 140px clamp(20px, 6vw, 86px) 44px;
+  background: #ffffff;
+}
+
+.legalHero h1 {
+  max-width: 920px;
+  font-size: clamp(2rem, 3.7vw, 3.6rem);
+  line-height: 1.14;
+  font-weight: 500;
+}
+
+.legalHero p:last-child {
+  max-width: 720px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: clamp(0.98rem, 1.18vw, 1.08rem);
+  line-height: 1.85;
+  font-weight: 500;
+}
+
+.legalSection {
+  padding: 0 clamp(20px, 6vw, 86px) clamp(72px, 8vw, 110px);
+}
+
+.legalList {
+  display: grid;
+  max-width: 980px;
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.legalRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.36fr) minmax(0, 1fr);
+  gap: clamp(18px, 4vw, 48px);
+  border-bottom: 1px solid var(--line);
+  padding: 22px 0;
+}
+
+.legalRow dt {
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.legalRow dd {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  font-weight: 600;
 }
 
 .summaryTotal {
@@ -882,11 +956,13 @@ h3 {
 }
 
 .admin-login-page,
+.store-login-page,
 .admin-app {
   min-height: 100vh;
 }
 
-.admin-login-page {
+.admin-login-page,
+.store-login-page {
   display: grid;
   place-items: center;
   padding: 24px;
@@ -894,6 +970,7 @@ h3 {
 }
 
 .admin-login-card,
+.store-login-card,
 .admin-table-panel,
 .admin-detail-panel,
 .admin-inline-stats article {
@@ -903,26 +980,31 @@ h3 {
   box-shadow: var(--shadow);
 }
 
-.admin-login-card {
+.admin-login-card,
+.store-login-card {
   display: grid;
   gap: 16px;
   width: min(420px, 100%);
   padding: 28px;
 }
 
-.admin-login-card h1 {
+.admin-login-card h1,
+.store-login-card h1 {
   margin: 0;
   font-size: 1.7rem;
   line-height: 1.25;
 }
 
 .admin-login-card form,
-.admin-login-card label {
+.admin-login-card label,
+.store-login-card form,
+.store-login-card label {
   display: grid;
   gap: 14px;
 }
 
-.admin-login-card label {
+.admin-login-card label,
+.store-login-card label {
   gap: 8px;
   color: var(--muted);
   font-size: 0.86rem;
@@ -930,11 +1012,13 @@ h3 {
 }
 
 .admin-login-hint,
+.store-login-hint,
 .admin-error {
   margin: 0;
 }
 
-.admin-login-hint {
+.admin-login-hint,
+.store-login-hint {
   color: var(--muted);
 }
 
@@ -945,6 +1029,7 @@ h3 {
 }
 
 .admin-login-card input,
+.store-login-card input,
 .admin-toolbar input,
 .admin-toolbar select {
   min-height: 44px;
@@ -957,6 +1042,7 @@ h3 {
 }
 
 .admin-login-card button,
+.store-login-card button,
 .admin-secondary-button,
 .admin-toolbar button,
 .admin-order-actions button {
@@ -1833,5 +1919,10 @@ h3 {
 
   .footer {
     display: grid;
+  }
+
+  .legalRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
