@@ -8,7 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 const stores = [
   {
     label: "1st store",
-    title: "まぁ麻 テイクアウト店",
+    title: "まぁ麻 清水店",
     address: "福岡市南区清水 1-2-8-103",
     body: "現在営業中の店舗です。Uber Eats などのデリバリーとテイクアウトに対応し、ご注文を受けてから一杯ずつ出来立てで仕上げます。",
   },
@@ -42,7 +42,7 @@ export function HomeContent() {
             )}
           </p>
           <div className="heroActions">
-            <a className="button primary" href={localizedPath(language, "/menu")}>
+            <a className="button primary" href={localizedPath(language, "/stores/shimizu/menu")}>
               {t("メニューを見る")}
             </a>
           </div>
@@ -101,6 +101,11 @@ export function HomeContent() {
               <h3>{t(item.title)}</h3>
               {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
               <p className="storeCopy">{t(item.body)}</p>
+              {item.title === "まぁ麻 清水店" ? (
+                <a className="textLink" href={localizedPath(language, "/stores/shimizu/menu")}>
+                  {t("清水店の受け取り予約")}
+                </a>
+              ) : null}
             </article>
           ))}
         </div>

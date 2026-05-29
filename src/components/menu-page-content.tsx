@@ -12,11 +12,11 @@ export function MenuPageContent() {
       <SiteHeader menu />
 
       <section className="menuPageHero">
-        <p className="kicker">{t("Menu / pickup reservation")}</p>
-        <h1>{t("出来立て麻辣湯を、自由にカスタム。")}</h1>
+        <p className="kicker">{t("Shimizu shop / pickup reservation")}</p>
+        <h1>{t("清水店の出来立て麻辣湯を、自由にカスタム。")}</h1>
         <p>
           {t(
-            "Uber Eats のメニュー構成をもとに、店頭受け取り用のカスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。",
+            "まぁ麻 清水店の店頭受け取り用カスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。",
           )}
         </p>
       </section>

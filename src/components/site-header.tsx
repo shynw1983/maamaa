@@ -12,7 +12,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const homeHref = localizedPath(language, "/");
-  const menuHref = localizedPath(language, "/menu");
+  const menuHref = localizedPath(language, "/stores/shimizu/menu");
 
   const sectionHref = (hash: string) => (menu ? `${homeHref}${hash}` : hash);
 

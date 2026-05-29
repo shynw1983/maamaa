@@ -405,6 +405,16 @@ h3 {
   font-weight: 600;
 }
 
+.textLink {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 18px;
+  border-bottom: 1px solid currentColor;
+  color: var(--brand);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
 .footer {
   display: flex;
   align-items: center;

@@ -25,7 +25,7 @@ const localePath = (language: Locale, path: string) => {
   return `/${language}${path === "/" ? "" : path}`;
 };
 
-export function ClientLocaleRedirect({ path }: { path: "/" | "/menu" }) {
+export function ClientLocaleRedirect({ path }: { path: "/" | "/stores/shimizu/menu" }) {
   const router = useRouter();
 
   useEffect(() => {
