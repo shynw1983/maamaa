@@ -1920,6 +1920,12 @@ h3 {
   color: var(--muted);
 }
 
+.orderPaymentLink {
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
 .orderDetailPanel {
   align-self: start;
 }

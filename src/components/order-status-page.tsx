@@ -149,6 +149,11 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
             <div className="orderPaymentNotice">
               <strong>{t("お支払いがまだ完了していません")}</strong>
               <span>{t("決済完了後に注文が店舗へ送信されます。")}</span>
+              {order.receiptUrl ? (
+                <a className="button primary orderPaymentLink" href={order.receiptUrl}>
+                  {t("もう一度支払う")}
+                </a>
+              ) : null}
             </div>
           ) : null}
         </div>
