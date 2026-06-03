@@ -14,7 +14,7 @@ export default async function AdminStaffPage() {
   const cookieStore = await cookies();
   const session = getSessionFromCookieStore(cookieStore);
   if (!session) redirect("/admin/login");
-  if (!canManageStaff(session)) redirect("/admin/orders");
+  if (!canManageStaff(session)) redirect("/admin/dashboard");
 
   return (
     <AdminShell eyebrow="staff" title="スタッフ管理" activePath="/admin/staff" actions={<AdminLogoutButton />} currentUser={session}>

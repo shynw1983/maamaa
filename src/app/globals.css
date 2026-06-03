@@ -1019,8 +1019,6 @@ h3 {
 
 .admin-login-card,
 .store-login-card,
-.admin-table-panel,
-.admin-detail-panel,
 .admin-inline-stats article {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1092,8 +1090,7 @@ h3 {
 .admin-login-card button,
 .store-login-card button,
 .admin-secondary-button,
-.admin-toolbar button,
-.admin-order-actions button {
+.admin-toolbar button {
   border: 1px solid var(--ink);
   border-radius: 999px;
   padding: 10px 16px;
@@ -1181,8 +1178,7 @@ h3 {
 }
 
 .admin-page-actions,
-.admin-toolbar,
-.admin-order-actions {
+.admin-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -1197,65 +1193,9 @@ h3 {
   min-width: min(320px, 100%);
 }
 
-.admin-toolbar button.secondary,
-.admin-order-actions .secondary {
+.admin-toolbar button.secondary {
   background: var(--paper);
   color: var(--ink);
-}
-
-.admin-live-status,
-.admin-realtime-status,
-.admin-sound-hint {
-  display: inline-flex;
-  align-items: center;
-  color: var(--muted);
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.admin-live-status i {
-  width: 8px;
-  height: 8px;
-  margin-right: 8px;
-  border-radius: 999px;
-  background: #12b76a;
-}
-
-.admin-realtime-status {
-  gap: 8px;
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: rgba(29, 23, 22, 0.06);
-}
-
-.admin-realtime-status i {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #b54708;
-  box-shadow: 0 0 0 4px rgba(247, 144, 9, 0.12);
-}
-
-.admin-realtime-status.is-connected {
-  color: #067647;
-}
-
-.admin-realtime-status.is-connected i {
-  background: #12b76a;
-  box-shadow: 0 0 0 4px rgba(18, 183, 106, 0.14);
-}
-
-.admin-realtime-status.is-failed,
-.admin-realtime-status.is-unavailable,
-.admin-realtime-status.is-disconnected {
-  color: #b42318;
-}
-
-.admin-realtime-status.is-failed i,
-.admin-realtime-status.is-unavailable i,
-.admin-realtime-status.is-disconnected i {
-  background: #f04438;
-  box-shadow: 0 0 0 4px rgba(240, 68, 56, 0.12);
 }
 
 .admin-inline-stats {
@@ -1271,229 +1211,12 @@ h3 {
   padding: 14px 16px;
 }
 
-.admin-inline-stats span,
-.admin-detail-panel dt {
+.admin-inline-stats span {
   color: var(--muted);
 }
 
 .admin-inline-stats strong {
   font-size: 1.4rem;
-}
-
-.admin-orders-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.7fr);
-  gap: 16px;
-}
-
-.admin-table-panel {
-  overflow: hidden;
-  padding: 0;
-}
-
-.admin-table-panel table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.admin-table-panel th,
-.admin-table-panel td {
-  border-bottom: 1px solid var(--line);
-  padding: 14px 16px;
-  text-align: left;
-  vertical-align: top;
-}
-
-.admin-table-panel tbody tr {
-  cursor: pointer;
-}
-
-.admin-table-panel tbody tr:hover,
-.admin-table-panel tbody tr.is-selected {
-  background: var(--wash);
-}
-
-.admin-table-panel tbody tr.is-new {
-  animation: admin-new-order-pulse 1s ease-in-out 0s 4;
-}
-
-.admin-table-panel td span,
-.admin-detail-panel span {
-  display: inline-block;
-  border-radius: 999px;
-  background: rgba(29, 23, 22, 0.08);
-  padding: 5px 10px;
-}
-
-.admin-table-panel td.admin-order-product-cell {
-  min-width: 220px;
-  line-height: 1.55;
-}
-
-.admin-order-product-cell span,
-.admin-order-product-lines span {
-  display: block;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.admin-table-panel td span.status-new,
-.admin-detail-panel span.status-new {
-  background: rgba(183, 0, 18, 0.13);
-  color: var(--brand);
-}
-
-.admin-table-panel td span.status-preparing,
-.admin-detail-panel span.status-preparing {
-  background: rgba(23, 92, 211, 0.14);
-  color: #175cd3;
-}
-
-.admin-table-panel td span.status-ready,
-.admin-detail-panel span.status-ready {
-  background: rgba(2, 122, 72, 0.14);
-  color: #027a48;
-}
-
-.admin-empty-copy {
-  padding: 18px;
-}
-
-.admin-detail-panel {
-  align-self: start;
-  padding: 20px;
-}
-
-.admin-detail-panel h2 {
-  margin: 14px 0 8px;
-  font-size: 1.4rem;
-}
-
-.admin-order-product-lines {
-  display: grid;
-  gap: 4px;
-  margin: 0;
-  font-weight: 700;
-  line-height: 1.55;
-}
-
-.admin-detail-panel dl {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 12px;
-  margin: 22px 0;
-}
-
-.admin-detail-panel dd {
-  min-width: 0;
-  margin: 0;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.admin-order-item-lines {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding-left: 1.25em;
-  line-height: 1.65;
-}
-
-.admin-inline-link {
-  display: inline-block;
-  margin-bottom: 18px;
-  color: var(--ink);
-  text-decoration: underline;
-}
-
-.admin-report-toolbar label {
-  display: grid;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.3;
-}
-
-.admin-report-toolbar {
-  align-items: end;
-  gap: 14px;
-}
-
-.admin-report-toolbar input,
-.admin-report-toolbar select,
-.admin-report-toolbar button,
-.admin-report-toolbar .admin-secondary-button {
-  height: 48px;
-}
-
-.admin-report-toolbar input,
-.admin-report-toolbar select {
-  min-width: 180px;
-  color: var(--ink);
-  font-size: 1rem;
-}
-
-.admin-report-orders {
-  margin-top: 16px;
-  overflow-x: auto;
-}
-
-.admin-report-orders table {
-  min-width: 940px;
-}
-
-.admin-report-orders th,
-.admin-report-orders td {
-  vertical-align: top;
-  white-space: nowrap;
-}
-
-.admin-report-orders .admin-report-product-cell {
-  min-width: 260px;
-  max-width: 360px;
-  line-height: 1.6;
-  white-space: pre-line;
-  overflow-wrap: anywhere;
-}
-
-.admin-report-orders small {
-  display: block;
-  margin-top: 4px;
-  color: var(--muted);
-}
-
-.admin-report-state {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 5px 10px;
-  background: rgba(29, 23, 22, 0.08);
-  font-size: 0.86rem;
-}
-
-.admin-report-state.is-sale {
-  background: rgba(2, 122, 72, 0.14);
-  color: #027a48;
-}
-
-.admin-report-state.is-cancelled,
-.admin-report-state.is-failed {
-  background: rgba(240, 68, 56, 0.12);
-  color: #b42318;
-}
-
-.admin-report-state.is-pending {
-  background: rgba(247, 144, 9, 0.12);
-  color: #b54708;
-}
-
-.admin-report-status-select {
-  min-height: 36px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper);
-  padding: 0 10px;
-  color: var(--ink);
 }
 
 .admin-metric-grid {
@@ -1967,19 +1690,12 @@ h3 {
   width: 100%;
 }
 
-@keyframes admin-new-order-pulse {
-  50% {
-    background: #fff5f3;
-  }
-}
-
 @media (max-width: 920px) {
   .hero,
   .menuBuilder,
   .admin-app,
   .admin-inline-stats,
   .admin-metric-grid,
-  .admin-orders-layout,
   .admin-staff-layout,
   .admin-two-column,
   .orderStatusLayout,

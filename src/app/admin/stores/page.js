@@ -14,7 +14,7 @@ export default async function AdminStoresPage() {
   const cookieStore = await cookies();
   const session = getSessionFromCookieStore(cookieStore);
   if (!session) redirect("/admin/login");
-  if (!canManageStores(session)) redirect("/admin/orders");
+  if (!canManageStores(session)) redirect("/admin/dashboard");
 
   const stores = filterAccessibleStores(session, await listActiveStores());
   const initialStores = await Promise.all(

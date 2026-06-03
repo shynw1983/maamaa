@@ -13,7 +13,7 @@ export default async function AdminProductsPage() {
   const cookieStore = await cookies();
   const session = getSessionFromCookieStore(cookieStore);
   if (!session) redirect("/admin/login");
-  if (!canManageProducts(session)) redirect("/admin/orders");
+  if (!canManageProducts(session)) redirect("/admin/dashboard");
 
   const stores = filterAccessibleStores(session, await listActiveStores());
   const selectedStoreId = stores.find((store) => store.isPrimary)?.id || stores[0]?.id || "";

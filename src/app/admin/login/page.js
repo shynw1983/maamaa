@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.push("/admin/orders");
+    router.push("/admin/dashboard");
     router.refresh();
   };
 
@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
     <main className="admin-login-page">
       <section className="admin-login-card">
         <p className="eyebrow">staff</p>
-        <h1>まぁ麻 受注管理ログイン</h1>
+        <h1>まぁ麻 管理ログイン</h1>
         <p className="admin-login-hint">初回ログインIDは owner です。</p>
         <form onSubmit={handleSubmit}>
           <label>
