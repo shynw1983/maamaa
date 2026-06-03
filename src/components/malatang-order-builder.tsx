@@ -19,8 +19,9 @@ const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 
 type Reservation = {
+  orderId: string;
   code: string;
-  status: "new";
+  status: "pending" | "new";
   createdAt: string;
   name: string;
   phone: string;
@@ -106,6 +107,13 @@ export function MalatangOrderBuilder() {
     selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const reserveButtonLabel = isSubmitting
+    ? t("送信中...")
+    : !cartItems.length
+      ? t("メニューを追加してください")
+      : !name || !phone
+        ? t("お名前・電話番号を入力")
+        : t("支払いへ進む");
 
   useEffect(() => {
     let active = true;
@@ -260,14 +268,16 @@ export function MalatangOrderBuilder() {
           note,
           total: cartTotal,
           items: cartItems,
+          language,
         }),
       });
 
       if (!response.ok) throw new Error("request failed");
       const body = await response.json();
       const nextReservation = {
+        orderId: body.order?.orderId || "",
         code: body.order?.pickupCode || `M-${Math.floor(1000 + Math.random() * 9000)}`,
-        status: "new" as const,
+        status: "pending" as const,
         createdAt: body.order?.createdAt || new Date().toISOString(),
         name,
         phone,
@@ -280,8 +290,13 @@ export function MalatangOrderBuilder() {
 
       setReservation(nextReservation);
       window.localStorage.setItem("maamaa-latest-reservation", JSON.stringify(nextReservation));
+      if (body.checkoutUrl) {
+        window.location.assign(body.checkoutUrl);
+      } else if (body.orderUrl) {
+        window.location.assign(body.orderUrl);
+      }
     } catch {
-      setSubmitError(t("予約を送信できませんでした。后台のデータベース設定を確認してください。"));
+      setSubmitError(t("予約を送信できませんでした。決済設定を確認してください。"));
     } finally {
       setIsSubmitting(false);
     }
@@ -349,7 +364,7 @@ export function MalatangOrderBuilder() {
           </label>
         </div>
         <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length || isSubmitting} onClick={createReservation}>
-          {isSubmitting ? t("送信中...") : t("予約内容を作成")}
+          {reserveButtonLabel}
         </button>
         {submitError ? <p className="formError">{submitError}</p> : null}
         {reservation ? (
@@ -360,7 +375,7 @@ export function MalatangOrderBuilder() {
             </span>
             <small>
               {reservation.items.length}
-              {t("点。店頭でこの番号をお伝えください。")}
+              {t("点。決済完了後、制作状況ページでこの番号を確認できます。")}
             </small>
           </div>
         ) : null}

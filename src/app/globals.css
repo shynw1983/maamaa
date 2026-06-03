@@ -1775,6 +1775,192 @@ h3 {
   color: var(--ink);
 }
 
+.orderStatusHero {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 120px 24px 54px;
+  text-align: center;
+}
+
+.orderStatusHero h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+}
+
+.orderStatusHero strong {
+  display: block;
+  font-size: clamp(4rem, 18vw, 10rem);
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+
+.orderStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.orderStatusBadge.is-ready {
+  border-color: rgba(30, 122, 74, 0.36);
+  background: #effaf4;
+  color: #1e7a4a;
+}
+
+.orderStatusBadge.is-payment_failed,
+.orderStatusBadge.is-checkout_failed,
+.orderStatusBadge.is-cancelled {
+  border-color: rgba(183, 0, 18, 0.28);
+  background: #fff1ef;
+  color: var(--red);
+}
+
+.orderStatusLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+  gap: 18px;
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto 84px;
+}
+
+.orderProgressPanel,
+.orderDetailPanel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 24px;
+}
+
+.orderProgressHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.orderProgressHeader h2,
+.orderDetailPanel h2 {
+  margin: 2px 0 0;
+}
+
+.orderProgressHeader span {
+  color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.orderProgressSteps {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orderProgressSteps li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 58px;
+  color: var(--muted);
+}
+
+.orderProgressSteps li > span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  font-weight: 900;
+}
+
+.orderProgressSteps li.isDone {
+  color: var(--ink);
+}
+
+.orderProgressSteps li.isDone > span {
+  border-color: var(--red);
+  background: var(--red);
+  color: #ffffff;
+}
+
+.orderProgressSteps strong,
+.orderProgressSteps small,
+.orderItemSummary span {
+  display: block;
+}
+
+.orderProgressSteps small {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.orderPaymentNotice {
+  display: grid;
+  gap: 4px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid rgba(183, 0, 18, 0.22);
+  border-radius: 8px;
+  background: #fff8f5;
+}
+
+.orderPaymentNotice span,
+.orderDetailPanel dt {
+  color: var(--muted);
+}
+
+.orderDetailPanel {
+  align-self: start;
+}
+
+.orderDetailPanel dl {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.orderDetailPanel dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.orderDetailPanel dt,
+.orderDetailPanel dd {
+  margin: 0;
+}
+
+.orderDetailPanel dd {
+  font-weight: 800;
+  text-align: right;
+}
+
+.orderItemSummary {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0 22px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.orderBackLink {
+  justify-content: center;
+  width: 100%;
+}
+
 @keyframes admin-new-order-pulse {
   50% {
     background: #fff5f3;
@@ -1790,6 +1976,7 @@ h3 {
   .admin-orders-layout,
   .admin-staff-layout,
   .admin-two-column,
+  .orderStatusLayout,
   .split,
   .bowlGrid,
   .storeIntroGrid {
@@ -1972,5 +2159,23 @@ h3 {
   .legalRow {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .orderStatusHero {
+    padding-top: 104px;
+  }
+
+  .orderProgressPanel,
+  .orderDetailPanel {
+    padding: 18px;
+  }
+
+  .orderProgressHeader,
+  .orderDetailPanel dl div {
+    display: grid;
+  }
+
+  .orderDetailPanel dd {
+    text-align: left;
   }
 }

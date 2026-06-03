@@ -82,6 +82,28 @@ const listOrders = async ({ status, paymentStatus, storeId, storeIds, query } = 
 
 const findOrder = async (predicate) => (await listOrders()).find(predicate) || null;
 
+const getOrder = async (orderId) => {
+  const sql = await getSql();
+  const rows = await sql`
+    select *
+    from orders
+    where order_id = ${orderId}
+    limit 1
+  `;
+  return rows[0] ? normalizeOrder(rows[0]) : null;
+};
+
+const findOrderByPaymentReference = async (paymentReference) => {
+  const sql = await getSql();
+  const rows = await sql`
+    select *
+    from orders
+    where payment_reference = ${paymentReference}
+    limit 1
+  `;
+  return rows[0] ? normalizeOrder(rows[0]) : null;
+};
+
 const createOrder = async ({
   pickupCode,
   storeId,
@@ -162,6 +184,8 @@ const updateOrder = async (order, fields) => {
 module.exports = {
   listOrders,
   findOrder,
+  getOrder,
+  findOrderByPaymentReference,
   createOrder,
   updateOrder,
 };

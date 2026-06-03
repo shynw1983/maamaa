@@ -10,8 +10,8 @@ const {
 let sqlClientPromise;
 
 const store = {
-  id: "maamaa",
-  name: "まぁ麻",
+  id: "shimizu",
+  name: "まぁ麻 清水店",
   isPrimary: true,
 };
 

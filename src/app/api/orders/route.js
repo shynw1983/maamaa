@@ -1,5 +1,20 @@
 const { createOrder, updateOrder } = require("../../../server/orders");
+const { createPaymentSession } = require("../../../server/komoju");
 const { publishOrderEvent } = require("../../../server/realtime");
+
+const localePrefix = (language) => {
+  if (language === "en") return "/en";
+  if (language === "zh") return "/zh";
+  if (language === "ko") return "/ko";
+  return "";
+};
+
+const requestOrigin = (request) => {
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  if (forwardedProto && forwardedHost) return `${forwardedProto}://${forwardedHost}`;
+  return new URL(request.url).origin;
+};
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
@@ -15,8 +30,8 @@ export async function POST(request) {
 
   const order = await createOrder({
     pickupCode,
-    storeId: "maamaa",
-    storeName: "まぁ麻",
+    storeId: "shimizu",
+    storeName: "まぁ麻 清水店",
     drink: body.items.map((item, index) => `${index + 1}. ${item.title}`).join(" / "),
     size: itemLines,
     temperature: body.name,
@@ -29,12 +44,36 @@ export async function POST(request) {
     amount: Number(body.total || 0),
   });
 
-  const paidOrder = await updateOrder(order, {
-    status: "new",
-    paymentStatus: "paid",
-    paidAt: new Date().toISOString(),
-  });
+  try {
+    const language = String(body.language || "ja");
+    const origin = requestOrigin(request);
+    const returnUrl = `${origin}/api/orders/komoju-return?order_id=${encodeURIComponent(order.orderId)}&lang=${encodeURIComponent(language)}`;
+    const session = await createPaymentSession({
+      order,
+      returnUrl,
+      locale: language,
+    });
 
-  await publishOrderEvent("order.created", paidOrder);
-  return Response.json({ order: paidOrder });
+    const pendingOrder = await updateOrder(order, {
+      paymentProvider: "komoju",
+      paymentReference: session.id,
+      receiptUrl: session.session_url,
+      paymentUpdatedAt: new Date().toISOString(),
+    });
+
+    return Response.json({
+      order: pendingOrder,
+      checkoutUrl: session.session_url,
+      orderUrl: `${localePrefix(language)}/stores/shimizu/orders/${order.orderId}`,
+    });
+  } catch (error) {
+    const failedOrder = await updateOrder(order, {
+      status: "checkout_failed",
+      paymentStatus: "failed",
+      paymentProvider: "komoju",
+      paymentUpdatedAt: new Date().toISOString(),
+    });
+    await publishOrderEvent("order.updated", failedOrder);
+    return Response.json({ error: "Could not create KOMOJU checkout session" }, { status: 502 });
+  }
 }
