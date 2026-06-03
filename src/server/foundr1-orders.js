@@ -10,6 +10,9 @@ const toPublicOrder = (order) => ({
   storeName: order.storeName || "まぁ麻 清水店",
   status: order.status,
   paymentStatus: order.paymentStatus,
+  refundStatus: order.refundStatus || "",
+  refundError: order.refundError || "",
+  refundedAt: order.refundedAt || "",
   receiptUrl: order.receiptUrl || order.squareReceiptUrl || "",
   drink: order.drink || "",
   size: order.size || "",
@@ -18,6 +21,9 @@ const toPublicOrder = (order) => ({
   amount: Number(order.amount || 0),
   pickupDate: order.pickupDate || "",
   pickupTime: order.pickupTime || "",
+  canCancel: Boolean(order.canCancel),
+  cancelDeadline: order.cancelDeadline || "",
+  cancelWindowMinutes: Number(order.cancelWindowMinutes || 30),
 });
 
 const fetchFoundr1Order = async (orderId) => {
@@ -50,6 +56,25 @@ const fetchFoundr1Receipt = async (orderId, pickupCode) => {
   };
 };
 
+const cancelFoundr1Order = async (orderId, pickupCode, pickupDate) => {
+  const baseUrl = foundr1BaseUrl();
+  if (!baseUrl) throw new Error("FOUNDR1_API_BASE_URL is not configured.");
+
+  const response = await fetch(`${baseUrl}/api/public/orders/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId, pickupCode, pickupDate }),
+    cache: "no-store",
+  });
+  const body = await response.json().catch(() => ({}));
+  return {
+    ok: response.ok,
+    status: response.status,
+    error: body.error || "",
+    order: body.order ? toPublicOrder(body.order) : null,
+  };
+};
+
 const fetchFoundr1RealtimeConfig = async () => {
   const baseUrl = foundr1BaseUrl();
   if (!baseUrl) return null;
@@ -62,5 +87,6 @@ module.exports = {
   fetchFoundr1Order,
   fetchFoundr1Receipt,
   fetchFoundr1RealtimeConfig,
+  cancelFoundr1Order,
   toPublicOrder,
 };

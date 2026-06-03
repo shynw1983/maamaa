@@ -9,14 +9,20 @@ type PublicOrder = {
   orderId: string;
   pickupCode: string;
   storeName: string;
-  status: "pending_payment" | "checkout_failed" | "payment_failed" | "new" | "preparing" | "ready" | "completed" | "cancelled";
-  paymentStatus: "pending" | "paid" | "failed" | "canceled";
+  status: "pending_payment" | "checkout_failed" | "payment_failed" | "refund_pending" | "new" | "preparing" | "ready" | "completed" | "cancelled";
+  paymentStatus: "pending" | "paid" | "failed" | "canceled" | "refunded";
+  refundStatus: string;
+  refundError: string;
+  refundedAt: string;
   receiptUrl: string;
   drink: string;
   size: string;
   amount: number;
   pickupDate: string;
   pickupTime: string;
+  canCancel: boolean;
+  cancelDeadline: string;
+  cancelWindowMinutes: number;
 };
 
 const yen = new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" });
@@ -32,6 +38,7 @@ const statusRank: Record<string, number> = {
   pending_payment: 0,
   checkout_failed: 0,
   payment_failed: 0,
+  refund_pending: 0,
   cancelled: 0,
   new: 1,
   preparing: 2,
@@ -43,6 +50,7 @@ const statusLabel: Record<string, string> = {
   pending_payment: "お支払い待ち",
   checkout_failed: "決済作成失敗",
   payment_failed: "決済失敗",
+  refund_pending: "返金処理中",
   cancelled: "キャンセル",
   new: "注文受付",
   preparing: "制作中",
@@ -50,12 +58,57 @@ const statusLabel: Record<string, string> = {
   completed: "受け渡し完了",
 };
 
+const cancelErrorLabel: Record<string, string> = {
+  "Orders can be cancelled until 30 minutes before pickup.": "受け取り予定時刻の30分前までキャンセルできます。",
+  "This order cannot be cancelled from this page.": "この注文はこのページからキャンセルできません。",
+  "KOMOJU says this payment is not refundable.": "このお支払いは自動返金できません。店舗までお問い合わせください。",
+  "KOMOJU payment was not found.": "決済情報が見つかりません。店舗までお問い合わせください。",
+  "KOMOJU refund authorization failed.": "返金処理の認証に失敗しました。店舗までお問い合わせください。",
+  "KOMOJU refund failed.": "返金処理に失敗しました。店舗までお問い合わせください。",
+  "KOMOJU refund secret is not configured.": "返金設定が未設定です。店舗までお問い合わせください。",
+  "Payment ID is missing, so the refund cannot be processed automatically.": "決済情報が不足しているため自動返金できません。店舗までお問い合わせください。",
+};
+
 export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder }) {
   const { language, t } = useI18n();
   const [order, setOrder] = useState(initialOrder);
   const [connection, setConnection] = useState<"connecting" | "live" | "polling">("connecting");
+  const [cancelState, setCancelState] = useState<"idle" | "submitting">("idle");
+  const [cancelMessage, setCancelMessage] = useState("");
   const currentRank = statusRank[order.status] || (order.paymentStatus === "paid" ? 1 : 0);
   const itemLines = useMemo(() => order.size.split("\n").filter(Boolean), [order.size]);
+  const canCancelOrder = order.canCancel && cancelState !== "submitting";
+
+  const cancelOrder = async () => {
+    if (!order.canCancel || cancelState === "submitting") return;
+    const confirmed = window.confirm(t("この注文をキャンセルしますか？"));
+    if (!confirmed) return;
+
+    setCancelState("submitting");
+    setCancelMessage("");
+    try {
+      const response = await fetch(`/api/orders/${order.orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickupCode: order.pickupCode,
+          pickupDate: order.pickupDate,
+        }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (body.order) setOrder(body.order);
+      if (!response.ok) {
+        const errorText = cancelErrorLabel[body.error] || body.error || "キャンセルできませんでした。";
+        setCancelMessage(t(errorText));
+        return;
+      }
+      setCancelMessage(t("注文をキャンセルし、返金しました。"));
+    } catch {
+      setCancelMessage(t("通信エラーです。時間をおいてもう一度お試しください。"));
+    } finally {
+      setCancelState("idle");
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -117,6 +170,15 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
         <h1>{t("取单号码")}</h1>
         <strong>{order.pickupCode}</strong>
         <span className={`orderStatusBadge is-${order.status}`}>{t(statusLabel[order.status] || order.status)}</span>
+        <div className="orderCancelBlock">
+          <p>{t("キャンセル・返金は、受け取り予定時刻の30分前までです。")}</p>
+          {order.canCancel ? (
+            <button className="button secondary orderCancelButton" type="button" disabled={!canCancelOrder} onClick={cancelOrder}>
+              {cancelState === "submitting" ? t("返金処理中") : t("キャンセルして返金")}
+            </button>
+          ) : null}
+          {cancelMessage ? <small>{cancelMessage}</small> : null}
+        </div>
       </section>
 
       <section className="orderStatusLayout">
