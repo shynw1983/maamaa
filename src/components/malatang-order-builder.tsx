@@ -289,7 +289,11 @@ export function MalatangOrderBuilder() {
       };
 
       setReservation(nextReservation);
-      window.localStorage.setItem("maamaa-latest-reservation", JSON.stringify(nextReservation));
+      try {
+        window.localStorage?.setItem("maamaa-latest-reservation", JSON.stringify(nextReservation));
+      } catch {
+        // Continue to checkout even when local storage is unavailable.
+      }
       if (body.checkoutUrl) {
         window.location.assign(body.checkoutUrl);
       } else if (body.orderUrl) {
