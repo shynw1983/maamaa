@@ -1607,14 +1607,25 @@ h3 {
   font-weight: 900;
 }
 
-.orderProgressSteps li.isDone {
+.orderProgressSteps li.isComplete {
   color: var(--ink);
 }
 
-.orderProgressSteps li.isDone > span {
+.orderProgressSteps li.isComplete > span {
+  border-color: rgba(183, 0, 18, 0.32);
+  background: #fff1ef;
+  color: var(--red);
+}
+
+.orderProgressSteps li.isCurrent {
+  color: var(--ink);
+}
+
+.orderProgressSteps li.isCurrent > span {
   border-color: var(--red);
   background: var(--red);
   color: #ffffff;
+  box-shadow: 0 0 0 5px rgba(183, 0, 18, 0.12);
 }
 
 .orderProgressSteps strong,

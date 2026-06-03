@@ -131,11 +131,13 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
 
           <ol className="orderProgressSteps">
             {steps.map((step, index) => {
-              const isDone = currentRank >= index + 1;
-              const isCurrent = currentRank === index + 1;
+              const rank = index + 1;
+              const isCurrent = currentRank === rank;
+              const isComplete = currentRank > rank;
+              const stepClassName = isCurrent ? "isCurrent" : isComplete ? "isComplete" : "";
               return (
-                <li className={isDone ? "isDone" : ""} key={step.status}>
-                  <span>{index + 1}</span>
+                <li className={stepClassName} key={step.status}>
+                  <span>{rank}</span>
                   <div>
                     <strong>{t(step.label)}</strong>
                     {isCurrent ? <small>{t("現在のステータス")}</small> : null}
