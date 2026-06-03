@@ -1697,9 +1697,14 @@ h3 {
   font-size: 0.92rem;
 }
 
+.orderReceiptLink,
 .orderBackLink {
   justify-content: center;
   width: 100%;
+}
+
+.orderReceiptLink {
+  margin-bottom: 10px;
 }
 
 @media (max-width: 920px) {

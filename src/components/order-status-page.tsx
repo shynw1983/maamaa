@@ -182,6 +182,15 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
               <span key={`${line}-${index}`}>{line}</span>
             ))}
           </div>
+          {order.paymentStatus === "paid" ? (
+            <a
+              className="button primary orderReceiptLink"
+              href={`/api/orders/${order.orderId}/receipt?pickupCode=${encodeURIComponent(order.pickupCode)}`}
+              download={`receipt-${order.pickupCode}.pdf`}
+            >
+              {t("領収書 PDF")}
+            </a>
+          ) : null}
           <a className="button secondary orderBackLink" href={localizedPath(language, "/stores/shimizu/menu")}>
             {t("メニューへ戻る")}
           </a>

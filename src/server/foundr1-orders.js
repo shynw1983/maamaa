@@ -32,6 +32,24 @@ const fetchFoundr1Order = async (orderId) => {
   return toPublicOrder(body.order);
 };
 
+const fetchFoundr1Receipt = async (orderId, pickupCode) => {
+  const baseUrl = foundr1BaseUrl();
+  if (!baseUrl) throw new Error("FOUNDR1_API_BASE_URL is not configured.");
+
+  const url = new URL(`${baseUrl}/api/public/orders/receipt`);
+  url.searchParams.set("orderId", orderId);
+  url.searchParams.set("pickupCode", pickupCode);
+  const response = await fetch(url, { cache: "no-store" });
+  const body = Buffer.from(await response.arrayBuffer());
+  return {
+    ok: response.ok,
+    status: response.status,
+    contentType: response.headers.get("content-type") || "application/pdf",
+    disposition: response.headers.get("content-disposition") || `attachment; filename="receipt-${pickupCode}.pdf"`,
+    body,
+  };
+};
+
 const fetchFoundr1RealtimeConfig = async () => {
   const baseUrl = foundr1BaseUrl();
   if (!baseUrl) return null;
@@ -42,6 +60,7 @@ const fetchFoundr1RealtimeConfig = async () => {
 
 module.exports = {
   fetchFoundr1Order,
+  fetchFoundr1Receipt,
   fetchFoundr1RealtimeConfig,
   toPublicOrder,
 };
