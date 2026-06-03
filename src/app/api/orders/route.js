@@ -82,7 +82,7 @@ export async function POST(request) {
   const language = String(body.language || "ja");
   const origin = requestOrigin(request);
   const menuPath = `${localePrefix(language)}/stores/shimizu/menu`;
-  const completionUrl = `${origin}${menuPath}`;
+  const completionUrl = `${origin}/api/orders/foundr1-return?lang=${encodeURIComponent(language)}`;
   const foundr1Response = await fetch(`${baseUrl}/api/public/orders/maamaa/checkout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

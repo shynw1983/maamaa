@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { LocalizedShell } from "@/components/localized-shell";
 import { OrderStatusPage } from "@/components/order-status-page";
 import { isLocale, translatedLocales } from "@/data/locales";
-import { getOrder } from "@/server/orders";
-import { toPublicOrder } from "@/server/realtime";
+import { fetchFoundr1Order } from "@/server/foundr1-orders";
 
 export function generateStaticParams() {
   return translatedLocales.map((lang) => ({ lang }));
@@ -23,12 +22,12 @@ export default async function LocalizedShimizuOrderPage({ params }: { params: Pr
   const { lang, orderId } = await params;
   if (!isLocale(lang) || lang === "ja") notFound();
 
-  const order = await getOrder(orderId);
+  const order = await fetchFoundr1Order(orderId);
   if (!order) notFound();
 
   return (
     <LocalizedShell language={lang}>
-      <OrderStatusPage initialOrder={toPublicOrder(order)} />
+      <OrderStatusPage initialOrder={order} />
     </LocalizedShell>
   );
 }

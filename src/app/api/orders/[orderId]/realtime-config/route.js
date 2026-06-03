@@ -1,21 +1,22 @@
-const { getOrder } = require("../../../../../server/orders");
+const { fetchFoundr1Order, fetchFoundr1RealtimeConfig } = require("../../../../../server/foundr1-orders");
 
 export async function GET(_request, { params }) {
   const { orderId } = await params;
-  const order = await getOrder(orderId);
+  const order = await fetchFoundr1Order(orderId);
 
   if (!order) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (!process.env.PUSHER_KEY || !process.env.PUSHER_CLUSTER) {
-    return Response.json({ available: false });
+  const config = await fetchFoundr1RealtimeConfig();
+  if (!config?.key || !config?.cluster) {
+    return Response.json({ available: false }, { headers: { "Cache-Control": "no-store" } });
   }
 
   return Response.json({
     available: true,
-    key: process.env.PUSHER_KEY,
-    cluster: process.env.PUSHER_CLUSTER,
+    key: config.key,
+    cluster: config.cluster,
     channel: `order-${order.orderId}`,
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }
