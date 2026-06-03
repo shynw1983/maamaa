@@ -5,6 +5,7 @@
   --wash: #f8f5f2;
   --mint: #f3dfdc;
   --brand: #b70012;
+  --red: var(--brand);
   --tomato: #d95b4f;
   --sun: #f0d3a2;
   --line: rgba(29, 23, 22, 0.12);
