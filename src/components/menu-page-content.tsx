@@ -1,10 +1,10 @@
 "use client";
 
 import { useI18n } from "@/components/i18n-provider";
-import { MalatangOrderBuilder } from "@/components/malatang-order-builder";
+import { MalatangOrderBuilder, type MalatangMenu } from "@/components/malatang-order-builder";
 import { SiteHeader } from "@/components/site-header";
 
-export function MenuPageContent() {
+export function MenuPageContent({ initialMenu }: { initialMenu: MalatangMenu }) {
   const { t } = useI18n();
 
   return (
@@ -21,7 +21,7 @@ export function MenuPageContent() {
         </p>
       </section>
 
-      <MalatangOrderBuilder />
+      <MalatangOrderBuilder initialMenu={initialMenu} />
     </main>
   );
 }

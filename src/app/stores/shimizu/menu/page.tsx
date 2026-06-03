@@ -4,6 +4,7 @@ import { ClientLocaleRedirect } from "@/components/client-locale-redirect";
 import { LocalizedShell } from "@/components/localized-shell";
 import { MenuPageContent } from "@/components/menu-page-content";
 import { languageAlternates } from "@/data/locales";
+import { getMenuData } from "@/server/menu-source";
 import { isReservationAuthenticated } from "@/server/shimizu-reservation-auth";
 
 const shimizuMenuPath = "/stores/shimizu/menu";
@@ -22,11 +23,12 @@ export default async function ShimizuMenuPage() {
   if (!isReservationAuthenticated(cookieStore)) {
     redirect("/stores/shimizu/login?next=/stores/shimizu/menu");
   }
+  const initialMenu = await getMenuData("shimizu");
 
   return (
     <LocalizedShell language="ja">
       <ClientLocaleRedirect path={shimizuMenuPath} />
-      <MenuPageContent />
+      <MenuPageContent initialMenu={initialMenu} />
     </LocalizedShell>
   );
 }

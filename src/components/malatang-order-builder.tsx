@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  baseSoup,
-  heatLevels,
-  medicinalSpiceOptions,
-  menuSections,
-  numbLevels,
-  specialFlavors,
-  type MenuChoice,
-} from "@/data/malatang-menu";
+import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 
@@ -17,6 +9,8 @@ const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
 const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
+const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
+  items.find((item) => item.id === preferredId)?.id || items[0]?.id || "";
 
 type Reservation = {
   orderId: string;
@@ -48,17 +42,27 @@ type BowlSelections = {
   items: Record<string, number>;
 };
 
-type ProductState = {
-  drinkId: string;
-  isAvailable: boolean;
-  websiteEnabled: boolean;
+export type MalatangMenu = {
+  baseSoup: MenuChoice & {
+    isAvailable?: boolean;
+    websiteEnabled?: boolean;
+  };
+  medicinalSpiceOptions: MenuChoice[];
+  heatLevels: MenuChoice[];
+  numbLevels: MenuChoice[];
+  specialFlavors: MenuChoice[];
+  menuSections: MenuSection[];
+  selectedStoreId?: string;
+  stores?: Array<{ id: string; label: string; osStoreId?: string }>;
+  source?: string;
 };
 
-export function MalatangOrderBuilder() {
+export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMenu }) {
   const { language, t } = useI18n();
-  const [spice, setSpice] = useState(medicinalSpiceOptions[0].id);
-  const [heat, setHeat] = useState("normal");
-  const [numb, setNumb] = useState("tiny");
+  const [menu, setMenu] = useState(initialMenu);
+  const [spice, setSpice] = useState(defaultChoiceId(initialMenu.medicinalSpiceOptions));
+  const [heat, setHeat] = useState(defaultChoiceId(initialMenu.heatLevels, "normal"));
+  const [numb, setNumb] = useState(defaultChoiceId(initialMenu.numbLevels, "tiny"));
   const [flavors, setFlavors] = useState<string[]>([]);
   const [items, setItems] = useState<Record<string, number>>({});
   const [pickupDate, setPickupDate] = useState(today());
@@ -72,9 +76,9 @@ export function MalatangOrderBuilder() {
   const [submitError, setSubmitError] = useState("");
   const [checkoutUrl, setCheckoutUrl] = useState("");
   const [showCheckoutFallback, setShowCheckoutFallback] = useState(false);
-  const [hiddenChoiceIds, setHiddenChoiceIds] = useState<Set<string>>(new Set());
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
+  const { baseSoup, medicinalSpiceOptions, heatLevels, numbLevels, specialFlavors, menuSections } = menu;
 
   const allChoices = useMemo(
     () => [
@@ -84,10 +88,11 @@ export function MalatangOrderBuilder() {
       ...specialFlavors,
       ...menuSections.flatMap((section) => section.items),
     ],
-    [],
+    [heatLevels, medicinalSpiceOptions, menuSections, numbLevels, specialFlavors],
   );
   const choiceMap = useMemo(() => new Map(allChoices.map((choice) => [choice.id, choice])), [allChoices]);
-  const isChoiceOpen = (id: string) => !hiddenChoiceIds.has(id);
+  const openChoiceIds = useMemo(() => new Set(allChoices.map((choice) => choice.id)), [allChoices]);
+  const isChoiceOpen = (id: string) => openChoiceIds.has(id);
   const selectedSpice = choiceMap.get(spice) || medicinalSpiceOptions[0];
   const selectedHeat = choiceMap.get(heat) || heatLevels[0];
   const selectedNumb = choiceMap.get(numb) || numbLevels[0];
@@ -109,10 +114,13 @@ export function MalatangOrderBuilder() {
     selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const baseUnavailable = baseSoup.websiteEnabled === false || baseSoup.isAvailable === false;
   const reserveButtonLabel = checkoutUrl
     ? t("決済ページへ移動中...")
     : isSubmitting
     ? t("送信中...")
+    : baseUnavailable
+      ? t("現在このメニューは販売停止中")
     : !cartItems.length
       ? t("メニューを追加してください")
       : !name || !phone
@@ -121,19 +129,15 @@ export function MalatangOrderBuilder() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/products", { cache: "no-store" })
+    fetch("/api/menu?store=shimizu", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((body) => {
         if (!active) return;
-        const products = (body?.products || []) as ProductState[];
-        const hiddenIds = products
-          .filter((product) => !product.isAvailable || !product.websiteEnabled)
-          .map((product) => product.drinkId);
-        setHiddenChoiceIds(new Set(hiddenIds));
+        if (body?.baseSoup && Array.isArray(body.menuSections)) {
+          setMenu(body as MalatangMenu);
+        }
       })
-      .catch(() => {
-        if (active) setHiddenChoiceIds(new Set());
-      });
+      .catch(() => {});
 
     return () => {
       active = false;
@@ -145,10 +149,10 @@ export function MalatangOrderBuilder() {
     setItems((current) =>
       Object.fromEntries(Object.entries(current).filter(([id]) => isChoiceOpen(id))),
     );
-    if (!isChoiceOpen(spice)) setSpice(medicinalSpiceOptions.find((item) => isChoiceOpen(item.id))?.id || medicinalSpiceOptions[0].id);
-    if (!isChoiceOpen(heat)) setHeat(heatLevels.find((item) => isChoiceOpen(item.id))?.id || heatLevels[0].id);
-    if (!isChoiceOpen(numb)) setNumb(numbLevels.find((item) => isChoiceOpen(item.id))?.id || numbLevels[0].id);
-  }, [hiddenChoiceIds, spice, heat, numb]);
+    if (!isChoiceOpen(spice)) setSpice(defaultChoiceId(medicinalSpiceOptions));
+    if (!isChoiceOpen(heat)) setHeat(defaultChoiceId(heatLevels, "normal"));
+    if (!isChoiceOpen(numb)) setNumb(defaultChoiceId(numbLevels, "tiny"));
+  }, [heat, heatLevels, medicinalSpiceOptions, numb, numbLevels, openChoiceIds, spice]);
 
   const toggleFlavor = (id: string) => {
     setFlavors((current) =>
@@ -167,9 +171,9 @@ export function MalatangOrderBuilder() {
   };
 
   const resetCurrentBowl = () => {
-    setSpice(medicinalSpiceOptions[0].id);
-    setHeat("normal");
-    setNumb("tiny");
+    setSpice(defaultChoiceId(medicinalSpiceOptions));
+    setHeat(defaultChoiceId(heatLevels, "normal"));
+    setNumb(defaultChoiceId(numbLevels, "tiny"));
     setFlavors([]);
     setItems({});
     setEditingCartItemId(null);
@@ -201,6 +205,7 @@ export function MalatangOrderBuilder() {
     ].filter(Boolean);
 
   const addCurrentBowl = () => {
+    if (baseUnavailable) return;
     const bowlNumber = cartItems.length + 1;
     const currentTotal = total;
     const nextItem = {
@@ -377,7 +382,7 @@ export function MalatangOrderBuilder() {
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
+        <button className="button primary reserveButton" disabled={baseUnavailable || !name || !phone || !cartItems.length || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
           {reserveButtonLabel}
         </button>
         {checkoutUrl && showCheckoutFallback ? (
@@ -435,7 +440,7 @@ export function MalatangOrderBuilder() {
               </>
             )}
           </div>
-          <button className="button primary" type="button" onClick={addCurrentBowl}>
+          <button className="button primary" type="button" disabled={baseUnavailable} onClick={addCurrentBowl}>
             {editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
           </button>
         </section>

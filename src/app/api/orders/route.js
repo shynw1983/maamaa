@@ -1,4 +1,4 @@
-const { baseSoup, heatLevels, medicinalSpiceOptions, menuSections, numbLevels, specialFlavors } = require("../../../data/malatang-menu");
+const { getMenuData } = require("../../../server/menu-source");
 
 const localePrefix = (language) => {
   if (language === "en") return "/en";
@@ -25,19 +25,11 @@ const foundr1StoreId = () => (
   "ed6c3b1f-e68a-4cbd-92e2-06a800eb7183"
 );
 
-const choiceNameById = new Map([
-  ...medicinalSpiceOptions,
-  ...heatLevels,
-  ...numbLevels,
-  ...specialFlavors,
-  ...menuSections.flatMap((section) => section.items),
-].map((choice) => [choice.id, choice.name]));
-
-const sectionByChoiceId = new Map(
-  menuSections.flatMap((section) => section.items.map((item) => [item.id, section.id])),
+const createSectionByChoiceId = (menu) => new Map(
+  menu.menuSections.flatMap((section) => section.items.map((item) => [item.id, section.id])),
 );
 
-const expandQuantitySelections = (items = {}) => {
+const expandQuantitySelections = (items = {}, sectionByChoiceId) => {
   const selections = {};
   for (const [choiceId, rawQuantity] of Object.entries(items || {})) {
     const sectionId = sectionByChoiceId.get(choiceId);
@@ -50,17 +42,17 @@ const expandQuantitySelections = (items = {}) => {
   return selections;
 };
 
-const toFoundr1Item = (item) => {
+const toFoundr1Item = (item, menu, sectionByChoiceId) => {
   const selections = item?.selections || {};
   return {
-    title: item?.title || baseSoup.name,
-    medicinalSpice: selections.spice || "with-spice",
-    heat: selections.heat || "normal",
-    numb: selections.numb || "tiny",
+    title: item?.title || menu.baseSoup.name,
+    medicinalSpice: selections.spice || menu.medicinalSpiceOptions[0]?.id || "",
+    heat: selections.heat || menu.heatLevels.find((choice) => choice.id === "normal")?.id || menu.heatLevels[0]?.id || "",
+    numb: selections.numb || menu.numbLevels.find((choice) => choice.id === "tiny")?.id || menu.numbLevels[0]?.id || "",
     specialFlavors: Array.isArray(selections.flavors) ? selections.flavors : [],
-    selections: expandQuantitySelections(selections.items),
+    selections: expandQuantitySelections(selections.items, sectionByChoiceId),
     completionSummary: {
-      title: item?.title || baseSoup.name,
+      title: item?.title || menu.baseSoup.name,
       summary: Array.isArray(item?.summary) ? item.summary : [],
       total: Number(item?.total || 0),
     },
@@ -78,6 +70,11 @@ export async function POST(request) {
   if (!baseUrl) {
     return Response.json({ error: "FOUNDR1_API_BASE_URL is not configured" }, { status: 500 });
   }
+  const menu = await getMenuData("shimizu");
+  if (menu.baseSoup.websiteEnabled === false || menu.baseSoup.isAvailable === false) {
+    return Response.json({ error: "Menu item is temporarily unavailable" }, { status: 409 });
+  }
+  const sectionByChoiceId = createSectionByChoiceId(menu);
 
   const language = String(body.language || "ja");
   const origin = requestOrigin(request);
@@ -90,13 +87,13 @@ export async function POST(request) {
       store: foundr1StoreId(),
       pickupDate: body.pickupDate,
       pickup: body.pickupTime,
-      items: body.items.map(toFoundr1Item),
+      items: body.items.map((item) => toFoundr1Item(item, menu, sectionByChoiceId)),
       completionUrl,
       completionSummary: {
         name: body.name,
         phone: body.phone,
         note: body.note || "",
-        drink: body.items.map((item, index) => `${index + 1}. ${item.title || baseSoup.name}`).join(" / "),
+        drink: body.items.map((item, index) => `${index + 1}. ${item.title || menu.baseSoup.name}`).join(" / "),
         size: body.items.map((item, index) => `${index + 1}. ${(item.summary || []).join(" / ")}`).join("\n"),
         total: Number(body.total || 0),
       },
@@ -124,7 +121,7 @@ export async function POST(request) {
       paymentProvider: "komoju",
       storeId: foundr1StoreId(),
       storeName: "まぁ麻 清水店",
-      drink: body.items.map((item, index) => `${index + 1}. ${item.title || baseSoup.name}`).join(" / "),
+      drink: body.items.map((item, index) => `${index + 1}. ${item.title || menu.baseSoup.name}`).join(" / "),
       size: body.items.map((item) => (item.summary || []).join(" / ")).join("\n"),
       temperature: body.name,
       sweetness: body.phone,
