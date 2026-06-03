@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
@@ -11,6 +11,82 @@ const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
   items.find((item) => item.id === preferredId)?.id || items[0]?.id || "";
+const defaultSubmitError = "予約を送信できませんでした。時間をおいてからもう一度お試しください。";
+const unavailableSelectionError = "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。";
+const menuRefreshNotice = "メニュー状態が更新されました。販売中の内容を最新にしました。";
+const menuRefreshIntervalMs = 15000;
+
+function formatUnavailableItems(value: unknown) {
+  if (!Array.isArray(value)) return "";
+  return value
+    .map((entry) => {
+      if (!entry || typeof entry !== "object") return "";
+      const record = entry as Record<string, unknown>;
+      const index = Number(record.itemIndex || 0);
+      const title = String(record.title || "").trim();
+      const optionNames = Array.isArray(record.unavailableOptions)
+        ? record.unavailableOptions
+            .map((option) => (option && typeof option === "object" ? String((option as Record<string, unknown>).name || "") : ""))
+            .filter(Boolean)
+            .join("、")
+        : "";
+      const summary = Array.isArray(record.summary) ? record.summary.map(String).filter(Boolean).join(" / ") : "";
+      const label = [index ? `${index}.` : "", title, optionNames ? `: ${optionNames}` : summary ? `（${summary}）` : ""].filter(Boolean).join(" ");
+      return label.trim();
+    })
+    .filter(Boolean)
+    .join("、");
+}
+
+function getSubmitErrorMessage(body: Record<string, unknown> | null) {
+  if (body?.code === "MENU_SELECTION_UNAVAILABLE") {
+    const items = formatUnavailableItems(body.unavailableItems);
+    return items ? `${unavailableSelectionError} 対象: ${items}` : unavailableSelectionError;
+  }
+  if (body?.code === "MENU_ITEM_UNAVAILABLE") return String(body.error || "ベースの麻辣湯が現在販売停止中です。時間をおいてからもう一度お試しください。");
+  return String(body?.error || defaultSubmitError);
+}
+
+function menuSignature(menu: MalatangMenu) {
+  return JSON.stringify({
+    base: [menu.baseSoup.id, menu.baseSoup.price, menu.baseSoup.isAvailable, menu.baseSoup.websiteEnabled],
+    spice: menu.medicinalSpiceOptions.map((item) => [item.id, item.price]),
+    heat: menu.heatLevels.map((item) => [item.id, item.price]),
+    numb: menu.numbLevels.map((item) => [item.id, item.price]),
+    flavors: menu.specialFlavors.map((item) => [item.id, item.price]),
+    sections: menu.menuSections.map((section) => [section.id, section.items.map((item) => [item.id, item.price])]),
+  });
+}
+
+function unavailableCartItemLabels(cartItems: CartItem[], menu: MalatangMenu) {
+  const availableIds = new Set([
+    ...menu.medicinalSpiceOptions.map((item) => item.id),
+    ...menu.heatLevels.map((item) => item.id),
+    ...menu.numbLevels.map((item) => item.id),
+    ...menu.specialFlavors.map((item) => item.id),
+    ...menu.menuSections.flatMap((section) => section.items.map((item) => item.id)),
+  ]);
+
+  return cartItems
+    .map((item, index) => {
+      const selectedIds = [
+        item.selections.spice,
+        item.selections.heat,
+        item.selections.numb,
+        ...item.selections.flavors,
+        ...Object.entries(item.selections.items)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([id]) => id),
+      ].filter(Boolean);
+      if (selectedIds.every((id) => availableIds.has(id))) return "";
+      const unavailableNames = selectedIds
+        .filter((id) => !availableIds.has(id))
+        .map((id) => item.selectionLabels?.[id] || id)
+        .filter(Boolean);
+      return `${index + 1}. ${item.title}: ${unavailableNames.join("、") || item.summary.join(" / ")}`;
+    })
+    .filter(Boolean);
+}
 
 type Reservation = {
   orderId: string;
@@ -32,6 +108,7 @@ type CartItem = {
   total: number;
   summary: string[];
   selections: BowlSelections;
+  selectionLabels: Record<string, string>;
 };
 
 type BowlSelections = {
@@ -74,10 +151,12 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [menuNotice, setMenuNotice] = useState("");
   const [checkoutUrl, setCheckoutUrl] = useState("");
   const [showCheckoutFallback, setShowCheckoutFallback] = useState(false);
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
+  const menuSignatureRef = useRef(menuSignature(initialMenu));
   const { baseSoup, medicinalSpiceOptions, heatLevels, numbLevels, specialFlavors, menuSections } = menu;
 
   const allChoices = useMemo(
@@ -129,20 +208,45 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
   useEffect(() => {
     let active = true;
-    fetch("/api/menu?store=shimizu", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body) => {
+
+    const loadMenu = (showNotice: boolean) => {
+      fetch("/api/menu?store=shimizu", { cache: "no-store" })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((body) => {
         if (!active) return;
         if (body?.baseSoup && Array.isArray(body.menuSections)) {
-          setMenu(body as MalatangMenu);
+          const nextMenu = body as MalatangMenu;
+          const nextSignature = menuSignature(nextMenu);
+          const changed = menuSignatureRef.current !== nextSignature;
+          setMenu(nextMenu);
+          menuSignatureRef.current = nextSignature;
+          if (showNotice && changed) {
+            const affected = unavailableCartItemLabels(cartItems, nextMenu);
+            setMenuNotice(
+              affected.length
+                ? `${menuRefreshNotice} 現在選べないトッピング・オプションが含まれています。対象: ${affected.join("、")}。予約リストから該当する一杯を削除して、もう一度選び直してください。`
+                : menuRefreshNotice,
+            );
+          }
         }
-      })
-      .catch(() => {});
+        })
+        .catch(() => {});
+    };
+
+    loadMenu(false);
+    const interval = window.setInterval(() => loadMenu(true), menuRefreshIntervalMs);
 
     return () => {
       active = false;
+      window.clearInterval(interval);
     };
-  }, []);
+  }, [cartItems]);
+
+  useEffect(() => {
+    if (!menuNotice) return;
+    const timeout = window.setTimeout(() => setMenuNotice(""), 9000);
+    return () => window.clearTimeout(timeout);
+  }, [menuNotice]);
 
   useEffect(() => {
     setFlavors((current) => current.filter((id) => isChoiceOpen(id)));
@@ -204,6 +308,14 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       ...selectedItems.map((item) => `${t(item.name)} x${item.quantity}`),
     ].filter(Boolean);
 
+  const buildCurrentSelectionLabels = () => Object.fromEntries([
+    selectedSpice ? [selectedSpice.id, t(selectedSpice.name)] : null,
+    selectedHeat ? [selectedHeat.id, t(selectedHeat.name)] : null,
+    selectedNumb ? [selectedNumb.id, t(selectedNumb.name)] : null,
+    ...selectedFlavors.map((item) => [item.id, t(item.name)]),
+    ...selectedItems.map((item) => [item.id, `${t(item.name)} x${item.quantity}`]),
+  ].filter(Boolean) as Array<[string, string]>);
+
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
     const bowlNumber = cartItems.length + 1;
@@ -214,6 +326,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       total: currentTotal,
       summary: buildCurrentSummary(),
       selections: getCurrentSelections(),
+      selectionLabels: buildCurrentSelectionLabels(),
     };
 
     if (editingCartItemId) {
@@ -283,8 +396,11 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         }),
       });
 
-      if (!response.ok) throw new Error("request failed");
       const body = await response.json();
+      if (!response.ok) {
+        setSubmitError(t(getSubmitErrorMessage(body as Record<string, unknown>)));
+        return;
+      }
       const nextReservation = {
         orderId: body.order?.orderId || "",
         code: body.order?.pickupCode || `M-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -315,7 +431,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         window.location.href = body.orderUrl;
       }
     } catch {
-      setSubmitError(t("予約を送信できませんでした。決済設定を確認してください。"));
+      setSubmitError(t(defaultSubmitError));
     } finally {
       setIsSubmitting(false);
     }
@@ -391,6 +507,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           </a>
         ) : null}
         {submitError ? <p className="formError">{submitError}</p> : null}
+        {menuNotice ? <p className="menuNotice">{t(menuNotice)}</p> : null}
         {reservation ? (
           <div className="reservationResult">
             <strong>{t("予約番号")} {reservation.code}</strong>

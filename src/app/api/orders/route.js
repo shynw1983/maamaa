@@ -42,6 +42,53 @@ const expandQuantitySelections = (items = {}, sectionByChoiceId) => {
   return selections;
 };
 
+const createValidSelectionIds = (menu) => new Set([
+  ...menu.medicinalSpiceOptions.map((choice) => choice.id),
+  ...menu.heatLevels.map((choice) => choice.id),
+  ...menu.numbLevels.map((choice) => choice.id),
+  ...menu.specialFlavors.map((choice) => choice.id),
+  ...menu.menuSections.flatMap((section) => section.items.map((choice) => choice.id)),
+]);
+
+const validateCartAgainstMenu = (items, menu, sectionByChoiceId) => {
+  const validIds = createValidSelectionIds(menu);
+  const unavailableItems = [];
+
+  for (const [index, item] of (items || []).entries()) {
+    const selections = item?.selections || {};
+    const selectionLabels = item?.selectionLabels && typeof item.selectionLabels === "object" ? item.selectionLabels : {};
+    const unavailableSelections = new Map();
+    const addUnavailable = (id) => {
+      unavailableSelections.set(id, String(selectionLabels[id] || id));
+    };
+    [selections.spice, selections.heat, selections.numb]
+      .filter(Boolean)
+      .forEach((id) => {
+        if (!validIds.has(id)) addUnavailable(id);
+      });
+    (Array.isArray(selections.flavors) ? selections.flavors : [])
+      .filter(Boolean)
+      .forEach((id) => {
+        if (!validIds.has(id)) addUnavailable(id);
+      });
+    Object.entries(selections.items || {}).forEach(([id, rawQuantity]) => {
+      const quantity = Math.max(0, Math.round(Number(rawQuantity) || 0));
+      if (quantity > 0 && !sectionByChoiceId.has(id)) addUnavailable(id);
+    });
+
+    if (unavailableSelections.size) {
+      unavailableItems.push({
+        itemIndex: index + 1,
+        title: String(item?.title || menu.baseSoup.name),
+        summary: Array.isArray(item?.summary) ? item.summary.map(String).filter(Boolean) : [],
+        unavailableOptions: Array.from(unavailableSelections.entries()).map(([id, name]) => ({ id, name })),
+      });
+    }
+  }
+
+  return unavailableItems;
+};
+
 const toFoundr1Item = (item, menu, sectionByChoiceId) => {
   const selections = item?.selections || {};
   return {
@@ -66,15 +113,26 @@ export async function POST(request) {
     return Response.json({ error: "Missing order fields" }, { status: 400 });
   }
 
+  const menu = await getMenuData("shimizu", { noStore: true });
+  if (menu.baseSoup.websiteEnabled === false || menu.baseSoup.isAvailable === false) {
+    return Response.json({
+      code: "MENU_ITEM_UNAVAILABLE",
+      error: "ベースの麻辣湯が現在販売停止中です。時間をおいてからもう一度お試しください。",
+    }, { status: 409 });
+  }
+  const sectionByChoiceId = createSectionByChoiceId(menu);
+  const unavailableSelections = validateCartAgainstMenu(body.items, menu, sectionByChoiceId);
+  if (unavailableSelections.length) {
+    return Response.json({
+      code: "MENU_SELECTION_UNAVAILABLE",
+      error: "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。",
+      unavailableItems: unavailableSelections,
+    }, { status: 409 });
+  }
   const baseUrl = foundr1BaseUrl();
   if (!baseUrl) {
     return Response.json({ error: "FOUNDR1_API_BASE_URL is not configured" }, { status: 500 });
   }
-  const menu = await getMenuData("shimizu");
-  if (menu.baseSoup.websiteEnabled === false || menu.baseSoup.isAvailable === false) {
-    return Response.json({ error: "Menu item is temporarily unavailable" }, { status: 409 });
-  }
-  const sectionByChoiceId = createSectionByChoiceId(menu);
 
   const language = String(body.language || "ja");
   const origin = requestOrigin(request);
@@ -103,8 +161,13 @@ export async function POST(request) {
 
   const foundr1Body = await foundr1Response.json().catch(() => ({}));
   if (!foundr1Response.ok || !foundr1Body.checkoutUrl) {
+    const upstreamError = String(foundr1Body.error || "");
+    const isMenuSelectionError = upstreamError.includes("Invalid selection") || upstreamError.includes("Invalid special flavor");
     return Response.json({
-      error: foundr1Body.error || "Could not create Foundr1 checkout session",
+      code: isMenuSelectionError ? "MENU_SELECTION_UNAVAILABLE" : foundr1Body.code || "CHECKOUT_FAILED",
+      error: isMenuSelectionError
+        ? "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。"
+        : foundr1Body.error || "Could not create Foundr1 checkout session",
       details: foundr1Body.details || undefined,
     }, { status: foundr1Response.status || 502 });
   }

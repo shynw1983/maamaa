@@ -107,7 +107,7 @@ const resolveStoreQuery = (store = "") => {
   return value;
 };
 
-const fetchOsMenu = async (store = "") => {
+const fetchOsMenu = async (store = "", options = {}) => {
   const baseUrl = getMenuApiUrl();
   if (!baseUrl || baseUrl === "off") return null;
 
@@ -121,10 +121,17 @@ const fetchOsMenu = async (store = "") => {
       headers["x-vercel-protection-bypass"] = process.env.FOUNDR1_OS_MENU_API_BYPASS_SECRET;
     }
 
-    const response = await fetch(url.toString(), {
+    const fetchOptions = {
       headers,
       next: { revalidate: storeQuery ? storeMenuRevalidateSeconds : brandMenuRevalidateSeconds },
-    });
+    };
+    if (options.noStore) {
+      delete fetchOptions.next;
+      fetchOptions.cache = "no-store";
+      url.searchParams.set("_", String(Date.now()));
+    }
+
+    const response = await fetch(url.toString(), fetchOptions);
     if (!response.ok) throw new Error(`Foundr1 OS menu returned ${response.status}`);
     return normalizeOsMenu(await response.json());
   } catch (error) {
@@ -133,7 +140,7 @@ const fetchOsMenu = async (store = "") => {
   }
 };
 
-const getMenuData = async (store = "") => (await fetchOsMenu(store)) || fallbackMenu();
+const getMenuData = async (store = "", options = {}) => (await fetchOsMenu(store, options)) || fallbackMenu();
 
 module.exports = {
   fallbackMenu,
