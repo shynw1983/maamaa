@@ -71,6 +71,7 @@ export function MalatangOrderBuilder() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [checkoutUrl, setCheckoutUrl] = useState("");
+  const [showCheckoutFallback, setShowCheckoutFallback] = useState(false);
   const [hiddenChoiceIds, setHiddenChoiceIds] = useState<Set<string>>(new Set());
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
@@ -108,7 +109,9 @@ export function MalatangOrderBuilder() {
     selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
-  const reserveButtonLabel = isSubmitting
+  const reserveButtonLabel = checkoutUrl
+    ? t("決済ページへ移動中...")
+    : isSubmitting
     ? t("送信中...")
     : !cartItems.length
       ? t("メニューを追加してください")
@@ -258,6 +261,7 @@ export function MalatangOrderBuilder() {
     setIsSubmitting(true);
     setSubmitError("");
     setCheckoutUrl("");
+    setShowCheckoutFallback(false);
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -298,9 +302,10 @@ export function MalatangOrderBuilder() {
       }
       if (body.checkoutUrl) {
         setCheckoutUrl(body.checkoutUrl);
+        window.setTimeout(() => setShowCheckoutFallback(true), 3000);
         window.setTimeout(() => {
           window.location.href = body.checkoutUrl;
-        }, 0);
+        }, 100);
       } else if (body.orderUrl) {
         window.location.href = body.orderUrl;
       }
@@ -372,10 +377,10 @@ export function MalatangOrderBuilder() {
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length || isSubmitting} onClick={createReservation}>
+        <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
           {reserveButtonLabel}
         </button>
-        {checkoutUrl ? (
+        {checkoutUrl && showCheckoutFallback ? (
           <a className="button primary reserveButton" href={checkoutUrl}>
             {t("KOMOJUで支払う")}
           </a>
