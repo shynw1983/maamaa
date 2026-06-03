@@ -81,7 +81,7 @@ export async function POST(request) {
 
   const language = String(body.language || "ja");
   const origin = requestOrigin(request);
-  const menuPath = `${localePrefix(language)}/stores/shimizu/menu`;
+  const orderPathPrefix = `${localePrefix(language)}/stores/shimizu/orders`;
   const completionUrl = `${origin}/api/orders/foundr1-return?lang=${encodeURIComponent(language)}`;
   const foundr1Response = await fetch(`${baseUrl}/api/public/orders/maamaa/checkout`, {
     method: "POST",
@@ -138,6 +138,6 @@ export async function POST(request) {
       createdAt: new Date().toISOString(),
     },
     checkoutUrl: foundr1Body.checkoutUrl,
-    orderUrl: `${menuPath}?orderId=${encodeURIComponent(orderId)}&pickupCode=${encodeURIComponent(pickupCode)}`,
+    orderUrl: `${orderPathPrefix}/${encodeURIComponent(orderId)}?pickupCode=${encodeURIComponent(pickupCode)}`,
   });
 }
