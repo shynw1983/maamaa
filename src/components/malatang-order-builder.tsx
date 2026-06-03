@@ -70,6 +70,7 @@ export function MalatangOrderBuilder() {
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [checkoutUrl, setCheckoutUrl] = useState("");
   const [hiddenChoiceIds, setHiddenChoiceIds] = useState<Set<string>>(new Set());
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
@@ -256,6 +257,7 @@ export function MalatangOrderBuilder() {
 
     setIsSubmitting(true);
     setSubmitError("");
+    setCheckoutUrl("");
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -295,9 +297,12 @@ export function MalatangOrderBuilder() {
         // Continue to checkout even when local storage is unavailable.
       }
       if (body.checkoutUrl) {
-        window.location.assign(body.checkoutUrl);
+        setCheckoutUrl(body.checkoutUrl);
+        window.setTimeout(() => {
+          window.location.href = body.checkoutUrl;
+        }, 0);
       } else if (body.orderUrl) {
-        window.location.assign(body.orderUrl);
+        window.location.href = body.orderUrl;
       }
     } catch {
       setSubmitError(t("予約を送信できませんでした。決済設定を確認してください。"));
@@ -370,6 +375,11 @@ export function MalatangOrderBuilder() {
         <button className="button primary reserveButton" disabled={!name || !phone || !cartItems.length || isSubmitting} onClick={createReservation}>
           {reserveButtonLabel}
         </button>
+        {checkoutUrl ? (
+          <a className="button primary reserveButton" href={checkoutUrl}>
+            {t("KOMOJUで支払う")}
+          </a>
+        ) : null}
         {submitError ? <p className="formError">{submitError}</p> : null}
         {reservation ? (
           <div className="reservationResult">
