@@ -47,6 +47,7 @@ const fallbackMenu = () => ({
     statusNote: "",
     businessHours: {},
     reservationNote: "",
+    minimumPickupMinutes: 15,
   },
   source: "local-fallback",
 });
@@ -92,6 +93,13 @@ const normalizeOsMenu = (payload) => {
       .filter((section) => section.id && section.title),
     stores: Array.isArray(menu.stores) && menu.stores.length ? menu.stores : fallbackMenu().stores,
     selectedStoreId: menu.selectedStoreId || fallbackMenu().selectedStoreId,
+    storeOperation: {
+      ...fallbackMenu().storeOperation,
+      ...(menu.storeOperation || {}),
+      minimumPickupMinutes: Number.isFinite(Number(menu.storeOperation?.minimumPickupMinutes))
+        ? Math.max(0, Math.min(240, Math.round(Number(menu.storeOperation.minimumPickupMinutes))))
+        : fallbackMenu().storeOperation.minimumPickupMinutes,
+    },
   };
 
   if (!normalized.medicinalSpiceOptions.length) normalized.medicinalSpiceOptions = localMenu.medicinalSpiceOptions;

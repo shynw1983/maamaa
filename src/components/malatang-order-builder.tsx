@@ -6,7 +6,7 @@ import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
-const minimumPickupMinutes = 15;
+const defaultMinimumPickupMinutes = 15;
 const getTokyoDateTimeParts = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Tokyo",
@@ -23,7 +23,13 @@ const getTokyoDateTimeParts = (date = new Date()) => {
     time: `${value("hour")}:${value("minute")}`,
   };
 };
-const getMinimumPickupDateTime = () => getTokyoDateTimeParts(new Date(Date.now() + minimumPickupMinutes * 60 * 1000));
+const normalizeMinimumPickupMinutes = (value: unknown) => {
+  const minutes = Math.round(Number(value));
+  if (!Number.isFinite(minutes)) return defaultMinimumPickupMinutes;
+  return Math.max(0, Math.min(240, minutes));
+};
+const getMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) =>
+  getTokyoDateTimeParts(new Date(Date.now() + leadMinutes * 60 * 1000));
 const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
@@ -148,12 +154,18 @@ export type MalatangMenu = {
   menuSections: MenuSection[];
   selectedStoreId?: string;
   stores?: Array<{ id: string; label: string; osStoreId?: string }>;
+  storeOperation?: {
+    minimumPickupMinutes?: number | null;
+  };
   source?: string;
 };
 
 export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMenu }) {
   const { language, t } = useI18n();
-  const initialPickup = useMemo(() => getMinimumPickupDateTime(), []);
+  const initialPickup = useMemo(
+    () => getMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes)),
+    [initialMenu.storeOperation?.minimumPickupMinutes],
+  );
   const [menu, setMenu] = useState(initialMenu);
   const [spice, setSpice] = useState(defaultChoiceId(initialMenu.medicinalSpiceOptions));
   const [heat, setHeat] = useState(defaultChoiceId(initialMenu.heatLevels, "normal"));
@@ -177,6 +189,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
   const { baseSoup, medicinalSpiceOptions, heatLevels, numbLevels, specialFlavors, menuSections } = menu;
+  const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
 
   const allChoices = useMemo(
     () => [
@@ -269,7 +282,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
   useEffect(() => {
     const updateMinimumPickup = () => {
-      const nextMinimum = getMinimumPickupDateTime();
+      const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
       const nextPickupDate = pickupDate < nextMinimum.date ? nextMinimum.date : pickupDate;
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
@@ -280,7 +293,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
     const interval = window.setInterval(updateMinimumPickup, 30000);
     return () => window.clearInterval(interval);
-  }, [pickupDate]);
+  }, [minimumPickupMinutes, pickupDate]);
 
   useEffect(() => {
     setFlavors((current) => current.filter((id) => isChoiceOpen(id)));
@@ -415,7 +428,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     setCheckoutUrl("");
     setShowCheckoutFallback(false);
     try {
-      const nextMinimum = getMinimumPickupDateTime();
+      const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
       const safePickupDate = pickupDate < nextMinimum.date ? nextMinimum.date : pickupDate;
       const safePickupTime =
         safePickupDate === nextMinimum.date && (!pickupTime || pickupTime < nextMinimum.time)
