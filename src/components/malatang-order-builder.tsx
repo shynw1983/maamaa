@@ -7,6 +7,7 @@ import { localizedPath } from "@/components/localized-path";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
+const minimumBowlTotal = 800;
 const getTokyoDateTimeParts = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Tokyo",
@@ -38,6 +39,7 @@ const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
   items.find((item) => item.id === preferredId)?.id || items[0]?.id || "";
 const defaultSubmitError = "予約を送信できませんでした。時間をおいてからもう一度お試しください。";
+const minimumBowlTotalError = `一杯あたり${yen(minimumBowlTotal)}以上になるように具材を追加してください。`;
 const unavailableSelectionError = "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。";
 const menuRefreshNotice = "メニュー状態が更新されました。販売中の内容を最新にしました。";
 const menuRefreshIntervalMs = 15000;
@@ -65,6 +67,7 @@ function formatUnavailableItems(value: unknown) {
 }
 
 function getSubmitErrorMessage(body: Record<string, unknown> | null) {
+  if (body?.code === "BOWL_TOTAL_TOO_LOW") return String(body.error || minimumBowlTotalError);
   if (body?.code === "MENU_SELECTION_UNAVAILABLE") {
     const items = formatUnavailableItems(body.unavailableItems);
     return items ? `${unavailableSelectionError} 対象: ${items}` : unavailableSelectionError;
@@ -246,6 +249,8 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       ? t("現在このメニューは販売停止中")
     : !cartItems.length
       ? t("メニューを追加してください")
+      : cartItems.some((item) => item.total < minimumBowlTotal)
+        ? t(minimumBowlTotalError)
       : !name || !phone
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
@@ -401,6 +406,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     if (baseUnavailable) return;
     const bowlNumber = cartItems.length + 1;
     const currentTotal = total;
+    if (currentTotal < minimumBowlTotal) {
+      setSubmitError(t(minimumBowlTotalError));
+      return;
+    }
     const nextItem = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       title: `${t(baseSoup.name)} #${bowlNumber}`,
@@ -456,6 +465,13 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
   const createReservation = async () => {
     if (!cartItems.length) return;
+    const underMinimumItems = cartItems
+      .map((item, index) => (item.total < minimumBowlTotal ? `${index + 1}. ${item.title} ${yen(item.total)}` : ""))
+      .filter(Boolean);
+    if (underMinimumItems.length) {
+      setSubmitError(t(`${minimumBowlTotalError} 対象: ${underMinimumItems.join("、")}`));
+      return;
+    }
     if (reservationsPaused) {
       setSubmitError(t(reservationPauseMessage));
       return;
@@ -607,7 +623,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={reservationsPaused || baseUnavailable || !name || !phone || !cartItems.length || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
+        <button className="button primary reserveButton" disabled={reservationsPaused || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
           {reserveButtonLabel}
         </button>
         {checkoutUrl && showCheckoutFallback ? (
@@ -668,7 +684,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             )}
           </div>
           <button className="button primary" type="button" disabled={baseUnavailable} onClick={addCurrentBowl}>
-            {editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
+            {total < minimumBowlTotal ? t(`${yen(minimumBowlTotal)}以上で追加`) : editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
           </button>
         </section>
 

@@ -1,5 +1,7 @@
 const { getMenuData } = require("../../../server/menu-source");
 
+const minimumBowlTotal = 800;
+
 const localePrefix = (language) => {
   if (language === "en") return "/en";
   if (language === "zh") return "/zh";
@@ -49,6 +51,36 @@ const createValidSelectionIds = (menu) => new Set([
   ...menu.specialFlavors.map((choice) => choice.id),
   ...menu.menuSections.flatMap((section) => section.items.map((choice) => choice.id)),
 ]);
+
+const createChoiceById = (menu) => new Map([
+  [menu.baseSoup.id, menu.baseSoup],
+  ...menu.medicinalSpiceOptions.map((choice) => [choice.id, choice]),
+  ...menu.heatLevels.map((choice) => [choice.id, choice]),
+  ...menu.numbLevels.map((choice) => [choice.id, choice]),
+  ...menu.specialFlavors.map((choice) => [choice.id, choice]),
+  ...menu.menuSections.flatMap((section) => section.items.map((choice) => [choice.id, choice])),
+]);
+
+const calculateBowlTotal = (item, menu, choiceById) => {
+  const selections = item?.selections || {};
+  const selectedSpice = choiceById.get(selections.spice) || menu.medicinalSpiceOptions[0];
+  const selectedHeat = choiceById.get(selections.heat) || menu.heatLevels.find((choice) => choice.id === "normal") || menu.heatLevels[0];
+  const selectedNumb = choiceById.get(selections.numb) || menu.numbLevels.find((choice) => choice.id === "tiny") || menu.numbLevels[0];
+  const flavorTotal = (Array.isArray(selections.flavors) ? selections.flavors : [])
+    .reduce((sum, id) => sum + Number(choiceById.get(id)?.price || 0), 0);
+  const itemTotal = Object.entries(selections.items || {})
+    .reduce((sum, [id, rawQuantity]) => {
+      const quantity = Math.max(0, Math.round(Number(rawQuantity) || 0));
+      return sum + Number(choiceById.get(id)?.price || 0) * quantity;
+    }, 0);
+
+  return Number(menu.baseSoup.price || 0) +
+    Number(selectedSpice?.price || 0) +
+    Number(selectedHeat?.price || 0) +
+    Number(selectedNumb?.price || 0) +
+    flavorTotal +
+    itemTotal;
+};
 
 const validateCartAgainstMenu = (items, menu, sectionByChoiceId) => {
   const validIds = createValidSelectionIds(menu);
@@ -121,6 +153,7 @@ export async function POST(request) {
     }, { status: 409 });
   }
   const sectionByChoiceId = createSectionByChoiceId(menu);
+  const choiceById = createChoiceById(menu);
   const unavailableSelections = validateCartAgainstMenu(body.items, menu, sectionByChoiceId);
   if (unavailableSelections.length) {
     return Response.json({
@@ -128,6 +161,21 @@ export async function POST(request) {
       error: "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。",
       unavailableItems: unavailableSelections,
     }, { status: 409 });
+  }
+  const underMinimumItems = body.items
+    .map((item, index) => ({
+      itemIndex: index + 1,
+      title: String(item?.title || menu.baseSoup.name),
+      total: calculateBowlTotal(item, menu, choiceById),
+    }))
+    .filter((item) => item.total < minimumBowlTotal);
+  if (underMinimumItems.length) {
+    return Response.json({
+      code: "BOWL_TOTAL_TOO_LOW",
+      error: `一杯あたり¥${minimumBowlTotal.toLocaleString("ja-JP")}以上になるように具材を追加してください。`,
+      minimumBowlTotal,
+      underMinimumItems,
+    }, { status: 400 });
   }
   const baseUrl = foundr1BaseUrl();
   if (!baseUrl) {
