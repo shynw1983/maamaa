@@ -19,7 +19,6 @@ const getCredentials = () => ({
 
 const getSecret = () =>
   process.env.SHIMIZU_RESERVATION_AUTH_SECRET ||
-  process.env.ADMIN_SESSION_SECRET ||
   process.env.SHIMIZU_RESERVATION_PASSWORD ||
   process.env.RESERVATION_PASSWORD ||
   "";
