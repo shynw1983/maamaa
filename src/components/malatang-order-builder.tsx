@@ -156,6 +156,8 @@ export type MalatangMenu = {
   selectedStoreId?: string;
   stores?: Array<{ id: string; label: string; osStoreId?: string }>;
   storeOperation?: {
+    reservationsEnabled?: boolean;
+    statusNote?: string;
     minimumPickupMinutes?: number | null;
   };
   source?: string;
@@ -227,10 +229,16 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
   const baseUnavailable = baseSoup.websiteEnabled === false || baseSoup.isAvailable === false;
+  const reservationsPaused = menu.storeOperation?.reservationsEnabled === false;
+  const reservationPauseMessage = menu.storeOperation?.statusNote
+    ? `現在予約受付を停止しています（${menu.storeOperation.statusNote}）。店頭での受付状況は店舗へご確認ください。`
+    : "現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。";
   const reserveButtonLabel = checkoutUrl
     ? t("決済ページへ移動中...")
     : isSubmitting
     ? t("送信中...")
+    : reservationsPaused
+      ? t("現在予約受付を停止しています")
     : baseUnavailable
       ? t("現在このメニューは販売停止中")
     : !cartItems.length
@@ -423,6 +431,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
   const createReservation = async () => {
     if (!cartItems.length) return;
+    if (reservationsPaused) {
+      setSubmitError(t(reservationPauseMessage));
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError("");
@@ -561,7 +573,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={baseUnavailable || !name || !phone || !cartItems.length || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
+        <button className="button primary reserveButton" disabled={reservationsPaused || baseUnavailable || !name || !phone || !cartItems.length || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
           {reserveButtonLabel}
         </button>
         {checkoutUrl && showCheckoutFallback ? (
@@ -569,6 +581,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             {t("KOMOJUで支払う")}
           </a>
         ) : null}
+        {reservationsPaused ? <p className="reservationClosedNotice">{t(reservationPauseMessage)}</p> : null}
         {submitError ? <p className="formError">{submitError}</p> : null}
         {menuNotice ? <p className="menuNotice">{t(menuNotice)}</p> : null}
         {reservation ? (
