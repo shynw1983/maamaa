@@ -31,6 +31,8 @@ const normalizeMinimumPickupMinutes = (value: unknown) => {
 };
 const getMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) =>
   getTokyoDateTimeParts(new Date(Date.now() + leadMinutes * 60 * 1000));
+const compareDateTime = (leftDate: string, leftTime: string, rightDate: string, rightTime: string) =>
+  `${leftDate}T${leftTime}`.localeCompare(`${rightDate}T${rightTime}`);
 const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
@@ -185,6 +187,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [pickupError, setPickupError] = useState("");
   const [menuNotice, setMenuNotice] = useState("");
   const [checkoutUrl, setCheckoutUrl] = useState("");
   const [showCheckoutFallback, setShowCheckoutFallback] = useState(false);
@@ -246,6 +249,24 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       : !name || !phone
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
+  const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
+
+  const enforceMinimumPickup = (nextDate: string, nextTime: string) => {
+    const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
+    const safeDate = nextDate < nextMinimum.date ? nextMinimum.date : nextDate;
+    const safeTime =
+      safeDate === nextMinimum.date && (!nextTime || nextTime < nextMinimum.time)
+        ? nextMinimum.time
+        : nextTime || nextMinimum.time;
+
+    setMinimumPickup(nextMinimum);
+    setPickupDate(safeDate);
+    setPickupTime(safeTime);
+
+    const changed = safeDate !== nextDate || safeTime !== nextTime;
+    setPickupError(changed ? pickupTimeErrorMessage : "");
+    return { safeDate, safeTime, changed };
+  };
 
   useEffect(() => {
     let active = true;
@@ -298,6 +319,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       setPickupTime((currentTime) =>
         nextPickupDate === nextMinimum.date && (!currentTime || currentTime < nextMinimum.time) ? nextMinimum.time : currentTime,
       );
+      setPickupError((current) => {
+        const selectedTime = pickupDate === nextMinimum.date && pickupTime < nextMinimum.time;
+        return selectedTime ? pickupTimeErrorMessage : current;
+      });
     };
 
     const interval = window.setInterval(updateMinimumPickup, 30000);
@@ -442,11 +467,13 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     setShowCheckoutFallback(false);
     try {
       const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
-      const safePickupDate = pickupDate < nextMinimum.date ? nextMinimum.date : pickupDate;
-      const safePickupTime =
-        safePickupDate === nextMinimum.date && (!pickupTime || pickupTime < nextMinimum.time)
-          ? nextMinimum.time
-          : pickupTime || nextMinimum.time;
+      if (compareDateTime(pickupDate, pickupTime, nextMinimum.date, nextMinimum.time) < 0) {
+        const { safeDate, safeTime } = enforceMinimumPickup(pickupDate, pickupTime);
+        setSubmitError(t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。最短 ${safeDate} ${safeTime} です。`));
+        return;
+      }
+      const safePickupDate = pickupDate;
+      const safePickupTime = pickupTime || nextMinimum.time;
       setMinimumPickup(nextMinimum);
       setPickupDate(safePickupDate);
       setPickupTime(safePickupTime);
@@ -557,7 +584,12 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           </label>
           <label>
             {t("受け取り日")}
-            <input type="date" min={minimumPickup.date} value={pickupDate} onChange={(event) => setPickupDate(event.target.value)} />
+            <input
+              type="date"
+              min={minimumPickup.date}
+              value={pickupDate}
+              onChange={(event) => enforceMinimumPickup(event.target.value, pickupTime)}
+            />
           </label>
           <label>
             {t("受け取り時間")}
@@ -565,9 +597,11 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               type="time"
               min={pickupDate === minimumPickup.date ? minimumPickup.time : undefined}
               value={pickupTime}
-              onChange={(event) => setPickupTime(event.target.value)}
+              onBlur={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
+              onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
             />
           </label>
+          {pickupError ? <p className="formError">{pickupError}</p> : null}
           <label>
             {t("メモ")}
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
