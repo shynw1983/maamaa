@@ -64,6 +64,8 @@ const asChoices = (items) => (Array.isArray(items) ? items.map(asChoice).filter(
 const normalizeOsMenu = (payload) => {
   const menu = payload?.baseMenu || payload;
   if (!menu?.baseSoup || !Array.isArray(menu.menuSections)) return null;
+  const rawMinimumPickupMinutes = menu.storeOperation?.minimumPickupMinutes;
+  const hasConfiguredMinimumPickupMinutes = rawMinimumPickupMinutes !== null && rawMinimumPickupMinutes !== undefined && rawMinimumPickupMinutes !== "";
 
   const normalized = {
     ...fallbackMenu(),
@@ -96,8 +98,8 @@ const normalizeOsMenu = (payload) => {
     storeOperation: {
       ...fallbackMenu().storeOperation,
       ...(menu.storeOperation || {}),
-      minimumPickupMinutes: Number.isFinite(Number(menu.storeOperation?.minimumPickupMinutes))
-        ? Math.max(0, Math.min(240, Math.round(Number(menu.storeOperation.minimumPickupMinutes))))
+      minimumPickupMinutes: hasConfiguredMinimumPickupMinutes && Number.isFinite(Number(rawMinimumPickupMinutes))
+        ? Math.max(0, Math.min(240, Math.round(Number(rawMinimumPickupMinutes))))
         : fallbackMenu().storeOperation.minimumPickupMinutes,
     },
   };

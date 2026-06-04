@@ -24,6 +24,7 @@ const getTokyoDateTimeParts = (date = new Date()) => {
   };
 };
 const normalizeMinimumPickupMinutes = (value: unknown) => {
+  if (value === null || value === undefined || value === "") return defaultMinimumPickupMinutes;
   const minutes = Math.round(Number(value));
   if (!Number.isFinite(minutes)) return defaultMinimumPickupMinutes;
   return Math.max(0, Math.min(240, minutes));
