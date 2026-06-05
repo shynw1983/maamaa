@@ -858,9 +858,14 @@ h3 {
 .currentBowlBar .button {
   min-height: 72px;
   padding: 0 36px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
+  line-height: 1.25;
+  min-width: 0;
+  text-align: center;
+  white-space: normal;
   width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .menuPanel {

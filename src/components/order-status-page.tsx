@@ -167,8 +167,8 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
     <main>
       <SiteHeader menu />
       <section className="orderStatusHero">
-        <p className="kicker">{t("Pickup status")}</p>
-        <h1>{t("取单号码")}</h1>
+        <p className="kicker">{t("受け取り状況")}</p>
+        <h1>{t("受け取り番号")}</h1>
         <strong>{order.pickupCode}</strong>
         <span className={`orderStatusBadge is-${order.status}`}>{t(statusLabel[order.status] || order.status)}</span>
         <div className="orderCancelBlock">
@@ -186,8 +186,8 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
         <div className="orderProgressPanel">
           <div className="orderProgressHeader">
             <div>
-              <p className="kicker">{t(connection === "live" ? "Live update" : "Auto refresh")}</p>
-              <h2>{t("制作过程")}</h2>
+              <p className="kicker">{t(connection === "live" ? "リアルタイム更新" : "自動更新")}</p>
+              <h2>{t("制作状況")}</h2>
             </div>
             <span>{order.pickupDate} {order.pickupTime}</span>
           </div>
@@ -237,12 +237,12 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
             </div>
             <div>
               <dt>{t("支払い")}</dt>
-              <dd>{order.paymentStatus === "paid" ? t("支払済み") : t("未決済")}</dd>
+              <dd>{order.paymentStatus === "paid" ? t("支払い済み") : t("未決済")}</dd>
             </div>
           </dl>
           <div className="orderItemSummary">
             {itemLines.map((line, index) => (
-              <span key={`${line}-${index}`}>{line}</span>
+              <span key={`${line}-${index}`}>{t(line)}</span>
             ))}
           </div>
           {order.paymentStatus === "paid" ? (

@@ -261,6 +261,16 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
+  const addBowlButtonLabel =
+    total < minimumBowlTotal
+      ? cartItems.length > 0 && !editingCartItemId
+        ? t(`次の一杯は${yen(minimumBowlTotal)}以上で追加`)
+        : t(`${yen(minimumBowlTotal)}以上で追加`)
+      : editingCartItemId
+        ? t("変更を保存")
+        : lastAddedTotal !== null
+          ? t("追加しました")
+          : t("予約リストに追加");
 
   const scrollToPayment = () => {
     reserveButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -713,7 +723,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               </button>
             ) : null}
             <button className="button primary" type="button" disabled={baseUnavailable} onClick={addCurrentBowl}>
-              {total < minimumBowlTotal ? t(`${yen(minimumBowlTotal)}以上で追加`) : editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
+              {addBowlButtonLabel}
             </button>
           </div>
         </section>

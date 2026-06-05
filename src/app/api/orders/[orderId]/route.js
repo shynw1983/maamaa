@@ -1,6 +1,6 @@
 const { cancelFoundr1Order, fetchFoundr1Order } = require("../../../../server/foundr1-orders");
 
-const orderNotFoundError = "注文情報が見つかりません。URLと取单号码を確認してください。";
+const orderNotFoundError = "注文情報が見つかりません。URLと受け取り番号を確認してください。";
 const orderLookupError = "注文情報を確認できませんでした。時間をおいてからもう一度お試しください。";
 const cancelFailedError = "キャンセル処理を完了できませんでした。時間をおいてからもう一度お試しください。";
 const publicCancelErrors = new Map([
