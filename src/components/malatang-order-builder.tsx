@@ -264,7 +264,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
-        ? t(`次の一杯は${yen(minimumBowlTotal)}以上で追加`)
+        ? t(`次の一杯も${yen(minimumBowlTotal)}以上で追加`)
         : t(`${yen(minimumBowlTotal)}以上で追加`)
       : editingCartItemId
         ? t("変更を保存")
