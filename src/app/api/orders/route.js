@@ -1,6 +1,12 @@
 const { getMenuData } = require("../../../server/menu-source");
 
 const minimumBowlTotal = 800;
+const missingOrderFieldsError = "お名前、電話番号、受け取り日時、注文内容を確認してください。";
+const checkoutSetupError = "現在オンライン決済を開始できません。時間をおいてからもう一度お試しください。";
+const checkoutCreateError = "予約の受付処理を完了できませんでした。時間をおいてからもう一度お試しください。";
+const reservationPausedError = "現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。";
+const pickupLeadTimeError = "受け取り時間が早すぎます。最新の選択可能時間を確認して、もう一度お試しください。";
+const pickupBusinessHoursError = "選択した受け取り時間は営業時間外です。別の時間を選択してください。";
 
 const localePrefix = (language) => {
   if (language === "en") return "/en";
@@ -166,7 +172,7 @@ export async function POST(request) {
   const body = await request.json().catch(() => ({}));
 
   if (!body.items?.length || !body.name || !body.phone || !body.pickupDate || !body.pickupTime) {
-    return Response.json({ error: "Missing order fields" }, { status: 400 });
+    return Response.json({ error: missingOrderFieldsError }, { status: 400 });
   }
 
   const menu = await getMenuData("shimizu", { noStore: true });
@@ -212,7 +218,7 @@ export async function POST(request) {
   }
   const baseUrl = foundr1BaseUrl();
   if (!baseUrl) {
-    return Response.json({ error: "FOUNDR1_API_BASE_URL is not configured" }, { status: 500 });
+    return Response.json({ error: checkoutSetupError }, { status: 500 });
   }
 
   const language = String(body.language || "ja");
@@ -245,14 +251,40 @@ export async function POST(request) {
     const upstreamError = String(foundr1Body.error || "");
     const isMenuSelectionError = upstreamError.includes("Invalid selection") || upstreamError.includes("Invalid special flavor");
     const isSectionLimitError = upstreamError.includes("まで選択できます") || upstreamError.includes("can only select up to");
+    const isReservationPaused = upstreamError.includes("Reservations are temporarily paused");
+    const isPickupLeadTime = upstreamError.includes("Pickup time must be at least");
+    const isBusinessHours = upstreamError.includes("outside store business hours");
+    const isPaymentSetupError =
+      foundr1Body.code === "STORE_PAYMENT_NOT_CONFIGURED" ||
+      upstreamError.includes("KOMOJU") ||
+      upstreamError.includes("not configured");
     return Response.json({
-      code: isSectionLimitError ? "MENU_SECTION_LIMIT_EXCEEDED" : isMenuSelectionError ? "MENU_SELECTION_UNAVAILABLE" : foundr1Body.code || "CHECKOUT_FAILED",
+      code: isSectionLimitError
+        ? "MENU_SECTION_LIMIT_EXCEEDED"
+        : isMenuSelectionError
+        ? "MENU_SELECTION_UNAVAILABLE"
+        : isReservationPaused
+        ? "RESERVATIONS_PAUSED"
+        : isPickupLeadTime
+        ? "PICKUP_TOO_SOON"
+        : isBusinessHours
+        ? "PICKUP_OUTSIDE_BUSINESS_HOURS"
+        : isPaymentSetupError
+        ? "PAYMENT_SETUP_UNAVAILABLE"
+        : foundr1Body.code || "CHECKOUT_FAILED",
       error: isSectionLimitError
         ? upstreamError
         : isMenuSelectionError
         ? "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。"
-        : foundr1Body.error || "Could not create Foundr1 checkout session",
-      details: foundr1Body.details || undefined,
+        : isReservationPaused
+        ? reservationPausedError
+        : isPickupLeadTime
+        ? pickupLeadTimeError
+        : isBusinessHours
+        ? pickupBusinessHoursError
+        : isPaymentSetupError
+        ? checkoutSetupError
+        : checkoutCreateError,
     }, { status: foundr1Response.status || 502 });
   }
 

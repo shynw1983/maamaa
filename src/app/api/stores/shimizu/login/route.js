@@ -11,7 +11,7 @@ export async function POST(request) {
   const password = String(body.password || "");
 
   if (!authenticateReservationUser({ username, password })) {
-    return Response.json({ error: "Invalid credentials" }, { status: 401 });
+    return Response.json({ error: "ログイン情報が正しくありません。" }, { status: 401 });
   }
 
   const response = Response.json({ ok: true });

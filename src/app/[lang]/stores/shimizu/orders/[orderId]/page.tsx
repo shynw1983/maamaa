@@ -22,7 +22,7 @@ export default async function LocalizedShimizuOrderPage({ params }: { params: Pr
   const { lang, orderId } = await params;
   if (!isLocale(lang) || lang === "ja") notFound();
 
-  const order = await fetchFoundr1Order(orderId);
+  const order = await fetchFoundr1Order(orderId).catch(() => null);
   if (!order) notFound();
 
   return (

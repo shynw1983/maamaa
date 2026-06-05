@@ -41,6 +41,7 @@ const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
   items.find((item) => item.id === preferredId)?.id || items[0]?.id || "";
 const defaultSubmitError = "予約を送信できませんでした。時間をおいてからもう一度お試しください。";
+const unsafeErrorPattern = /(FOUNDR1|Foundr1|KOMOJU|Square|configured|configuration|Invalid|Missing|Unknown|Not found|checkout session|failed|required)/i;
 const minimumBowlTotalError = `一杯あたり${yen(minimumBowlTotal)}以上になるように具材を追加してください。`;
 const unavailableSelectionError = "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。";
 const menuRefreshNotice = "メニュー状態が更新されました。販売中の内容を最新にしました。";
@@ -75,7 +76,9 @@ function getSubmitErrorMessage(body: Record<string, unknown> | null) {
     return items ? `${unavailableSelectionError} 対象: ${items}` : unavailableSelectionError;
   }
   if (body?.code === "MENU_ITEM_UNAVAILABLE") return String(body.error || "ベースの麻辣湯が現在販売停止中です。時間をおいてからもう一度お試しください。");
-  return String(body?.error || defaultSubmitError);
+  const message = String(body?.error || "");
+  if (!message || unsafeErrorPattern.test(message)) return defaultSubmitError;
+  return message;
 }
 
 function menuSignature(menu: MalatangMenu) {

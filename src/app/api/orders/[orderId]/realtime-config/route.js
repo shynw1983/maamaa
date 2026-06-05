@@ -2,13 +2,13 @@ const { fetchFoundr1Order, fetchFoundr1RealtimeConfig } = require("../../../../.
 
 export async function GET(_request, { params }) {
   const { orderId } = await params;
-  const order = await fetchFoundr1Order(orderId);
+  const order = await fetchFoundr1Order(orderId).catch(() => null);
 
   if (!order) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return Response.json({ available: false }, { status: 404, headers: { "Cache-Control": "no-store" } });
   }
 
-  const config = await fetchFoundr1RealtimeConfig();
+  const config = await fetchFoundr1RealtimeConfig().catch(() => null);
   if (!config?.key || !config?.cluster) {
     return Response.json({ available: false }, { headers: { "Cache-Control": "no-store" } });
   }

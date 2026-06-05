@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function ShimizuOrderPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;
-  const order = await fetchFoundr1Order(orderId);
+  const order = await fetchFoundr1Order(orderId).catch(() => null);
   if (!order) notFound();
 
   return (

@@ -68,6 +68,7 @@ const cancelErrorLabel: Record<string, string> = {
   "KOMOJU refund secret is not configured.": "返金設定が未設定です。店舗までお問い合わせください。",
   "Payment ID is missing, so the refund cannot be processed automatically.": "決済情報が不足しているため自動返金できません。店舗までお問い合わせください。",
 };
+const defaultCancelError = "キャンセル処理を完了できませんでした。時間をおいてからもう一度お試しください。";
 
 export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder }) {
   const { language, t } = useI18n();
@@ -98,7 +99,7 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
       const body = await response.json().catch(() => ({}));
       if (body.order) setOrder(body.order);
       if (!response.ok) {
-        const errorText = cancelErrorLabel[body.error] || body.error || "キャンセルできませんでした。";
+        const errorText = cancelErrorLabel[body.error] || defaultCancelError;
         setCancelMessage(t(errorText));
         return;
       }
