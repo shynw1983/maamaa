@@ -202,6 +202,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
+  const reserveButtonRef = useRef<HTMLButtonElement | null>(null);
   const { baseSoup, medicinalSpiceOptions, heatLevels, numbLevels, specialFlavors, menuSections } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
 
@@ -260,6 +261,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
+
+  const scrollToPayment = () => {
+    reserveButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   const enforceMinimumPickup = (nextDate: string, nextTime: string) => {
     const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
@@ -636,7 +641,12 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
-        <button className="button primary reserveButton" disabled={reservationsPaused || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)} onClick={createReservation}>
+        <button
+          ref={reserveButtonRef}
+          className="button primary reserveButton"
+          disabled={reservationsPaused || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)}
+          onClick={createReservation}
+        >
           {reserveButtonLabel}
         </button>
         {checkoutUrl && showCheckoutFallback ? (
@@ -696,9 +706,16 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               </>
             )}
           </div>
-          <button className="button primary" type="button" disabled={baseUnavailable} onClick={addCurrentBowl}>
-            {total < minimumBowlTotal ? t(`${yen(minimumBowlTotal)}以上で追加`) : editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
-          </button>
+          <div className="currentBowlActions">
+            {cartItems.length > 0 && !editingCartItemId ? (
+              <button className="button quiet" type="button" onClick={scrollToPayment}>
+                {t("支払いへ進む")}
+              </button>
+            ) : null}
+            <button className="button primary" type="button" disabled={baseUnavailable} onClick={addCurrentBowl}>
+              {total < minimumBowlTotal ? t(`${yen(minimumBowlTotal)}以上で追加`) : editingCartItemId ? t("変更を保存") : lastAddedTotal !== null ? t("追加しました") : t("予約リストに追加")}
+            </button>
+          </div>
         </section>
 
         <ChoiceGroup title="薬膳の有無を選ぶ" items={medicinalSpiceOptions.filter((item) => isChoiceOpen(item.id))} value={spice} onChange={setSpice} />
