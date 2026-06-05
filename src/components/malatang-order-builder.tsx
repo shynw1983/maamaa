@@ -46,6 +46,7 @@ const minimumBowlTotalError = `一杯あたり${yen(minimumBowlTotal)}以上に�
 const unavailableSelectionError = "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。";
 const menuRefreshNotice = "メニュー状態が更新されました。販売中の内容を最新にしました。";
 const menuRefreshIntervalMs = 15000;
+const draftStorageKey = "maamaa-shimizu-menu-draft-v1";
 
 function formatUnavailableItems(value: unknown) {
   if (!Array.isArray(value)) return "";
@@ -80,6 +81,48 @@ function getSubmitErrorMessage(body: Record<string, unknown> | null) {
   if (!message || unsafeErrorPattern.test(message)) return defaultSubmitError;
   return message;
 }
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  Boolean(value && typeof value === "object" && !Array.isArray(value));
+
+const sanitizeSelections = (value: unknown): BowlSelections | null => {
+  if (!isRecord(value)) return null;
+  const items = isRecord(value.items)
+    ? Object.fromEntries(
+        Object.entries(value.items)
+          .map(([id, quantity]): [string, number] => [id, Math.max(0, Math.round(Number(quantity) || 0))])
+          .filter(([, quantity]) => quantity > 0),
+      )
+    : {};
+  return {
+    spice: typeof value.spice === "string" ? value.spice : "",
+    heat: typeof value.heat === "string" ? value.heat : "",
+    numb: typeof value.numb === "string" ? value.numb : "",
+    flavors: Array.isArray(value.flavors) ? value.flavors.filter((id): id is string => typeof id === "string") : [],
+    items,
+  };
+};
+
+const sanitizeCartItems = (value: unknown): CartItem[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (!isRecord(item) || typeof item.id !== "string") return null;
+      const selections = sanitizeSelections(item.selections);
+      if (!selections) return null;
+      return {
+        id: item.id,
+        title: typeof item.title === "string" ? item.title : "",
+        total: Math.max(0, Math.round(Number(item.total) || 0)),
+        summary: Array.isArray(item.summary) ? item.summary.map(String).filter(Boolean) : [],
+        selections,
+        selectionLabels: isRecord(item.selectionLabels)
+          ? Object.fromEntries(Object.entries(item.selectionLabels).map(([id, label]) => [id, String(label)]))
+          : {},
+      };
+    })
+    .filter((item): item is CartItem => Boolean(item));
+};
 
 function menuSignature(menu: MalatangMenu) {
   return JSON.stringify({
@@ -153,6 +196,16 @@ type BowlSelections = {
   items: Record<string, number>;
 };
 
+type OrderDraft = {
+  cartItems?: CartItem[];
+  currentSelections?: BowlSelections;
+  name?: string;
+  phone?: string;
+  note?: string;
+  pickupDate?: string;
+  pickupTime?: string;
+};
+
 export type MalatangMenu = {
   baseSoup: MenuChoice & {
     isAvailable?: boolean;
@@ -201,6 +254,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [showCheckoutFallback, setShowCheckoutFallback] = useState(false);
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
   const reserveButtonRef = useRef<HTMLButtonElement | null>(null);
   const { baseSoup, medicinalSpiceOptions, heatLevels, numbLevels, specialFlavors, menuSections } = menu;
@@ -430,6 +484,103 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     ...selectedItems.map((item) => [item.id, `${t(item.name)} x${item.quantity}`]),
   ].filter(Boolean) as Array<[string, string]>);
 
+  const formatCartItemTitle = (_item: CartItem, index: number) => `${t(baseSoup.name)} #${index + 1}`;
+
+  const formatCartChoiceLabel = (item: CartItem, id: string, quantity?: number) => {
+    const choice = choiceMap.get(id);
+    const baseLabel = choice ? t(choice.name) : item.selectionLabels[id] || id;
+    return quantity ? `${baseLabel} x${quantity}` : baseLabel;
+  };
+
+  const formatCartItemSummary = (item: CartItem) => {
+    const selections = item.selections;
+    return [
+      selections.spice ? formatCartChoiceLabel(item, selections.spice) : "",
+      selections.heat ? formatCartChoiceLabel(item, selections.heat) : "",
+      selections.numb ? formatCartChoiceLabel(item, selections.numb) : "",
+      ...selections.flavors.map((id) => formatCartChoiceLabel(item, id)),
+      ...Object.entries(selections.items)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([id, quantity]) => formatCartChoiceLabel(item, id, quantity)),
+    ].filter(Boolean);
+  };
+
+  const formatCartSelectionLabels = (item: CartItem) =>
+    Object.fromEntries([
+      item.selections.spice ? [item.selections.spice, formatCartChoiceLabel(item, item.selections.spice)] : null,
+      item.selections.heat ? [item.selections.heat, formatCartChoiceLabel(item, item.selections.heat)] : null,
+      item.selections.numb ? [item.selections.numb, formatCartChoiceLabel(item, item.selections.numb)] : null,
+      ...item.selections.flavors.map((id) => [id, formatCartChoiceLabel(item, id)]),
+      ...Object.entries(item.selections.items)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([id, quantity]) => [id, formatCartChoiceLabel(item, id, quantity)]),
+    ].filter(Boolean) as Array<[string, string]>);
+
+  useEffect(() => {
+    try {
+      const rawDraft = window.sessionStorage.getItem(draftStorageKey);
+      if (!rawDraft) return;
+      const draft = JSON.parse(rawDraft) as OrderDraft;
+      const draftSelections = sanitizeSelections(draft.currentSelections);
+      const draftCartItems = sanitizeCartItems(draft.cartItems);
+      const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
+      const draftPickupDate = typeof draft.pickupDate === "string" ? draft.pickupDate : "";
+      const draftPickupTime = typeof draft.pickupTime === "string" ? draft.pickupTime : "";
+      const safePickupDate = draftPickupDate && draftPickupDate >= nextMinimum.date ? draftPickupDate : nextMinimum.date;
+      const safePickupTime =
+        safePickupDate === nextMinimum.date && (!draftPickupTime || draftPickupTime < nextMinimum.time)
+          ? nextMinimum.time
+          : draftPickupTime || nextMinimum.time;
+
+      if (draftCartItems.length) setCartItems(draftCartItems);
+      if (draftSelections) applySelections(draftSelections);
+      if (typeof draft.name === "string") setName(draft.name);
+      if (typeof draft.phone === "string") setPhone(draft.phone);
+      if (typeof draft.note === "string") setNote(draft.note);
+      setMinimumPickup(nextMinimum);
+      setPickupDate(safePickupDate);
+      setPickupTime(safePickupTime);
+    } catch {
+      try {
+        window.sessionStorage.removeItem(draftStorageKey);
+      } catch {
+        // Ignore storage cleanup failures.
+      }
+    } finally {
+      setDraftReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    const hasDraft =
+      cartItems.length > 0 ||
+      Boolean(name.trim()) ||
+      Boolean(phone.trim()) ||
+      Boolean(note.trim()) ||
+      flavors.length > 0 ||
+      Object.keys(items).length > 0;
+
+    try {
+      if (!hasDraft) {
+        window.sessionStorage.removeItem(draftStorageKey);
+        return;
+      }
+      const draft: OrderDraft = {
+        cartItems,
+        currentSelections: getCurrentSelections(),
+        name,
+        phone,
+        note,
+        pickupDate,
+        pickupTime,
+      };
+      window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
+    } catch {
+      // Continue without draft persistence.
+    }
+  }, [cartItems, draftReady, flavors, heat, items, name, note, numb, phone, pickupDate, pickupTime, spice]);
+
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
     const bowlNumber = cartItems.length + 1;
@@ -493,7 +644,13 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
   const createReservation = async () => {
     if (!cartItems.length) return;
-    const underMinimumItems = cartItems
+    const localizedCartItems = cartItems.map((item, index) => ({
+      ...item,
+      title: formatCartItemTitle(item, index),
+      summary: formatCartItemSummary(item),
+      selectionLabels: formatCartSelectionLabels(item),
+    }));
+    const underMinimumItems = localizedCartItems
       .map((item, index) => (item.total < minimumBowlTotal ? `${index + 1}. ${item.title} ${yen(item.total)}` : ""))
       .filter(Boolean);
     if (underMinimumItems.length) {
@@ -532,7 +689,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           pickupTime: safePickupTime,
           note,
           total: cartTotal,
-          items: cartItems,
+          items: localizedCartItems,
           language,
         }),
       });
@@ -553,10 +710,15 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         pickupTime: safePickupTime,
         note,
         total: cartTotal,
-        items: cartItems,
+        items: localizedCartItems,
       };
 
       setReservation(nextReservation);
+      try {
+        window.sessionStorage.removeItem(draftStorageKey);
+      } catch {
+        // Continue after checkout creation.
+      }
       try {
         window.localStorage?.setItem("maamaa-latest-reservation", JSON.stringify(nextReservation));
       } catch {
@@ -592,11 +754,11 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               <article className="cartItem" key={item.id}>
                 <div>
                   <strong>
-                    {index + 1}. {item.title}
+                    {index + 1}. {formatCartItemTitle(item, index)}
                   </strong>
                   <span>{yen(item.total)}</span>
                 </div>
-                <p>{item.summary.join(" / ")}</p>
+                <p>{formatCartItemSummary(item).join(" / ")}</p>
                 <div className="cartItemActions">
                   <button className={editingCartItemId === item.id ? "isEditing" : ""} type="button" onClick={() => editCartItem(item)}>
                     {editingCartItemId === item.id ? t("編集中") : t("編集")}
