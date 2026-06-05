@@ -121,6 +121,30 @@ const validateCartAgainstMenu = (items, menu, sectionByChoiceId) => {
   return unavailableItems;
 };
 
+const validateSectionLimits = (items, menu) => {
+  const limitErrors = [];
+  for (const [index, item] of (items || []).entries()) {
+    const selections = item?.selections || {};
+    const selectedItems = selections.items || {};
+    for (const section of menu.menuSections) {
+      const count = section.items.reduce((sum, choice) => {
+        const quantity = Math.max(0, Math.round(Number(selectedItems[choice.id]) || 0));
+        return sum + quantity;
+      }, 0);
+      if (count > Number(section.limit || 99)) {
+        limitErrors.push({
+          itemIndex: index + 1,
+          title: String(item?.title || menu.baseSoup.name),
+          sectionTitle: section.title,
+          limit: Number(section.limit || 99),
+          count,
+        });
+      }
+    }
+  }
+  return limitErrors;
+};
+
 const toFoundr1Item = (item, menu, sectionByChoiceId) => {
   const selections = item?.selections || {};
   return {
@@ -161,6 +185,15 @@ export async function POST(request) {
       error: "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。",
       unavailableItems: unavailableSelections,
     }, { status: 409 });
+  }
+  const sectionLimitErrors = validateSectionLimits(body.items, menu);
+  if (sectionLimitErrors.length) {
+    const first = sectionLimitErrors[0];
+    return Response.json({
+      code: "MENU_SECTION_LIMIT_EXCEEDED",
+      error: `${first.sectionTitle}は${first.limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`,
+      sectionLimitErrors,
+    }, { status: 400 });
   }
   const underMinimumItems = body.items
     .map((item, index) => ({
@@ -211,9 +244,12 @@ export async function POST(request) {
   if (!foundr1Response.ok || !foundr1Body.checkoutUrl) {
     const upstreamError = String(foundr1Body.error || "");
     const isMenuSelectionError = upstreamError.includes("Invalid selection") || upstreamError.includes("Invalid special flavor");
+    const isSectionLimitError = upstreamError.includes("まで選択できます") || upstreamError.includes("can only select up to");
     return Response.json({
-      code: isMenuSelectionError ? "MENU_SELECTION_UNAVAILABLE" : foundr1Body.code || "CHECKOUT_FAILED",
-      error: isMenuSelectionError
+      code: isSectionLimitError ? "MENU_SECTION_LIMIT_EXCEEDED" : isMenuSelectionError ? "MENU_SELECTION_UNAVAILABLE" : foundr1Body.code || "CHECKOUT_FAILED",
+      error: isSectionLimitError
+        ? upstreamError
+        : isMenuSelectionError
         ? "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。"
         : foundr1Body.error || "Could not create Foundr1 checkout session",
       details: foundr1Body.details || undefined,

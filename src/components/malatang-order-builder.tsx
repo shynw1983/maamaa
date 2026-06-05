@@ -34,6 +34,8 @@ const getMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) =>
   getTokyoDateTimeParts(new Date(Date.now() + leadMinutes * 60 * 1000));
 const compareDateTime = (leftDate: string, leftTime: string, rightDate: string, rightTime: string) =>
   `${leftDate}T${leftTime}`.localeCompare(`${rightDate}T${rightTime}`);
+const sectionSelectionLimitError = (sectionTitle: string, limit: number) =>
+  `${sectionTitle}は${limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`;
 const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
@@ -350,12 +352,20 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     );
   };
 
-  const changeQuantity = (id: string, delta: number) => {
+  const getSectionSelectedCount = (section: MenuSection, nextItems = items) =>
+    section.items.reduce((sum, item) => sum + Math.max(0, Math.round(Number(nextItems[item.id]) || 0)), 0);
+
+  const changeQuantity = (section: MenuSection, id: string, delta: number) => {
     setItems((current) => {
       const next = Math.max(0, (current[id] || 0) + delta);
+      if (delta > 0 && getSectionSelectedCount(section, current) >= section.limit) {
+        setSubmitError(t(sectionSelectionLimitError(section.title, section.limit)));
+        return current;
+      }
       const copy = { ...current };
       if (next) copy[id] = next;
       else delete copy[id];
+      setSubmitError("");
       return copy;
     });
   };
@@ -721,7 +731,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               <span>{section.limit}{t("個まで")}</span>
             </div>
             <div className="toppingList">
-              {section.items.filter((item) => isChoiceOpen(item.id)).map((item) => (
+              {section.items.filter((item) => isChoiceOpen(item.id)).map((item) => {
+                const sectionSelectedCount = getSectionSelectedCount(section);
+                const canIncrease = sectionSelectedCount < section.limit;
+                return (
                 <div className="toppingRow" key={item.id}>
                   <div>
                     <strong>
@@ -730,16 +743,17 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
                     <span>{yen(item.price)}</span>
                   </div>
                   <div className="quantityControl">
-                    <button type="button" onClick={() => changeQuantity(item.id, -1)}>
+                    <button type="button" onClick={() => changeQuantity(section, item.id, -1)}>
                       -
                     </button>
                     <span>{items[item.id] || 0}</span>
-                    <button type="button" onClick={() => changeQuantity(item.id, 1)}>
+                    <button type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
                       +
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         ))}
