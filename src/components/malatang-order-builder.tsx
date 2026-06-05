@@ -756,12 +756,12 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
                 const canIncrease = sectionSelectedCount < section.limit;
                 return (
                 <div className="toppingRow" key={item.id}>
-                  <div>
+                  <button className="toppingItemButton" type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
                     <strong>
                       <OptionName item={item} />
                     </strong>
                     <span>{yen(item.price)}</span>
-                  </div>
+                  </button>
                   <div className="quantityControl">
                     <button type="button" onClick={() => changeQuantity(section, item.id, -1)}>
                       -

@@ -963,9 +963,20 @@ h3 {
   border-bottom: 0;
 }
 
-.toppingRow div:first-child {
+.toppingItemButton {
   display: grid;
   gap: 4px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.toppingItemButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
 }
 
 .toppingRow strong {
