@@ -27,7 +27,9 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
     );
     const basePath = currentLanguagePrefix ? pathname.slice(currentLanguagePrefix.length) || "/" : pathname;
-    router.push(localizedPath(nextLanguage, basePath));
+    const query = window.location.search;
+    const hash = window.location.hash;
+    router.push(`${localizedPath(nextLanguage, basePath)}${query}${hash}`);
   };
 
   useEffect(() => {
