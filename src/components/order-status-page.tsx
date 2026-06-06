@@ -180,6 +180,16 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
           ) : null}
           {cancelMessage ? <small>{cancelMessage}</small> : null}
         </div>
+        <div className="orderMemberFollowup">
+          <div>
+            <span>{t("会員ポイント")}</span>
+            <strong>{t("会員登録すると、次回からポイント履歴を確認できます。")}</strong>
+            <p>{t("予約時に入力したメールと同じ情報でログインしてください。")}</p>
+          </div>
+          <a href="https://foundr1.jp/member" target="_blank" rel="noreferrer">
+            {t("会員登録・ログイン")}
+          </a>
+        </div>
       </section>
 
       <section className="orderStatusLayout">

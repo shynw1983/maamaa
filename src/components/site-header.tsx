@@ -68,6 +68,20 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
             {t("Contact")}
           </a>
         </nav>
+        <a
+          className="memberIconLink"
+          href="https://foundr1.jp/member"
+          target="_blank"
+          rel="noreferrer"
+          aria-label={t("会員ログイン")}
+          title={t("会員ログイン")}
+          onClick={() => setNavOpen(false)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 12.2a4.1 4.1 0 1 0 0-8.2 4.1 4.1 0 0 0 0 8.2Z" />
+            <path d="M4.8 20.2c.7-3.4 3.5-5.6 7.2-5.6s6.5 2.2 7.2 5.6" />
+          </svg>
+        </a>
         <label className="languagePicker">
           <span>Language</span>
           <select
