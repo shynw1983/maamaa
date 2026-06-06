@@ -855,22 +855,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               </a>
             </div>
           ) : null}
-          {memberProfile && memberCoupons.length ? (
-            <div className="memberCouponPanel">
-              <span>{t("クーポン")}</span>
-              {memberCoupons.map((coupon) => (
-                <button
-                  key={coupon.id}
-                  className={selectedCouponId === coupon.id ? "isSelected" : ""}
-                  type="button"
-                  onClick={() => setSelectedCouponId((current) => (current === coupon.id ? "" : coupon.id))}
-                >
-                  <strong>{coupon.name}</strong>
-                  <small>{formatCouponValue(coupon)}</small>
-                </button>
-              ))}
-            </div>
-          ) : null}
           <label>
             {t("受け取り日")}
             <input
@@ -896,6 +880,22 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
         </div>
+        {memberProfile && memberCoupons.length ? (
+          <div className="memberCouponPanel">
+            <span>{t("クーポン")}</span>
+            {memberCoupons.map((coupon) => (
+              <button
+                key={coupon.id}
+                className={selectedCouponId === coupon.id ? "isSelected" : ""}
+                type="button"
+                onClick={() => setSelectedCouponId((current) => (current === coupon.id ? "" : coupon.id))}
+              >
+                <strong>{coupon.name}</strong>
+                <small>{formatCouponValue(coupon)}</small>
+              </button>
+            ))}
+          </div>
+        ) : null}
         <button
           ref={reserveButtonRef}
           className="button primary reserveButton"
