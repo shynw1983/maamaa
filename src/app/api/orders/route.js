@@ -242,7 +242,6 @@ export async function POST(request) {
       completionSummary: {
         name: body.name,
         phone: body.phone,
-        note: body.note || "",
         drink: body.items.map((item, index) => `${index + 1}. ${item.title || menu.baseSoup.name}`).join(" / "),
         size: body.items.map((item, index) => `${index + 1}. ${(item.summary || []).join(" / ")}`).join("\n"),
         total: Number(body.total || 0),
@@ -309,7 +308,7 @@ export async function POST(request) {
       size: body.items.map((item) => (item.summary || []).join(" / ")).join("\n"),
       temperature: "",
       sweetness: "",
-      ice: body.note || "",
+      ice: "",
       option: "店頭ピックアップ",
       toppings: body.items.map((item) => (item.summary || []).join(" / ")).join("\n"),
       pickupDate: body.pickupDate,

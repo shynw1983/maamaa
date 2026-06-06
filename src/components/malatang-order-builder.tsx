@@ -191,7 +191,6 @@ type Reservation = {
   phone: string;
   pickupDate: string;
   pickupTime: string;
-  note: string;
   total: number;
   items: CartItem[];
 };
@@ -218,7 +217,6 @@ type OrderDraft = {
   currentSelections?: BowlSelections;
   name?: string;
   phone?: string;
-  note?: string;
   pickupDate?: string;
   pickupTime?: string;
 };
@@ -265,7 +263,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
   const [selectedCouponId, setSelectedCouponId] = useState("");
   const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
-  const [note, setNote] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -585,7 +582,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       if (draftSelections) applySelections(draftSelections);
       if (typeof draft.name === "string") setName(draft.name);
       if (typeof draft.phone === "string") setPhone(draft.phone);
-      if (typeof draft.note === "string") setNote(draft.note);
       setMinimumPickup(nextMinimum);
       setPickupDate(safePickupDate);
       setPickupTime(safePickupTime);
@@ -606,7 +602,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       cartItems.length > 0 ||
       Boolean(name.trim()) ||
       Boolean(phone.trim()) ||
-      Boolean(note.trim()) ||
       flavors.length > 0 ||
       Object.keys(items).length > 0;
 
@@ -620,7 +615,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         currentSelections: getCurrentSelections(),
         name,
         phone,
-        note,
         pickupDate,
         pickupTime,
       };
@@ -628,7 +622,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     } catch {
       // Continue without draft persistence.
     }
-  }, [cartItems, draftReady, flavors, heat, items, name, note, numb, phone, pickupDate, pickupTime, spice]);
+  }, [cartItems, draftReady, flavors, heat, items, name, numb, phone, pickupDate, pickupTime, spice]);
 
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
@@ -741,7 +735,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           couponId: selectedCouponId,
           pickupDate: safePickupDate,
           pickupTime: safePickupTime,
-          note,
           total: paymentTotal,
           items: localizedCartItems,
           language,
@@ -762,7 +755,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         phone,
         pickupDate: safePickupDate,
         pickupTime: safePickupTime,
-        note,
         total: paymentTotal,
         items: localizedCartItems,
       };
@@ -843,10 +835,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             />
           </label>
           {pickupError ? <p className="formError">{pickupError}</p> : null}
-          <label>
-            {t("メモ")}
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
-          </label>
         </div>
         <div className="cartList">
           {cartItems.length ? (
