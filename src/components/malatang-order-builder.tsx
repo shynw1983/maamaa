@@ -173,7 +173,6 @@ type Reservation = {
   createdAt: string;
   name: string;
   phone: string;
-  memberEmail: string;
   pickupDate: string;
   pickupTime: string;
   note: string;
@@ -203,7 +202,6 @@ type OrderDraft = {
   currentSelections?: BowlSelections;
   name?: string;
   phone?: string;
-  memberEmail?: string;
   note?: string;
   pickupDate?: string;
   pickupTime?: string;
@@ -246,7 +244,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [pickupTime, setPickupTime] = useState(initialPickup.time);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [memberEmail, setMemberEmail] = useState("");
   const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
   const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
   const [note, setNote] = useState("");
@@ -530,7 +527,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         setMemberProfile(profile);
         setName((current) => current || profile.displayName || "");
         setPhone((current) => current || profile.phone || "");
-        setMemberEmail((current) => current || profile.email || "");
       })
       .catch(() => {});
   }, []);
@@ -555,7 +551,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       if (draftSelections) applySelections(draftSelections);
       if (typeof draft.name === "string") setName(draft.name);
       if (typeof draft.phone === "string") setPhone(draft.phone);
-      if (typeof draft.memberEmail === "string") setMemberEmail(draft.memberEmail);
       if (typeof draft.note === "string") setNote(draft.note);
       setMinimumPickup(nextMinimum);
       setPickupDate(safePickupDate);
@@ -577,7 +572,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       cartItems.length > 0 ||
       Boolean(name.trim()) ||
       Boolean(phone.trim()) ||
-      Boolean(memberEmail.trim()) ||
       Boolean(note.trim()) ||
       flavors.length > 0 ||
       Object.keys(items).length > 0;
@@ -592,7 +586,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         currentSelections: getCurrentSelections(),
         name,
         phone,
-        memberEmail,
         note,
         pickupDate,
         pickupTime,
@@ -601,7 +594,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     } catch {
       // Continue without draft persistence.
     }
-  }, [cartItems, draftReady, flavors, heat, items, memberEmail, name, note, numb, phone, pickupDate, pickupTime, spice]);
+  }, [cartItems, draftReady, flavors, heat, items, name, note, numb, phone, pickupDate, pickupTime, spice]);
 
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
@@ -707,7 +700,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         body: JSON.stringify({
           name,
           phone,
-          memberEmail,
+          memberToken: memberProfile?.publicToken || "",
+          memberEmail: memberProfile?.email || "",
+          memberPhone: memberProfile?.phone || "",
+          memberName: memberProfile ? name : "",
           pickupDate: safePickupDate,
           pickupTime: safePickupTime,
           note,
@@ -729,7 +725,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         createdAt: body.order?.createdAt || new Date().toISOString(),
         name,
         phone,
-        memberEmail,
         pickupDate: safePickupDate,
         pickupTime: safePickupTime,
         note,
@@ -806,34 +801,24 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         <div className="pickupFields">
           <label>
             {t("お名前")}
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("例: 山田")} />
+            <input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("例: 山田")} required />
           </label>
           <label>
             {t("電話番号")}
-            <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="090..." />
+            <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="090..." required />
           </label>
           {!memberProfile ? (
             <div className="memberPointPanel">
               <div>
                 <span>{t("会員ポイント")}</span>
-                <strong>{t("ログイン時と同じメールでポイントが貯まります。")}</strong>
-                <p>{t("入力しなくても予約できます。会員登録は決済後でも可能です。")}</p>
+                <strong>{t("共通会員として、nanacha と まぁ麻 のポイントをまとめて貯められます。")}</strong>
+                <p>{t("ポイント利用には会員登録・ログインが必要です。予約だけなら登録なしで進めます。")}</p>
               </div>
               <a href={memberHref}>
                 {t("会員登録・ログイン")}
               </a>
             </div>
           ) : null}
-          <label>
-            {t("ポイント用メール（任意）")}
-            <input
-              type="email"
-              value={memberEmail}
-              onChange={(event) => setMemberEmail(event.target.value)}
-              placeholder="member@example.com"
-              autoComplete="email"
-            />
-          </label>
           <label>
             {t("受け取り日")}
             <input
