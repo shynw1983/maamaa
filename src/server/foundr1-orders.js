@@ -14,6 +14,8 @@ const toPublicOrder = (order) => ({
   refundError: order.refundError || "",
   refundedAt: order.refundedAt || "",
   receiptUrl: order.receiptUrl || order.squareReceiptUrl || "",
+  receiptPreviewUrl: order.receiptPreviewUrl || "",
+  receiptPdfUrl: order.receiptPdfUrl || "",
   drink: order.drink || "",
   size: order.size || "",
   option: order.option || "",

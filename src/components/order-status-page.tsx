@@ -15,6 +15,8 @@ type PublicOrder = {
   refundError: string;
   refundedAt: string;
   receiptUrl: string;
+  receiptPreviewUrl: string;
+  receiptPdfUrl: string;
   drink: string;
   size: string;
   amount: number;
@@ -180,16 +182,6 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
           ) : null}
           {cancelMessage ? <small>{cancelMessage}</small> : null}
         </div>
-        <div className="orderMemberFollowup">
-          <div>
-            <span>{t("会員ポイント")}</span>
-            <strong>{t("会員登録すると、次回からポイント履歴を確認できます。")}</strong>
-            <p>{t("予約時に入力したメールと同じ情報でログインしてください。")}</p>
-          </div>
-          <a href="https://foundr1.jp/member" target="_blank" rel="noreferrer">
-            {t("会員登録・ログイン")}
-          </a>
-        </div>
       </section>
 
       <section className="orderStatusLayout">
@@ -255,9 +247,14 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
               <span key={`${line}-${index}`}>{t(line)}</span>
             ))}
           </div>
+          {order.paymentStatus === "paid" && order.receiptPreviewUrl ? (
+            <a className="button primary orderReceiptLink" href={order.receiptPreviewUrl} target="_blank" rel="noreferrer">
+              {t("領収書プレビュー")}
+            </a>
+          ) : null}
           {order.paymentStatus === "paid" ? (
             <a
-              className="button primary orderReceiptLink"
+              className="button secondary orderReceiptLink"
               href={`/api/orders/${order.orderId}/receipt?pickupCode=${encodeURIComponent(order.pickupCode)}`}
               download={`receipt-${order.pickupCode}.pdf`}
             >
