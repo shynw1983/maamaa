@@ -81,6 +81,7 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
   const currentRank = statusRank[order.status] || (order.paymentStatus === "paid" ? 1 : 0);
   const itemLines = useMemo(() => order.size.split("\n").filter(Boolean), [order.size]);
   const canCancelOrder = order.canCancel && cancelState !== "submitting";
+  const receiptPreviewUrl = order.receiptPreviewUrl || `/api/orders/${order.orderId}/receipt-preview?pickupCode=${encodeURIComponent(order.pickupCode)}`;
 
   const cancelOrder = async () => {
     if (!order.canCancel || cancelState === "submitting") return;
@@ -247,18 +248,9 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
               <span key={`${line}-${index}`}>{t(line)}</span>
             ))}
           </div>
-          {order.paymentStatus === "paid" && order.receiptPreviewUrl ? (
-            <a className="button primary orderReceiptLink" href={order.receiptPreviewUrl} target="_blank" rel="noreferrer">
-              {t("領収書プレビュー")}
-            </a>
-          ) : null}
           {order.paymentStatus === "paid" ? (
-            <a
-              className="button secondary orderReceiptLink"
-              href={`/api/orders/${order.orderId}/receipt?pickupCode=${encodeURIComponent(order.pickupCode)}`}
-              download={`receipt-${order.pickupCode}.pdf`}
-            >
-              {t("領収書 PDF")}
+            <a className="button primary orderReceiptLink" href={receiptPreviewUrl} target="_blank" rel="noreferrer">
+              {t("領収書プレビュー")}
             </a>
           ) : null}
           <a className="button secondary orderBackLink" href={localizedPath(language, "/stores/shimizu/menu")}>
