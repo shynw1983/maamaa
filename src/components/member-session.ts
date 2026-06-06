@@ -19,11 +19,20 @@ function cleanReturnUrl() {
   return url.toString();
 }
 
-export function buildMemberPortalUrl() {
+function buildMemberUrl({ handoff }: { handoff: boolean }) {
   if (typeof window === "undefined") return memberPortalUrl;
   const url = new URL(memberPortalUrl);
   url.searchParams.set("returnTo", cleanReturnUrl());
+  if (handoff) url.searchParams.set("handoff", "1");
   return url.toString();
+}
+
+export function buildMemberCardUrl() {
+  return buildMemberUrl({ handoff: false });
+}
+
+export function buildMemberHandoffUrl() {
+  return buildMemberUrl({ handoff: true });
 }
 
 export function getStoredMemberProfile(): MemberProfile | null {

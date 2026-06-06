@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
-import { buildMemberPortalUrl, consumeMemberHandoff, type MemberProfile } from "@/components/member-session";
+import { buildMemberHandoffUrl, consumeMemberHandoff, type MemberProfile } from "@/components/member-session";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
@@ -520,7 +520,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     ].filter(Boolean) as Array<[string, string]>);
 
   useEffect(() => {
-    setMemberHref(buildMemberPortalUrl());
+    setMemberHref(buildMemberHandoffUrl());
     consumeMemberHandoff()
       .then((profile) => {
         if (!profile) return;

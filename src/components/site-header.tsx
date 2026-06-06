@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { isLocale, type Locale } from "@/data/locales";
-import { buildMemberPortalUrl } from "@/components/member-session";
+import { buildMemberCardUrl } from "@/components/member-session";
 
 export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const [navOpen, setNavOpen] = useState(false);
@@ -30,7 +30,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
   };
 
   useEffect(() => {
-    setMemberHref(buildMemberPortalUrl());
+    setMemberHref(buildMemberCardUrl());
   }, [pathname]);
 
   return (
