@@ -52,9 +52,6 @@ export async function consumeMemberHandoff() {
   const token = url.searchParams.get("memberHandoff");
   if (!token) return getStoredMemberProfile();
 
-  url.searchParams.delete("memberHandoff");
-  window.history.replaceState({}, "", url.toString());
-
   const response = await fetch(`/api/member-handoff?token=${encodeURIComponent(token)}`, {
     cache: "no-store"
   });
@@ -62,5 +59,7 @@ export async function consumeMemberHandoff() {
   if (!response.ok || !body?.member) throw new Error(body?.error || "会員情報を読み込めませんでした。");
 
   window.localStorage.setItem(memberStorageKey, JSON.stringify(body.member));
+  url.searchParams.delete("memberHandoff");
+  window.history.replaceState({}, "", url.toString());
   return body.member as MemberProfile;
 }

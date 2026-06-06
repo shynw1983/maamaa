@@ -141,6 +141,14 @@ p {
   color: var(--brand);
 }
 
+.memberIconLink.isLoggedIn {
+  border-color: rgba(183, 0, 18, 0.24);
+}
+
+.memberIconLink.isLoggedIn svg {
+  color: var(--brand);
+}
+
 .memberIconLink svg {
   width: 18px;
   height: 18px;

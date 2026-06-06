@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { isLocale, type Locale } from "@/data/locales";
-import { buildMemberCardUrl } from "@/components/member-session";
+import { buildMemberCardUrl, consumeMemberHandoff, getStoredMemberProfile, type MemberProfile } from "@/components/member-session";
 
 export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const [navOpen, setNavOpen] = useState(false);
@@ -15,6 +15,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const homeHref = localizedPath(language, "/");
   const menuHref = localizedPath(language, "/stores/shimizu/menu");
   const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
+  const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
 
   const sectionHref = (hash: string) => (menu ? `${homeHref}${hash}` : hash);
 
@@ -33,6 +34,23 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
     setMemberHref(buildMemberCardUrl());
   }, [pathname]);
 
+  useEffect(() => {
+    const refreshMember = () => setMemberProfile(getStoredMemberProfile());
+    refreshMember();
+    consumeMemberHandoff()
+      .then((profile) => {
+        if (profile) setMemberProfile(profile);
+      })
+      .catch(refreshMember);
+
+    window.addEventListener("focus", refreshMember);
+    window.addEventListener("storage", refreshMember);
+    return () => {
+      window.removeEventListener("focus", refreshMember);
+      window.removeEventListener("storage", refreshMember);
+    };
+  }, [pathname]);
+
   return (
     <header className="siteHeader" aria-label={t("メインナビゲーション")}>
       <a className="brand" href={menu ? homeHref : "#top"} aria-label={t("まぁ麻 ホーム")}>
@@ -44,7 +62,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
       </a>
       <div className="headerControls">
         <a
-          className="memberIconLink"
+          className={`memberIconLink${memberProfile ? " isLoggedIn" : ""}`}
           href={memberHref}
           aria-label={t("会員ログイン")}
           title={t("会員ログイン")}
