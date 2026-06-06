@@ -52,7 +52,7 @@ export function ClientLocaleRedirect({
 
     const nextLanguage = preferredLanguage || browserLocale();
     if (nextLanguage !== "ja") {
-      router.replace(localePath(nextLanguage, path));
+      router.replace(`${localePath(nextLanguage, path)}${window.location.search}${window.location.hash}`);
     }
   }, [path, router]);
 
