@@ -10,6 +10,7 @@
   --sun: #f0d3a2;
   --line: rgba(29, 23, 22, 0.12);
   --shadow: 0 24px 80px rgba(29, 23, 22, 0.1);
+  --header-circle-size: 42px;
 }
 
 * {
@@ -88,8 +89,8 @@ p {
 
 .brandLogo {
   display: block;
-  width: 42px;
-  height: 42px;
+  width: var(--header-circle-size);
+  height: var(--header-circle-size);
   border-radius: 50%;
   object-fit: contain;
 }
@@ -125,8 +126,8 @@ p {
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: var(--header-circle-size);
+  height: var(--header-circle-size);
   border: 1px solid rgba(29, 23, 22, 0.12);
   border-radius: 50%;
   background: #ffffff;
@@ -162,8 +163,8 @@ p {
 .navToggle {
   order: 3;
   display: none;
-  width: 42px;
-  height: 42px;
+  width: var(--header-circle-size);
+  height: var(--header-circle-size);
   border: 1px solid rgba(29, 23, 22, 0.12);
   border-radius: 50%;
   background: #ffffff;
@@ -1582,7 +1583,8 @@ h3 {
 
 @media (max-width: 580px) {
   .siteHeader {
-    padding: 14px 18px;
+    --header-circle-size: 44px;
+    padding: 14px 24px;
   }
 
   .brandText {
@@ -1661,8 +1663,6 @@ h3 {
     position: relative;
     z-index: 12;
     order: 1;
-    width: 42px;
-    height: 42px;
   }
 
   .languagePicker select {
