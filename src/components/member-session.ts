@@ -58,6 +58,22 @@ export function getStoredMemberProfile(): MemberProfile | null {
   }
 }
 
+async function refreshStoredMemberProfile(profile: MemberProfile | null) {
+  if (!profile?.publicToken) return profile;
+  try {
+    const response = await fetch(`/api/member-handoff?memberToken=${encodeURIComponent(profile.publicToken)}`, {
+      cache: "no-store"
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body?.member) return profile;
+    const nextProfile = { ...body.member, coupons: Array.isArray(body.coupons) ? body.coupons : [] };
+    window.localStorage.setItem(memberStorageKey, JSON.stringify(nextProfile));
+    return nextProfile as MemberProfile;
+  } catch {
+    return profile;
+  }
+}
+
 export async function consumeMemberHandoff() {
   if (typeof window === "undefined") return getStoredMemberProfile();
 
@@ -70,7 +86,7 @@ export async function consumeMemberHandoff() {
   }
 
   const token = url.searchParams.get("memberHandoff");
-  if (!token) return getStoredMemberProfile();
+  if (!token) return refreshStoredMemberProfile(getStoredMemberProfile());
 
   const response = await fetch(`/api/member-handoff?token=${encodeURIComponent(token)}`, {
     cache: "no-store"
