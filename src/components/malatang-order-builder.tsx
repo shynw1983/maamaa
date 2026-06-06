@@ -48,6 +48,9 @@ const unavailableSelectionError = "選択したトッピング・オプション
 const menuRefreshNotice = "メニュー状態が更新されました。販売中の内容を最新にしました。";
 const menuRefreshIntervalMs = 15000;
 const draftStorageKey = "maamaa-shimizu-menu-draft-v1";
+const textValue = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+const memberContactName = (profile: MemberProfile) =>
+  textValue(profile.fullName) || [textValue(profile.lastName), textValue(profile.firstName)].filter(Boolean).join(" ") || textValue(profile.displayName);
 
 function formatUnavailableItems(value: unknown) {
   if (!Array.isArray(value)) return "";
@@ -525,7 +528,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       .then((profile) => {
         if (!profile) return;
         setMemberProfile(profile);
-        setName((current) => current || profile.displayName || "");
+        setName((current) => current || memberContactName(profile));
         setPhone((current) => current || profile.phone || "");
       })
       .catch(() => {});

@@ -5,6 +5,9 @@ export type MemberProfile = {
   memberNumber?: string;
   publicToken?: string;
   displayName?: string;
+  lastName?: string;
+  firstName?: string;
+  fullName?: string;
   phone?: string;
   email?: string;
   pointBalance?: number;
