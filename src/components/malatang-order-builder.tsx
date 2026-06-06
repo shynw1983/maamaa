@@ -528,11 +528,17 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       .then((profile) => {
         if (!profile) return;
         setMemberProfile(profile);
-        setName((current) => current || memberContactName(profile));
+        setName(memberContactName(profile));
         setPhone((current) => current || profile.phone || "");
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!memberProfile) return;
+    const contactName = memberContactName(memberProfile);
+    if (contactName) setName(contactName);
+  }, [memberProfile]);
 
   useEffect(() => {
     try {
