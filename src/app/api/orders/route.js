@@ -236,6 +236,7 @@ export async function POST(request) {
       memberEmail: body.memberEmail || "",
       memberPhone: body.memberPhone || "",
       memberName: body.memberName || "",
+      couponId: body.couponId || "",
       items: body.items.map((item) => toFoundr1Item(item, menu, sectionByChoiceId)),
       completionUrl,
       completionSummary: {

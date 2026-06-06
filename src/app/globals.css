@@ -668,9 +668,10 @@ h3 {
 }
 
 .summaryTotal {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
+  gap: 4px 12px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   padding: 16px 0;
@@ -685,6 +686,14 @@ h3 {
 .summaryTotal strong {
   font-size: 1.7rem;
   font-weight: 500;
+}
+
+.summaryTotal small {
+  grid-column: 1 / -1;
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: right;
 }
 
 .cartList {
@@ -834,6 +843,54 @@ h3 {
   font-size: 0.78rem;
   font-weight: 800;
   text-decoration: none;
+  white-space: nowrap;
+}
+
+.memberCouponPanel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(118, 43, 25, 0.16);
+  border-radius: 8px;
+  background: #fff8ec;
+}
+
+.memberCouponPanel > span {
+  color: var(--brand);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.memberCouponPanel button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px 10px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.memberCouponPanel button.isSelected {
+  border-color: rgba(118, 43, 25, 0.32);
+  background: #fff1dc;
+}
+
+.memberCouponPanel strong {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.memberCouponPanel small {
+  color: var(--brand);
+  font-size: 0.72rem;
+  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -1685,6 +1742,14 @@ h3 {
 
   .memberPointPanel {
     grid-template-columns: 1fr;
+  }
+
+  .memberCouponPanel button {
+    grid-template-columns: 1fr;
+  }
+
+  .memberCouponPanel small {
+    white-space: normal;
   }
 
   .memberPointPanel a,

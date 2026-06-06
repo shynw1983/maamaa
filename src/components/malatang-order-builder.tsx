@@ -51,6 +51,19 @@ const draftStorageKey = "maamaa-shimizu-menu-draft-v1";
 const textValue = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 const memberContactName = (profile: MemberProfile) =>
   textValue(profile.fullName) || [textValue(profile.lastName), textValue(profile.firstName)].filter(Boolean).join(" ") || textValue(profile.displayName);
+const getCouponDiscountAmount = (coupon: MemberCoupon, subtotal: number) => {
+  const baseAmount = Math.max(0, Math.round(Number(subtotal) || 0));
+  const value = Math.max(0, Math.round(Number(coupon.discountValue) || 0));
+  const maxAmount = coupon.maxDiscountAmount == null ? null : Math.max(0, Math.round(Number(coupon.maxDiscountAmount) || 0));
+  const rawDiscount = coupon.discountType === "percent" ? Math.floor(baseAmount * value / 100) : value;
+  return Math.min(baseAmount, maxAmount == null ? rawDiscount : Math.min(rawDiscount, maxAmount));
+};
+const formatCouponValue = (coupon: MemberCoupon) => {
+  if (coupon.discountType === "percent") {
+    return coupon.maxDiscountAmount ? `${coupon.discountValue}% OFF / 最大${yen(coupon.maxDiscountAmount)}` : `${coupon.discountValue}% OFF`;
+  }
+  return `${yen(coupon.discountValue)} OFF`;
+};
 
 function formatUnavailableItems(value: unknown) {
   if (!Array.isArray(value)) return "";
@@ -210,6 +223,8 @@ type OrderDraft = {
   pickupTime?: string;
 };
 
+type MemberCoupon = NonNullable<MemberProfile["coupons"]>[number];
+
 export type MalatangMenu = {
   baseSoup: MenuChoice & {
     isAvailable?: boolean;
@@ -248,6 +263,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
+  const [selectedCouponId, setSelectedCouponId] = useState("");
   const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
   const [note, setNote] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -300,6 +316,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const memberCoupons = memberProfile?.coupons ?? [];
+  const selectedCoupon = memberCoupons.find((coupon) => coupon.id === selectedCouponId);
+  const couponDiscount = selectedCoupon ? Math.min(getCouponDiscountAmount(selectedCoupon, cartTotal), Math.max(0, cartTotal - 1)) : 0;
+  const paymentTotal = Math.max(0, cartTotal - couponDiscount);
   const baseUnavailable = baseSoup.websiteEnabled === false || baseSoup.isAvailable === false;
   const reservationsPaused = menu.storeOperation?.reservationsEnabled === false;
   const reservationPauseMessage = menu.storeOperation?.statusNote
@@ -541,6 +561,11 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   }, [memberProfile]);
 
   useEffect(() => {
+    if (!selectedCouponId) return;
+    if (!memberCoupons.some((coupon) => coupon.id === selectedCouponId)) setSelectedCouponId("");
+  }, [memberCoupons, selectedCouponId]);
+
+  useEffect(() => {
     try {
       const rawDraft = window.sessionStorage.getItem(draftStorageKey);
       if (!rawDraft) return;
@@ -713,10 +738,11 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           memberEmail: memberProfile?.email || "",
           memberPhone: memberProfile?.phone || "",
           memberName: memberProfile ? name : "",
+          couponId: selectedCouponId,
           pickupDate: safePickupDate,
           pickupTime: safePickupTime,
           note,
-          total: cartTotal,
+          total: paymentTotal,
           items: localizedCartItems,
           language,
         }),
@@ -737,7 +763,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         pickupDate: safePickupDate,
         pickupTime: safePickupTime,
         note,
-        total: cartTotal,
+        total: paymentTotal,
         items: localizedCartItems,
       };
 
@@ -805,7 +831,8 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         </div>
         <div className="summaryTotal">
           <span>{t("合計")}</span>
-          <strong>{yen(cartTotal)}</strong>
+          <strong>{yen(paymentTotal)}</strong>
+          {couponDiscount ? <small>{t("クーポン値引き")} -{yen(couponDiscount)}</small> : null}
         </div>
         <div className="pickupFields">
           <label>
@@ -826,6 +853,22 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
               <a href={memberHref}>
                 {t("会員登録・ログイン")}
               </a>
+            </div>
+          ) : null}
+          {memberProfile && memberCoupons.length ? (
+            <div className="memberCouponPanel">
+              <span>{t("クーポン")}</span>
+              {memberCoupons.map((coupon) => (
+                <button
+                  key={coupon.id}
+                  className={selectedCouponId === coupon.id ? "isSelected" : ""}
+                  type="button"
+                  onClick={() => setSelectedCouponId((current) => (current === coupon.id ? "" : coupon.id))}
+                >
+                  <strong>{coupon.name}</strong>
+                  <small>{formatCouponValue(coupon)}</small>
+                </button>
+              ))}
             </div>
           ) : null}
           <label>

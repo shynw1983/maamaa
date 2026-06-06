@@ -11,6 +11,15 @@ export type MemberProfile = {
   phone?: string;
   email?: string;
   pointBalance?: number;
+  coupons?: Array<{
+    id: string;
+    couponCode?: string;
+    name: string;
+    discountType: string;
+    discountValue: number;
+    maxDiscountAmount?: number | null;
+    expiresAt?: string;
+  }>;
 };
 
 const memberStorageKey = "foundr1-member-profile";
@@ -69,8 +78,9 @@ export async function consumeMemberHandoff() {
   const body = await response.json().catch(() => ({}));
   if (!response.ok || !body?.member) throw new Error(body?.error || "会員情報を読み込めませんでした。");
 
-  window.localStorage.setItem(memberStorageKey, JSON.stringify(body.member));
+  const profile = { ...body.member, coupons: Array.isArray(body.coupons) ? body.coupons : [] };
+  window.localStorage.setItem(memberStorageKey, JSON.stringify(profile));
   url.searchParams.delete("memberHandoff");
   window.history.replaceState({}, "", url.toString());
-  return body.member as MemberProfile;
+  return profile as MemberProfile;
 }
