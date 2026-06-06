@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
+import { buildMemberPortalUrl, consumeMemberHandoff, type MemberProfile } from "@/components/member-session";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
@@ -246,6 +247,8 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [memberEmail, setMemberEmail] = useState("");
+  const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
+  const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
   const [note, setNote] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [reservation, setReservation] = useState<Reservation | null>(null);
@@ -518,6 +521,19 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         .filter(([, quantity]) => quantity > 0)
         .map(([id, quantity]) => [id, formatCartChoiceLabel(item, id, quantity)]),
     ].filter(Boolean) as Array<[string, string]>);
+
+  useEffect(() => {
+    setMemberHref(buildMemberPortalUrl());
+    consumeMemberHandoff()
+      .then((profile) => {
+        if (!profile) return;
+        setMemberProfile(profile);
+        setName((current) => current || profile.displayName || "");
+        setPhone((current) => current || profile.phone || "");
+        setMemberEmail((current) => current || profile.email || "");
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     try {
@@ -796,16 +812,18 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             {t("電話番号")}
             <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="090..." />
           </label>
-          <div className="memberPointPanel">
-            <div>
-              <span>{t("会員ポイント")}</span>
-              <strong>{t("ログイン時と同じメールでポイントが貯まります。")}</strong>
-              <p>{t("入力しなくても予約できます。会員登録は決済後でも可能です。")}</p>
+          {!memberProfile ? (
+            <div className="memberPointPanel">
+              <div>
+                <span>{t("会員ポイント")}</span>
+                <strong>{t("ログイン時と同じメールでポイントが貯まります。")}</strong>
+                <p>{t("入力しなくても予約できます。会員登録は決済後でも可能です。")}</p>
+              </div>
+              <a href={memberHref}>
+                {t("会員登録・ログイン")}
+              </a>
             </div>
-            <a href="https://foundr1.jp/member" target="_blank" rel="noreferrer">
-              {t("会員登録・ログイン")}
-            </a>
-          </div>
+          ) : null}
           <label>
             {t("ポイント用メール（任意）")}
             <input

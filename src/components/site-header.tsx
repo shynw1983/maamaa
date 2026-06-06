@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { isLocale, type Locale } from "@/data/locales";
+import { buildMemberPortalUrl } from "@/components/member-session";
 
 export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const [navOpen, setNavOpen] = useState(false);
@@ -13,6 +14,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const router = useRouter();
   const homeHref = localizedPath(language, "/");
   const menuHref = localizedPath(language, "/stores/shimizu/menu");
+  const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
 
   const sectionHref = (hash: string) => (menu ? `${homeHref}${hash}` : hash);
 
@@ -26,6 +28,10 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
     const basePath = currentLanguagePrefix ? pathname.slice(currentLanguagePrefix.length) || "/" : pathname;
     router.push(localizedPath(nextLanguage, basePath));
   };
+
+  useEffect(() => {
+    setMemberHref(buildMemberPortalUrl());
+  }, [pathname]);
 
   return (
     <header className="siteHeader" aria-label={t("メインナビゲーション")}>
@@ -70,9 +76,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
         </nav>
         <a
           className="memberIconLink"
-          href="https://foundr1.jp/member"
-          target="_blank"
-          rel="noreferrer"
+          href={memberHref}
           aria-label={t("会員ログイン")}
           title={t("会員ログイン")}
           onClick={() => setNavOpen(false)}
