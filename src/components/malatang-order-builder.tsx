@@ -802,38 +802,6 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         <p>
           {t("カスタムした一杯をリストに追加して、複数の商品をまとめて受け取り予約できます。")}
         </p>
-        <div className="cartList">
-          {cartItems.length ? (
-            cartItems.map((item, index) => (
-              <article className="cartItem" key={item.id}>
-                <div>
-                  <strong>
-                    {index + 1}. {formatCartItemTitle(item, index)}
-                  </strong>
-                  <span>{yen(item.total)}</span>
-                </div>
-                <p>{formatCartItemSummary(item).join(" / ")}</p>
-                <div className="cartItemActions">
-                  <button className={editingCartItemId === item.id ? "isEditing" : ""} type="button" onClick={() => editCartItem(item)}>
-                    {editingCartItemId === item.id ? t("編集中") : t("編集")}
-                  </button>
-                  <button type="button" onClick={() => removeCartItem(item.id)}>
-                    {t("削除")}
-                  </button>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="emptyCart">
-              {t("メニューから一杯をカスタムして、予約リストに追加してください。")}
-            </div>
-          )}
-        </div>
-        <div className="summaryTotal">
-          <span>{t("合計")}</span>
-          <strong>{yen(paymentTotal)}</strong>
-          {couponDiscount ? <small>{t("クーポン値引き")} -{yen(couponDiscount)}</small> : null}
-        </div>
         <div className="pickupFields">
           <label>
             {t("お名前")}
@@ -879,6 +847,38 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
             {t("メモ")}
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder={t("香菜なし、袋分けなど")} />
           </label>
+        </div>
+        <div className="cartList">
+          {cartItems.length ? (
+            cartItems.map((item, index) => (
+              <article className="cartItem" key={item.id}>
+                <div>
+                  <strong>
+                    {index + 1}. {formatCartItemTitle(item, index)}
+                  </strong>
+                  <span>{yen(item.total)}</span>
+                </div>
+                <p>{formatCartItemSummary(item).join(" / ")}</p>
+                <div className="cartItemActions">
+                  <button className={editingCartItemId === item.id ? "isEditing" : ""} type="button" onClick={() => editCartItem(item)}>
+                    {editingCartItemId === item.id ? t("編集中") : t("編集")}
+                  </button>
+                  <button type="button" onClick={() => removeCartItem(item.id)}>
+                    {t("削除")}
+                  </button>
+                </div>
+              </article>
+            ))
+          ) : (
+            <div className="emptyCart">
+              {t("メニューから一杯をカスタムして、予約リストに追加してください。")}
+            </div>
+          )}
+        </div>
+        <div className="summaryTotal">
+          <span>{t("合計")}</span>
+          <strong>{yen(paymentTotal)}</strong>
+          {couponDiscount ? <small>{t("クーポン値引き")} -{yen(couponDiscount)}</small> : null}
         </div>
         {memberProfile && memberCoupons.length ? (
           <div className="memberCouponPanel">
