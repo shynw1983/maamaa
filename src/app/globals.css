@@ -862,6 +862,7 @@ h3 {
 }
 
 .memberCouponPanel button {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 6px;
@@ -875,11 +876,26 @@ h3 {
   font: inherit;
   text-align: left;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .memberCouponPanel button.isSelected {
-  border-color: rgba(118, 43, 25, 0.32);
-  background: #fff1dc;
+  border-color: rgba(183, 0, 18, 0.58);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(183, 0, 18, 0.1);
+}
+
+.memberCouponPanel button.isSelected::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--brand);
+}
+
+.memberCouponPanel button.isSelected strong,
+.memberCouponPanel button.isSelected small {
+  color: var(--brand);
 }
 
 .memberCouponPanel strong {
