@@ -95,9 +95,16 @@ p {
 }
 
 .headerActions {
+  order: 1;
   display: flex;
   align-items: center;
   gap: clamp(18px, 3vw, 36px);
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 24px);
 }
 
 .nav {
@@ -114,6 +121,7 @@ p {
 }
 
 .memberIconLink {
+  order: 2;
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
@@ -144,6 +152,7 @@ p {
 }
 
 .navToggle {
+  order: 3;
   display: none;
   width: 42px;
   height: 42px;
@@ -1588,7 +1597,12 @@ h3 {
     gap: 4px;
   }
 
+  .headerControls {
+    gap: 8px;
+  }
+
   .headerActions {
+    order: 3;
     position: fixed;
     top: 72px;
     right: 14px;
@@ -1636,6 +1650,9 @@ h3 {
   }
 
   .memberIconLink {
+    position: relative;
+    z-index: 12;
+    order: 1;
     width: 42px;
     height: 42px;
   }
