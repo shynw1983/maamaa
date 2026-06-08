@@ -4,6 +4,7 @@ import { ClientLocaleRedirect } from "@/components/client-locale-redirect";
 import { LocalizedShell } from "@/components/localized-shell";
 import { MenuPageContent } from "@/components/menu-page-content";
 import { languageAlternates } from "@/data/locales";
+import { getBrandSiteSections } from "@/server/brand-site-source";
 import { getMenuData } from "@/server/menu-source";
 import { isReservationAuthenticated } from "@/server/shimizu-reservation-auth";
 
@@ -23,12 +24,15 @@ export default async function ShimizuMenuPage() {
   if (!isReservationAuthenticated(cookieStore)) {
     redirect("/stores/shimizu/login?next=/stores/shimizu/menu");
   }
-  const initialMenu = await getMenuData("shimizu");
+  const [initialMenu, siteSections] = await Promise.all([
+    getMenuData("shimizu"),
+    getBrandSiteSections("maamaa", "ja"),
+  ]);
 
   return (
     <LocalizedShell language="ja">
       <ClientLocaleRedirect path={shimizuMenuPath} />
-      <MenuPageContent initialMenu={initialMenu} />
+      <MenuPageContent initialMenu={initialMenu} siteSections={siteSections} />
     </LocalizedShell>
   );
 }

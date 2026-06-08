@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { SiteHeader } from "@/components/site-header";
+import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const stores = [
   {
@@ -25,8 +26,16 @@ const bowls = [
   ["Balance", "辛さ、しびれ、香酢、トッピングを自分らしく調整。"],
 ];
 
-export function HomeContent() {
+const findSection = (sections: BrandSiteSection[], key: string) =>
+  sections.find((section) => section.sectionKey === key);
+
+export function HomeContent({ siteSections = [] }: { siteSections?: BrandSiteSection[] }) {
   const { language, t } = useI18n();
+  const hero = findSection(siteSections, "hero");
+  const concept = findSection(siteSections, "concept");
+  const buildBowl = findSection(siteSections, "build-a-bowl");
+  const shops = findSection(siteSections, "shops");
+  const footer = findSection(siteSections, "footer");
 
   return (
     <main>
@@ -34,24 +43,24 @@ export function HomeContent() {
 
       <section id="top" className="hero" aria-labelledby="heroTitle">
         <div className="heroContent">
-          <p className="kicker">{t("出来立て麻辣湯")}</p>
-          <h1 id="heroTitle" className="heroTitle">まぁ麻</h1>
+          <p className="kicker">{t(hero?.subtitle || "出来立て麻辣湯")}</p>
+          <h1 id="heroTitle" className="heroTitle">{hero?.title || "まぁ麻"}</h1>
           <p className="heroLead">
             {t(
-              "ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。",
+              hero?.body || "ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。",
             )}
           </p>
           <div className="heroActions">
-            <a className="button primary" href={localizedPath(language, "/stores/shimizu/menu")}>
-              {t("メニューを見る")}
+            <a className="button primary" href={localizedPath(language, hero?.actionUrl || "/stores/shimizu/menu")}>
+              {t(hero?.actionLabel || "メニューを見る")}
             </a>
           </div>
         </div>
         <div className="heroVisual" aria-hidden="true">
           <Image
             className="heroImage"
-            src="/images/maamaa-hero-bowl.jpg"
-            alt=""
+            src={hero?.imageUrl || "/images/maamaa-hero-bowl.jpg"}
+            alt={hero?.imageAlt || ""}
             width={990}
             height={1152}
             priority
@@ -62,13 +71,13 @@ export function HomeContent() {
 
       <section id="concept" className="section split">
         <div>
-          <p className="kicker">Brand concept</p>
-          <h2>{t("作り置きではなく、注文ごとに仕上げる。")}</h2>
+          <p className="kicker">{concept?.subtitle || "Brand concept"}</p>
+          <h2>{t(concept?.title || "作り置きではなく、注文ごとに仕上げる。")}</h2>
         </div>
         <div className="copyStack">
           <p>
             {t(
-              "まぁ麻の麻辣湯は、大きな鍋でまとめて煮込むスタイルではありません。注文を受けてから具材とスープを合わせ、一杯ずつ出来立てでお渡しします。",
+              concept?.body || "まぁ麻の麻辣湯は、大きな鍋でまとめて煮込むスタイルではありません。注文を受けてから具材とスープを合わせ、一杯ずつ出来立てでお渡しします。",
             )}
           </p>
         </div>
@@ -76,8 +85,8 @@ export function HomeContent() {
 
       <section className="section bowlSection" aria-labelledby="bowlTitle">
         <div className="sectionIntro">
-          <p className="kicker">Build a bowl</p>
-          <h2 id="bowlTitle">{t("選べる楽しさと、出来立ての安心感。")}</h2>
+          <p className="kicker">{buildBowl?.subtitle || "Build a bowl"}</p>
+          <h2 id="bowlTitle">{t(buildBowl?.title || "選べる楽しさと、出来立ての安心感。")}</h2>
         </div>
         <div className="bowlGrid">
           {bowls.map(([title, body]) => (
@@ -91,8 +100,8 @@ export function HomeContent() {
 
       <section id="stores" className="section storeIntroSection" aria-labelledby="storesTitle">
         <div className="sectionIntro">
-          <p className="kicker">Shop information</p>
-          <h2 id="storesTitle">{t("出来立てを受け取る店から、店内で味わう店へ。")}</h2>
+          <p className="kicker">{shops?.subtitle || "Shop information"}</p>
+          <h2 id="storesTitle">{t(shops?.title || "出来立てを受け取る店から、店内で味わう店へ。")}</h2>
         </div>
         <div className="storeIntroGrid">
           {stores.map((item) => (
@@ -113,8 +122,8 @@ export function HomeContent() {
 
       <footer id="contact" className="footer">
         <div>
-          <p className="footerLogo">まぁ麻</p>
-          <p>{t("出来立て麻辣湯 for delivery, pickup, and dine-in.")}</p>
+          <p className="footerLogo">{footer?.title || "まぁ麻"}</p>
+          <p>{t(footer?.body || "出来立て麻辣湯 for delivery, pickup, and dine-in.")}</p>
           <div className="footerLegalLinks">
             <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
               {t("特定商取引法に基づく表記")}
@@ -127,8 +136,8 @@ export function HomeContent() {
             </a>
           </div>
         </div>
-        <a className="button footerButton" href="mailto:hello@maamaa.example">
-          Contact
+        <a className="button footerButton" href={footer?.actionUrl || "mailto:hello@maamaa.example"}>
+          {footer?.actionLabel || "Contact"}
         </a>
       </footer>
     </main>

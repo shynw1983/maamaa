@@ -5,6 +5,7 @@ import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { buildMemberHandoffUrl, consumeMemberHandoff, memberPreferredLanguage, type MemberProfile } from "@/components/member-session";
+import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
@@ -263,8 +264,17 @@ export type MalatangMenu = {
   source?: string;
 };
 
-export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMenu }) {
+export function MalatangOrderBuilder({
+  initialMenu,
+  siteContent = {},
+}: {
+  initialMenu: MalatangMenu;
+  siteContent?: {
+    reservationSummary?: BrandSiteSection;
+  };
+}) {
   const { language, setLanguage, t } = useI18n();
+  const reservationSummary = siteContent.reservationSummary;
   const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
     menuDisplayName(item, language, t, fallback);
   const initialPickup = useMemo(
@@ -832,10 +842,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   return (
     <div className="menuBuilder">
       <aside className="orderSummary" aria-label={t("予約内容")}>
-        <p className="kicker">{t("Pickup reservation")}</p>
-        <h2>{t("予約リスト")}</h2>
+        <p className="kicker">{t(reservationSummary?.subtitle || "Pickup reservation")}</p>
+        <h2>{t(reservationSummary?.title || "予約リスト")}</h2>
         <p>
-          {t("カスタムした一杯をリストに追加して、複数の商品をまとめて受け取り予約できます。")}
+          {t(reservationSummary?.body || "カスタムした一杯をリストに追加して、複数の商品をまとめて受け取り予約できます。")}
         </p>
         <div className="pickupFields">
           <label>
