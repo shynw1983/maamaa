@@ -242,6 +242,7 @@ export type MalatangMenu = {
   baseSoup: MenuChoice & {
     isAvailable?: boolean;
     websiteEnabled?: boolean;
+    noteDisplayNames?: Record<string, string>;
   };
   medicinalSpiceGroup?: MenuGroupLabel;
   medicinalSpiceOptions: MenuChoice[];
@@ -314,6 +315,10 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     const groupName = menuText(group, fallback);
     return t("{name}を選ぶ").replace("{name}", groupName);
   };
+  const baseSoupNote =
+    baseSoup.noteDisplayNames?.[language] ||
+    baseSoup.noteDisplayNames?.en ||
+    t(baseSoup.note || "");
 
   const allChoices = useMemo(
     () => [
@@ -967,7 +972,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
         <div className="menuHeroCard">
           <p className="kicker">{t("Base soup")}</p>
           <h1>{menuText(baseSoup)}</h1>
-          <p>{t(baseSoup.note || "")}</p>
+          <p>{baseSoupNote}</p>
           <strong>{yen(baseSoup.price)}</strong>
         </div>
 
