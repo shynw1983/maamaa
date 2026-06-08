@@ -29,7 +29,7 @@ const memberStorageKey = "foundr1-member-profile";
 const languageStorageKey = "maamaa-language";
 const memberPortalUrl = process.env.NEXT_PUBLIC_FOUNDR1_MEMBER_URL || "https://foundr1.jp/member";
 const memberBrand = "maamaa";
-const supportedLanguages = ["ja", "en", "zh", "ko", "vi", "ne"] as const;
+const supportedLanguages = ["ja", "en", "zh", "zh-Hant", "ko", "vi", "ne"] as const;
 type SupportedLanguage = typeof supportedLanguages[number];
 
 export function normalizeMemberLanguage(value: unknown): SupportedLanguage | "" {

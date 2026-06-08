@@ -12,6 +12,7 @@ const browserLocale = (): Locale => {
   for (const language of languages) {
     const normalized = language.toLowerCase();
     if (normalized.startsWith("en")) return "en";
+    if (normalized.includes("hant") || normalized.includes("tw") || normalized.includes("hk") || normalized.includes("mo")) return "zh-Hant";
     if (normalized.startsWith("zh")) return "zh";
     if (normalized.startsWith("ko")) return "ko";
     if (normalized.startsWith("vi")) return "vi";
