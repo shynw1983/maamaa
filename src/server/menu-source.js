@@ -12,13 +12,29 @@ const fallbackStoreId = () => (
 
 const cleanBaseUrl = (value = "") => String(value).trim().replace(/\/$/, "");
 
+const normalizeMenuApiUrl = (value = "") => {
+  const rawUrl = cleanBaseUrl(value);
+  if (!rawUrl) return "";
+
+  try {
+    const url = new URL(rawUrl);
+    const brand = String(url.searchParams.get("brand") || "").trim().toLowerCase();
+    if (brand === "maamaa" || brand === "maaamaa" || brand === "maama") {
+      url.searchParams.set("brand", "まぁ麻");
+    }
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
+};
+
 const getMenuApiUrl = () => {
   const configured = cleanBaseUrl(
     process.env.FOUNDR1_OS_MENU_API_URL ||
     process.env.FOUNDR1_MENU_API_URL ||
     "",
   );
-  if (configured) return configured;
+  if (configured) return normalizeMenuApiUrl(configured);
 
   const baseUrl = cleanBaseUrl(
     process.env.FOUNDR1_API_BASE_URL ||
@@ -26,7 +42,7 @@ const getMenuApiUrl = () => {
     process.env.FOUNDR1_OS_BASE_URL ||
     defaultOsBaseUrl,
   );
-  return `${baseUrl}/api/public/menus?brand=maamaa`;
+  return `${baseUrl}/api/public/menus?brand=${encodeURIComponent("まぁ麻")}`;
 };
 
 const fallbackMenu = () => ({
