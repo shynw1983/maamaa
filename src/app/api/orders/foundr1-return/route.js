@@ -2,6 +2,8 @@ const localePrefix = (language) => {
   if (language === "en") return "/en";
   if (language === "zh") return "/zh";
   if (language === "ko") return "/ko";
+  if (language === "vi") return "/vi";
+  if (language === "ne") return "/ne";
   return "";
 };
 

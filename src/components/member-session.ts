@@ -4,6 +4,9 @@ export type MemberProfile = {
   id?: string;
   memberNumber?: string;
   publicToken?: string;
+  preferredLanguage?: string;
+  language?: string;
+  selectedLanguage?: string;
   displayName?: string;
   lastName?: string;
   firstName?: string;
@@ -23,8 +26,31 @@ export type MemberProfile = {
 };
 
 const memberStorageKey = "foundr1-member-profile";
+const languageStorageKey = "maamaa-language";
 const memberPortalUrl = process.env.NEXT_PUBLIC_FOUNDR1_MEMBER_URL || "https://foundr1.jp/member";
 const memberBrand = "maamaa";
+const supportedLanguages = ["ja", "en", "zh", "ko", "vi", "ne"] as const;
+type SupportedLanguage = typeof supportedLanguages[number];
+
+export function normalizeMemberLanguage(value: unknown): SupportedLanguage | "" {
+  const language = String(value || "").trim();
+  return supportedLanguages.includes(language as SupportedLanguage) ? language as SupportedLanguage : "";
+}
+
+export function memberPreferredLanguage(profile: MemberProfile | null | undefined) {
+  return normalizeMemberLanguage(profile?.preferredLanguage || profile?.language || profile?.selectedLanguage);
+}
+
+function currentLanguage() {
+  if (typeof window === "undefined") return "ja";
+  try {
+    const stored = normalizeMemberLanguage(window.localStorage.getItem(languageStorageKey));
+    if (stored) return stored;
+  } catch {
+    // Fall back below.
+  }
+  return normalizeMemberLanguage(document.documentElement.lang) || "ja";
+}
 
 function cleanReturnUrl() {
   const url = new URL(window.location.href);
@@ -37,6 +63,7 @@ function buildMemberUrl({ handoff }: { handoff: boolean }) {
   if (typeof window === "undefined") return memberPortalUrl;
   const url = new URL(memberPortalUrl);
   url.searchParams.set("returnTo", cleanReturnUrl());
+  url.searchParams.set("lang", currentLanguage());
   if (handoff) url.searchParams.set("handoff", "1");
   return url.toString();
 }

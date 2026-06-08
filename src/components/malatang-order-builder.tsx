@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
-import { buildMemberHandoffUrl, consumeMemberHandoff, type MemberProfile } from "@/components/member-session";
+import { buildMemberHandoffUrl, consumeMemberHandoff, memberPreferredLanguage, type MemberProfile } from "@/components/member-session";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
@@ -253,7 +253,7 @@ export type MalatangMenu = {
 };
 
 export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMenu }) {
-  const { language, t } = useI18n();
+  const { language, setLanguage, t } = useI18n();
   const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
     menuDisplayName(item, language, t, fallback);
   const initialPickup = useMemo(
@@ -555,12 +555,14 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     consumeMemberHandoff()
       .then((profile) => {
         if (!profile) return;
+        const nextLanguage = memberPreferredLanguage(profile);
+        if (nextLanguage && nextLanguage !== language) setLanguage(nextLanguage);
         setMemberProfile(profile);
         setName(memberContactName(profile));
         setPhone((current) => current || profile.phone || "");
       })
       .catch(() => {});
-  }, []);
+  }, [language, setLanguage]);
 
   useEffect(() => {
     if (!memberProfile) return;

@@ -5,7 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { isLocale, type Locale } from "@/data/locales";
-import { buildMemberCardUrl, consumeMemberHandoff, getStoredMemberProfile, type MemberProfile } from "@/components/member-session";
+import { buildMemberCardUrl, consumeMemberHandoff, getStoredMemberProfile, memberPreferredLanguage, type MemberProfile } from "@/components/member-session";
+
+const languagePrefixes = ["/en", "/zh", "/ko", "/vi", "/ne"];
 
 export function SiteHeader({ menu = false }: { menu?: boolean }) {
   const [navOpen, setNavOpen] = useState(false);
@@ -23,7 +25,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
     setLanguage(nextLanguage);
     setNavOpen(false);
 
-    const currentLanguagePrefix = ["/en", "/zh", "/ko"].find(
+    const currentLanguagePrefix = languagePrefixes.find(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
     );
     const basePath = currentLanguagePrefix ? pathname.slice(currentLanguagePrefix.length) || "/" : pathname;
@@ -41,7 +43,10 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
     refreshMember();
     consumeMemberHandoff()
       .then((profile) => {
-        if (profile) setMemberProfile(profile);
+        if (!profile) return;
+        setMemberProfile(profile);
+        const nextLanguage = memberPreferredLanguage(profile);
+        if (nextLanguage && nextLanguage !== language) changeLanguage(nextLanguage);
       })
       .catch(refreshMember);
 
@@ -121,6 +126,8 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
               <option value="en">English</option>
               <option value="zh">中文</option>
               <option value="ko">한국어</option>
+              <option value="vi">Tiếng Việt</option>
+              <option value="ne">नेपाली</option>
             </select>
           </label>
         </div>

@@ -14,6 +14,8 @@ const browserLocale = (): Locale => {
     if (normalized.startsWith("en")) return "en";
     if (normalized.startsWith("zh")) return "zh";
     if (normalized.startsWith("ko")) return "ko";
+    if (normalized.startsWith("vi")) return "vi";
+    if (normalized.startsWith("ne")) return "ne";
     if (normalized.startsWith("ja")) return "ja";
   }
 
