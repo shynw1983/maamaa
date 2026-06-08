@@ -39,6 +39,15 @@ const sectionSelectionLimitError = (sectionTitle: string, limit: number) =>
   `${sectionTitle}は${limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`;
 const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
+const menuDisplayName = (
+  item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined,
+  language: string,
+  t: (value: string) => string,
+  fallback = "",
+) => {
+  const original = fallback || item?.name || item?.title || "";
+  return item?.displayNames?.[language] || item?.displayNames?.en || t(original);
+};
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
   items.find((item) => item.id === preferredId)?.id || items[0]?.id || "";
 const defaultSubmitError = "予約を送信できませんでした。時間をおいてからもう一度お試しください。";
@@ -245,6 +254,8 @@ export type MalatangMenu = {
 
 export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMenu }) {
   const { language, t } = useI18n();
+  const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
+    menuDisplayName(item, language, t, fallback);
   const initialPickup = useMemo(
     () => getMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes)),
     [initialMenu.storeOperation?.minimumPickupMinutes],
@@ -454,7 +465,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     setItems((current) => {
       const next = Math.max(0, (current[id] || 0) + delta);
       if (delta > 0 && getSectionSelectedCount(section, current) >= section.limit) {
-        setSubmitError(t(sectionSelectionLimitError(section.title, section.limit)));
+        setSubmitError(t(sectionSelectionLimitError(menuText(section, section.title), section.limit)));
         return current;
       }
       const copy = { ...current };
@@ -492,26 +503,26 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
 
   const buildCurrentSummary = () =>
     [
-      t(selectedSpice.name),
-      t(selectedHeat.name),
-      t(selectedNumb.name),
-      ...selectedFlavors.map((item) => t(item.name)),
-      ...selectedItems.map((item) => `${t(item.name)} x${item.quantity}`),
+      menuText(selectedSpice),
+      menuText(selectedHeat),
+      menuText(selectedNumb),
+      ...selectedFlavors.map((item) => menuText(item)),
+      ...selectedItems.map((item) => `${menuText(item)} x${item.quantity}`),
     ].filter(Boolean);
 
   const buildCurrentSelectionLabels = () => Object.fromEntries([
-    selectedSpice ? [selectedSpice.id, t(selectedSpice.name)] : null,
-    selectedHeat ? [selectedHeat.id, t(selectedHeat.name)] : null,
-    selectedNumb ? [selectedNumb.id, t(selectedNumb.name)] : null,
-    ...selectedFlavors.map((item) => [item.id, t(item.name)]),
-    ...selectedItems.map((item) => [item.id, `${t(item.name)} x${item.quantity}`]),
+    selectedSpice ? [selectedSpice.id, menuText(selectedSpice)] : null,
+    selectedHeat ? [selectedHeat.id, menuText(selectedHeat)] : null,
+    selectedNumb ? [selectedNumb.id, menuText(selectedNumb)] : null,
+    ...selectedFlavors.map((item) => [item.id, menuText(item)]),
+    ...selectedItems.map((item) => [item.id, `${menuText(item)} x${item.quantity}`]),
   ].filter(Boolean) as Array<[string, string]>);
 
-  const formatCartItemTitle = (_item: CartItem, index: number) => `${t(baseSoup.name)} #${index + 1}`;
+  const formatCartItemTitle = (_item: CartItem, index: number) => `${menuText(baseSoup)} #${index + 1}`;
 
   const formatCartChoiceLabel = (item: CartItem, id: string, quantity?: number) => {
     const choice = choiceMap.get(id);
-    const baseLabel = choice ? t(choice.name) : item.selectionLabels[id] || id;
+    const baseLabel = choice ? menuText(choice) : item.selectionLabels[id] || id;
     return quantity ? `${baseLabel} x${quantity}` : baseLabel;
   };
 
@@ -634,7 +645,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
     }
     const nextItem = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      title: `${t(baseSoup.name)} #${bowlNumber}`,
+      title: `${menuText(baseSoup)} #${bowlNumber}`,
       total: currentTotal,
       summary: buildCurrentSummary(),
       selections: getCurrentSelections(),
@@ -928,7 +939,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
       <section className="menuForm" aria-label={t("まぁ麻 メニュー")}>
         <div className="menuHeroCard">
           <p className="kicker">{t("Base soup")}</p>
-          <h1>{t(baseSoup.name)}</h1>
+          <h1>{menuText(baseSoup)}</h1>
           <p>{t(baseSoup.note || "")}</p>
           <strong>{yen(baseSoup.price)}</strong>
         </div>
@@ -990,7 +1001,7 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           <section className="menuPanel" key={section.id}>
             <div className="menuPanelHeader">
               <p className="kicker">{section.id}</p>
-              <h2>{t(section.title)}</h2>
+              <h2>{menuText(section, section.title)}</h2>
               <span>{section.limit}{t("個まで")}</span>
             </div>
             <div className="toppingList">
@@ -1063,11 +1074,11 @@ function ChoiceGroup({
 }
 
 function OptionName({ item }: { item: MenuChoice }) {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
 
   return (
     <span className="optionName">
-      {t(item.name)}
+      {menuDisplayName(item, language, t)}
       {isRecommended(item) ? (
         <span aria-label={t("おすすめ")} className="recommendIcon" title={t("おすすめ")}>
           ★

@@ -1,6 +1,7 @@
 export type MenuChoice = {
   id: string;
   name: string;
+  displayNames?: Record<string, string>;
   price: number;
   note?: string;
 };
@@ -8,6 +9,7 @@ export type MenuChoice = {
 export type MenuSection = {
   id: string;
   title: string;
+  displayNames?: Record<string, string>;
   limit: number;
   items: MenuChoice[];
 };

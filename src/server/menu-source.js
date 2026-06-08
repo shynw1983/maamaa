@@ -26,7 +26,7 @@ const getMenuApiUrl = () => {
     process.env.FOUNDR1_OS_BASE_URL ||
     defaultOsBaseUrl,
   );
-  return `${baseUrl}/api/public/menus/maamaa-compatible`;
+  return `${baseUrl}/api/public/menus?brand=maamaa`;
 };
 
 const fallbackMenu = () => ({
@@ -53,15 +53,65 @@ const fallbackMenu = () => ({
 });
 
 const asChoice = (item) => ({
-  id: String(item?.id || "").trim(),
+  id: String(item?.id || item?.optionKey || item?.externalId || "").trim(),
   name: String(item?.name || item?.label || "").trim(),
+  displayNames: item?.displayNames || {},
   price: Number(item?.price || 0),
   note: item?.note ? String(item.note) : undefined,
 });
 
 const asChoices = (items) => (Array.isArray(items) ? items.map(asChoice).filter((item) => item.id && item.name) : []);
+const optionGroupByKey = (groups, key) => groups.find((group) => group.groupKey === key);
+const choicesForGroup = (groups, key) => asChoices(optionGroupByKey(groups, key)?.options);
+const normalizeStandardMenu = (payload) => {
+  if (!Array.isArray(payload?.items) || !payload.items.length || !Array.isArray(payload.optionGroups)) return null;
+  const baseItem = payload.items.find((item) => item.itemKind === "buildable_product") || payload.items[0];
+  if (!baseItem) return null;
+  const groups = payload.optionGroups;
+  const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor"]);
+  const menuSections = groups
+    .filter((group) => !fixedGroupKeys.has(group.groupKey))
+    .map((group) => ({
+      id: String(group.groupKey || group.id || "").trim(),
+      title: String(group.name || "").trim(),
+      displayNames: group.displayNames || {},
+      limit: Math.max(1, Number(group.ruleJson?.limit || 99)),
+      items: asChoices(group.options),
+    }))
+    .filter((section) => section.id && section.title && section.items.length);
+
+  return {
+    ...fallbackMenu(),
+    source: "foundr1-os",
+    baseSoup: {
+      ...fallbackMenu().baseSoup,
+      id: String(baseItem.externalId || baseItem.id || "mala-soup"),
+      menuCatalogItemId: String(baseItem.id || ""),
+      name: String(baseItem.name || localMenu.baseSoup.name),
+      displayNames: baseItem.displayNames || {},
+      price: Number(baseItem.priceOverride ?? baseItem.basePrice ?? localMenu.baseSoup.price),
+      note: String(baseItem.description || localMenu.baseSoup.note || ""),
+      isAvailable: baseItem.isAvailable !== false,
+      websiteEnabled: baseItem.websiteEnabled !== false,
+    },
+    medicinalSpiceOptions: choicesForGroup(groups, "medicinal-spice"),
+    heatLevels: choicesForGroup(groups, "heat"),
+    numbLevels: choicesForGroup(groups, "numb"),
+    specialFlavors: choicesForGroup(groups, "special-flavor"),
+    menuSections,
+    stores: Array.isArray(payload.stores) && payload.stores.length ? payload.stores : fallbackMenu().stores,
+    selectedStoreId: payload.selectedStoreId || fallbackMenu().selectedStoreId,
+    storeOperation: {
+      ...fallbackMenu().storeOperation,
+      ...(payload.storeOperation || {}),
+    },
+  };
+};
 
 const normalizeOsMenu = (payload) => {
+  const standardMenu = normalizeStandardMenu(payload);
+  if (standardMenu) return standardMenu;
+
   const menu = payload?.baseMenu || payload;
   if (!menu?.baseSoup || !Array.isArray(menu.menuSections)) return null;
   const rawMinimumPickupMinutes = menu.storeOperation?.minimumPickupMinutes;
