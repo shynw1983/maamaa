@@ -232,14 +232,24 @@ type OrderDraft = {
 
 type MemberCoupon = NonNullable<MemberProfile["coupons"]>[number];
 
+type MenuGroupLabel = {
+  id: string;
+  name: string;
+  displayNames?: Record<string, string>;
+};
+
 export type MalatangMenu = {
   baseSoup: MenuChoice & {
     isAvailable?: boolean;
     websiteEnabled?: boolean;
   };
+  medicinalSpiceGroup?: MenuGroupLabel;
   medicinalSpiceOptions: MenuChoice[];
+  heatGroup?: MenuGroupLabel;
   heatLevels: MenuChoice[];
+  numbGroup?: MenuGroupLabel;
   numbLevels: MenuChoice[];
+  specialFlavorGroup?: MenuGroupLabel;
   specialFlavors: MenuChoice[];
   menuSections: MenuSection[];
   selectedStoreId?: string;
@@ -287,8 +297,23 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
   const [draftReady, setDraftReady] = useState(false);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
   const reserveButtonRef = useRef<HTMLButtonElement | null>(null);
-  const { baseSoup, medicinalSpiceOptions, heatLevels, numbLevels, specialFlavors, menuSections } = menu;
+  const {
+    baseSoup,
+    medicinalSpiceGroup,
+    medicinalSpiceOptions,
+    heatGroup,
+    heatLevels,
+    numbGroup,
+    numbLevels,
+    specialFlavorGroup,
+    specialFlavors,
+    menuSections,
+  } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
+  const choiceGroupTitle = (group: MenuGroupLabel | undefined, fallback: string) => {
+    const groupName = menuText(group, fallback);
+    return t("{name}を選ぶ").replace("{name}", groupName);
+  };
 
   const allChoices = useMemo(
     () => [
@@ -974,14 +999,14 @@ export function MalatangOrderBuilder({ initialMenu }: { initialMenu: MalatangMen
           </div>
         </section>
 
-        <ChoiceGroup title="薬膳の有無を選ぶ" items={medicinalSpiceOptions.filter((item) => isChoiceOpen(item.id))} value={spice} onChange={setSpice} />
-        <ChoiceGroup title="辛さレベルを選ぶ" items={heatLevels.filter((item) => isChoiceOpen(item.id))} value={heat} onChange={setHeat} />
-        <ChoiceGroup title="痺れレベルを選ぶ" items={numbLevels.filter((item) => isChoiceOpen(item.id))} value={numb} onChange={setNumb} />
+        <ChoiceGroup title={choiceGroupTitle(medicinalSpiceGroup, "薬膳スパイス")} items={medicinalSpiceOptions.filter((item) => isChoiceOpen(item.id))} value={spice} onChange={setSpice} />
+        <ChoiceGroup title={choiceGroupTitle(heatGroup, "辛さ")} items={heatLevels.filter((item) => isChoiceOpen(item.id))} value={heat} onChange={setHeat} />
+        <ChoiceGroup title={choiceGroupTitle(numbGroup, "痺れ")} items={numbLevels.filter((item) => isChoiceOpen(item.id))} value={numb} onChange={setNumb} />
 
         <section className="menuPanel">
           <div className="menuPanelHeader">
-            <p className="kicker">Special flavor</p>
-            <h2>{t("スペシャルな味変")}</h2>
+            <p className="kicker">{specialFlavorGroup?.id || "special-flavor"}</p>
+            <h2>{menuText(specialFlavorGroup, "味変・追加調味")}</h2>
             <span>{t("6個まで")}</span>
           </div>
           <div className="optionGrid">
@@ -1055,7 +1080,7 @@ function ChoiceGroup({
     <section className="menuPanel">
       <div className="menuPanelHeader">
         <p className="kicker">Required</p>
-        <h2>{t(title)}</h2>
+        <h2>{title}</h2>
         <span>{t("1個選択")}</span>
       </div>
       <div className="optionGrid">

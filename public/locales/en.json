@@ -255,5 +255,6 @@
   "会員情報をこの注文に反映しました。": "Your member profile has been applied to this order.",
   "会員情報を確認済みです。": "Your member profile is confirmed.",
   "ポイント履歴は会員カードで確認できます。": "You can check your points history from your member card.",
-  "会員カードを見る": "View member card"
+  "会員カードを見る": "View member card",
+  "{name}を選ぶ": "Choose {name}"
 }

@@ -51,9 +51,29 @@ const fallbackMenu = () => ({
     isAvailable: true,
     websiteEnabled: true,
   },
+  medicinalSpiceGroup: {
+    id: "medicinal-spice",
+    name: "薬膳スパイス",
+    displayNames: {},
+  },
   medicinalSpiceOptions: localMenu.medicinalSpiceOptions,
+  heatGroup: {
+    id: "heat",
+    name: "辛さ",
+    displayNames: {},
+  },
   heatLevels: localMenu.heatLevels,
+  numbGroup: {
+    id: "numb",
+    name: "痺れ",
+    displayNames: {},
+  },
   numbLevels: localMenu.numbLevels,
+  specialFlavorGroup: {
+    id: "special-flavor",
+    name: "味変・追加調味",
+    displayNames: {},
+  },
   specialFlavors: localMenu.specialFlavors,
   menuSections: localMenu.menuSections,
   stores: [{ id: "shimizu", label: "まぁ麻 清水店", osStoreId: fallbackStoreId() }],
@@ -78,6 +98,11 @@ const asChoice = (item) => ({
 
 const asChoices = (items) => (Array.isArray(items) ? items.map(asChoice).filter((item) => item.id && item.name) : []);
 const optionGroupByKey = (groups, key) => groups.find((group) => group.groupKey === key);
+const asGroupLabel = (group, fallbackName) => ({
+  id: String(group?.groupKey || group?.id || "").trim(),
+  name: String(group?.name || fallbackName || "").trim(),
+  displayNames: group?.displayNames || {},
+});
 const choicesForGroup = (groups, key) => asChoices(optionGroupByKey(groups, key)?.options);
 const normalizeStandardMenu = (payload) => {
   if (!Array.isArray(payload?.items) || !payload.items.length || !Array.isArray(payload.optionGroups)) return null;
@@ -96,6 +121,11 @@ const normalizeStandardMenu = (payload) => {
     }))
     .filter((section) => section.id && section.title && section.items.length);
 
+  const medicinalSpiceGroup = optionGroupByKey(groups, "medicinal-spice");
+  const heatGroup = optionGroupByKey(groups, "heat");
+  const numbGroup = optionGroupByKey(groups, "numb");
+  const specialFlavorGroup = optionGroupByKey(groups, "special-flavor");
+
   return {
     ...fallbackMenu(),
     source: "foundr1-os",
@@ -110,10 +140,14 @@ const normalizeStandardMenu = (payload) => {
       isAvailable: baseItem.isAvailable !== false,
       websiteEnabled: baseItem.websiteEnabled !== false,
     },
-    medicinalSpiceOptions: choicesForGroup(groups, "medicinal-spice"),
-    heatLevels: choicesForGroup(groups, "heat"),
-    numbLevels: choicesForGroup(groups, "numb"),
-    specialFlavors: choicesForGroup(groups, "special-flavor"),
+    medicinalSpiceGroup: asGroupLabel(medicinalSpiceGroup, "薬膳スパイス"),
+    medicinalSpiceOptions: asChoices(medicinalSpiceGroup?.options),
+    heatGroup: asGroupLabel(heatGroup, "辛さ"),
+    heatLevels: asChoices(heatGroup?.options),
+    numbGroup: asGroupLabel(numbGroup, "痺れ"),
+    numbLevels: asChoices(numbGroup?.options),
+    specialFlavorGroup: asGroupLabel(specialFlavorGroup, "味変・追加調味"),
+    specialFlavors: asChoices(specialFlavorGroup?.options),
     menuSections,
     stores: Array.isArray(payload.stores) && payload.stores.length ? payload.stores : fallbackMenu().stores,
     selectedStoreId: payload.selectedStoreId || fallbackMenu().selectedStoreId,

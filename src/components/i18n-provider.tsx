@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { localeConfig, type Locale } from "@/data/locales";
 
 const LANGUAGE_STORAGE_KEY = "maamaa-language";
-const LOCALE_CACHE_VERSION = "20260522-maamaa-i18n";
+const LOCALE_CACHE_VERSION = "20260608-maamaa-i18n";
 
 type Dictionary = Record<string, string>;
 
