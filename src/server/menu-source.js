@@ -95,7 +95,8 @@ const menuPrice = (item, fallback = 0) => {
 };
 
 const asChoice = (item) => ({
-  id: String(item?.id || item?.optionKey || item?.externalId || "").trim(),
+  id: String(item?.optionKey || item?.externalId || item?.id || "").trim(),
+  menuOptionId: String(item?.id || "").trim(),
   name: String(item?.name || item?.label || "").trim(),
   displayNames: item?.displayNames || {},
   price: menuPrice(item),
