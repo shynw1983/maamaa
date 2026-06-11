@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
-import { buildMemberHandoffUrl, consumeMemberHandoff, memberPreferredLanguage, type MemberProfile } from "@/components/member-session";
+import { buildMemberHandoffUrl, consumeMemberHandoff, type MemberProfile } from "@/components/member-session";
 import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
@@ -47,6 +47,7 @@ const menuDisplayName = (
   fallback = "",
 ) => {
   const original = fallback || item?.name || item?.title || "";
+  if (language === "ja") return t(original);
   return item?.displayNames?.[language] || item?.displayNames?.en || t(original);
 };
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
@@ -273,7 +274,7 @@ export function MalatangOrderBuilder({
     reservationSummary?: BrandSiteSection;
   };
 }) {
-  const { language, setLanguage, t } = useI18n();
+  const { language, t } = useI18n();
   const reservationSummary = siteContent.reservationSummary;
   const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
     menuDisplayName(item, language, t, fallback);
@@ -595,14 +596,12 @@ export function MalatangOrderBuilder({
     consumeMemberHandoff()
       .then((profile) => {
         if (!profile) return;
-        const nextLanguage = memberPreferredLanguage(profile);
-        if (nextLanguage && nextLanguage !== language) setLanguage(nextLanguage);
         setMemberProfile(profile);
         setName(memberContactName(profile));
         setPhone((current) => current || profile.phone || "");
       })
       .catch(() => {});
-  }, [language, setLanguage]);
+  }, []);
 
   useEffect(() => {
     if (!memberProfile) return;

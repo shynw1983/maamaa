@@ -88,11 +88,17 @@ const fallbackMenu = () => ({
   source: "local-fallback",
 });
 
+const menuPrice = (item, fallback = 0) => {
+  const value = item?.price ?? item?.priceDelta ?? item?.price_delta ?? item?.basePrice ?? item?.base_price ?? fallback;
+  const price = Number(value);
+  return Number.isFinite(price) ? price : Number(fallback) || 0;
+};
+
 const asChoice = (item) => ({
   id: String(item?.id || item?.optionKey || item?.externalId || "").trim(),
   name: String(item?.name || item?.label || "").trim(),
   displayNames: item?.displayNames || {},
-  price: Number(item?.price || 0),
+  price: menuPrice(item),
   note: item?.note ? String(item.note) : undefined,
 });
 
@@ -108,7 +114,11 @@ const normalizeStandardMenu = (payload) => {
   if (!Array.isArray(payload?.items) || !payload.items.length || !Array.isArray(payload.optionGroups)) return null;
   const baseItem = payload.items.find((item) => item.itemKind === "buildable_product") || payload.items[0];
   if (!baseItem) return null;
-  const groups = payload.optionGroups;
+  const groups = Array.isArray(payload.optionGroups) && payload.optionGroups.length
+    ? payload.optionGroups
+    : Array.isArray(baseItem.optionGroups)
+      ? baseItem.optionGroups
+      : [];
   const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor"]);
   const menuSections = groups
     .filter((group) => !fixedGroupKeys.has(group.groupKey))
@@ -135,7 +145,7 @@ const normalizeStandardMenu = (payload) => {
       menuCatalogItemId: String(baseItem.id || ""),
       name: String(baseItem.name || localMenu.baseSoup.name),
       displayNames: baseItem.displayNames || {},
-      price: Number(baseItem.priceOverride ?? baseItem.basePrice ?? localMenu.baseSoup.price),
+      price: menuPrice(baseItem, localMenu.baseSoup.price),
       note: String(baseItem.description || localMenu.baseSoup.note || ""),
       noteDisplayNames: baseItem.descriptionDisplayNames || {},
       isAvailable: baseItem.isAvailable !== false,
@@ -178,7 +188,7 @@ const normalizeOsMenu = (payload) => {
       id: String(menu.baseSoup.id || "mala-soup"),
       name: String(menu.baseSoup.name || localMenu.baseSoup.name),
       displayNames: menu.baseSoup.displayNames || {},
-      price: Number(menu.baseSoup.price ?? localMenu.baseSoup.price),
+      price: menuPrice(menu.baseSoup, localMenu.baseSoup.price),
       note: String(menu.baseSoup.note || localMenu.baseSoup.note || ""),
       noteDisplayNames: menu.baseSoup.noteDisplayNames || menu.baseSoup.descriptionDisplayNames || {},
       isAvailable: menu.baseSoup.isAvailable !== false,

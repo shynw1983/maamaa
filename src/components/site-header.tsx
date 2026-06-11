@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { isLocale, type Locale } from "@/data/locales";
-import { buildMemberCardUrl, consumeMemberHandoff, getStoredMemberProfile, memberPreferredLanguage, type MemberProfile } from "@/components/member-session";
+import { buildMemberCardUrl, consumeMemberHandoff, getStoredMemberProfile, type MemberProfile } from "@/components/member-session";
 
 const languagePrefixes = ["/en", "/zh", "/zh-Hant", "/ko", "/vi", "/ne"];
 
@@ -45,8 +45,6 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
       .then((profile) => {
         if (!profile) return;
         setMemberProfile(profile);
-        const nextLanguage = memberPreferredLanguage(profile);
-        if (nextLanguage && nextLanguage !== language) changeLanguage(nextLanguage);
       })
       .catch(refreshMember);
 
