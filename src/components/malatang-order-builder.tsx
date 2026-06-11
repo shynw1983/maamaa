@@ -326,10 +326,11 @@ export function MalatangOrderBuilder({
     const groupName = menuText(group, fallback);
     return t("{name}を選ぶ").replace("{name}", groupName);
   };
-  const baseSoupNote =
-    baseSoup.noteDisplayNames?.[language] ||
-    baseSoup.noteDisplayNames?.en ||
-    t(baseSoup.note || "");
+  const baseSoupNote = language === "ja"
+    ? t(baseSoup.note || "")
+    : baseSoup.noteDisplayNames?.[language] ||
+      baseSoup.noteDisplayNames?.en ||
+      t(baseSoup.note || "");
 
   const allChoices = useMemo(
     () => [
