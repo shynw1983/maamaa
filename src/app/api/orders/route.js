@@ -7,6 +7,7 @@ const checkoutCreateError = "予約の受付処理を完了できませんでし
 const reservationPausedError = "現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。";
 const pickupLeadTimeError = "受け取り時間が早すぎます。最新の選択可能時間を確認して、もう一度お試しください。";
 const pickupBusinessHoursError = "選択した受け取り時間は営業時間外です。別の時間を選択してください。";
+const pickupStaffScheduleError = "選択した受け取り時間は現在の受付枠外です。受付中の時間を選択してください。";
 const sameDayPickupError = "Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付中の受け取り時間を選択してください。";
 
 const localePrefix = (language) => {
@@ -263,6 +264,7 @@ export async function POST(request) {
     const isPickupLeadTime = upstreamError.includes("Pickup time must be at least");
     const isSameDayPickup = upstreamError.includes("same-day pickup") || upstreamError.includes("available from") || upstreamError.includes("available until 23:00");
     const isBusinessHours = upstreamError.includes("outside store business hours");
+    const isStaffSchedule = upstreamError.includes("outside confirmed staff schedule");
     const isPaymentSetupError =
       foundr1Body.code === "STORE_PAYMENT_NOT_CONFIGURED" ||
       upstreamError.includes("KOMOJU") ||
@@ -280,6 +282,8 @@ export async function POST(request) {
         ? "PICKUP_SAME_DAY_ONLY"
         : isBusinessHours
         ? "PICKUP_OUTSIDE_BUSINESS_HOURS"
+        : isStaffSchedule
+        ? "PICKUP_OUTSIDE_STAFF_SCHEDULE"
         : isPaymentSetupError
         ? "PAYMENT_SETUP_UNAVAILABLE"
         : foundr1Body.code || "CHECKOUT_FAILED",
@@ -295,6 +299,8 @@ export async function POST(request) {
         ? sameDayPickupError
         : isBusinessHours
         ? pickupBusinessHoursError
+        : isStaffSchedule
+        ? pickupStaffScheduleError
         : isPaymentSetupError
         ? checkoutSetupError
         : checkoutCreateError,

@@ -54,6 +54,19 @@ const getSameDayMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinut
   }
   return current;
 };
+const getReservationWindowsForDate = (windows: ReservationWindow[] | undefined, date: string) =>
+  (Array.isArray(windows) ? windows : [])
+    .filter((window) => window.date === date && /^\d{2}:\d{2}$/.test(window.start) && /^\d{2}:\d{2}$/.test(window.end) && window.end > window.start)
+    .sort((left, right) => left.start.localeCompare(right.start));
+const isPickupInReservationWindows = (time: string, windows: ReservationWindow[]) =>
+  windows.some((window) => time >= window.start && time <= window.end);
+const clampPickupToReservationWindows = (time: string, windows: ReservationWindow[]) => {
+  if (!windows.length) return time;
+  const containingWindow = windows.find((window) => time >= window.start && time <= window.end);
+  if (containingWindow) return time;
+  const nextWindow = windows.find((window) => time < window.start);
+  return nextWindow?.start ?? windows[windows.length - 1].end;
+};
 const sectionSelectionLimitError = (sectionTitle: string, limit: number) =>
   `${sectionTitle}は${limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`;
 const optionPrice = (price: number) => `+${yen(price)}`;
@@ -258,6 +271,12 @@ type MenuGroupLabel = {
   displayNames?: Record<string, string>;
 };
 
+type ReservationWindow = {
+  date: string;
+  start: string;
+  end: string;
+};
+
 export type MalatangMenu = {
   baseSoup: MenuChoice & {
     isAvailable?: boolean;
@@ -279,6 +298,7 @@ export type MalatangMenu = {
     reservationsEnabled?: boolean;
     statusNote?: string;
     minimumPickupMinutes?: number | null;
+    reservationWindows?: ReservationWindow[];
   };
   source?: string;
 };
@@ -297,8 +317,12 @@ export function MalatangOrderBuilder({
   const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
     menuDisplayName(item, language, t, fallback);
   const initialPickup = useMemo(
-    () => getSameDayMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes)),
-    [initialMenu.storeOperation?.minimumPickupMinutes],
+    () => {
+      const minimum = getSameDayMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes));
+      const windows = getReservationWindowsForDate(initialMenu.storeOperation?.reservationWindows, minimum.date);
+      return { date: minimum.date, time: clampPickupToReservationWindows(minimum.time, windows) };
+    },
+    [initialMenu.storeOperation?.minimumPickupMinutes, initialMenu.storeOperation?.reservationWindows],
   );
   const [menu, setMenu] = useState(initialMenu);
   const [spice, setSpice] = useState(defaultChoiceId(initialMenu.medicinalSpiceOptions));
@@ -341,8 +365,17 @@ export function MalatangOrderBuilder({
   } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
   const currentTokyo = getTokyoDateTimeParts();
+  const reservationWindows = useMemo(
+    () => getReservationWindowsForDate(menu.storeOperation?.reservationWindows, minimumPickup.date),
+    [menu.storeOperation?.reservationWindows, minimumPickup.date],
+  );
+  const hasReservationWindows = reservationWindows.length > 0;
+  const earliestReservationTime = reservationWindows[0]?.start ?? minimumPickup.time;
+  const latestReservationWindowEnd = reservationWindows[reservationWindows.length - 1]?.end ?? sameDayPickupCutoffTime;
+  const latestReservationTime = latestReservationWindowEnd > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : latestReservationWindowEnd;
+  const isPickupOutsideReservationWindows = hasReservationWindows ? !isPickupInReservationWindows(pickupTime, reservationWindows) : true;
   const isBeforeSameDayReception = currentTokyo.time < sameDayReceptionStartTime;
-  const isAfterSameDayReception = minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime;
+  const isAfterSameDayReception = minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime || !hasReservationWindows;
   const sameDayBookingClosed = isBeforeSameDayReception || isAfterSameDayReception;
   const choiceGroupTitle = (group: MenuGroupLabel | undefined, fallback: string) => {
     const groupName = menuText(group, fallback);
@@ -406,7 +439,11 @@ export function MalatangOrderBuilder({
     : sameDayBookingClosed
       ? isBeforeSameDayReception
         ? t("本日のWeb予約は準備中です")
-        : t("本日のWeb予約受付は終了しました")
+        : !hasReservationWindows
+          ? t("本日のWeb予約は準備中です")
+          : t("本日のWeb予約受付は終了しました")
+    : isPickupOutsideReservationWindows
+      ? t("受付中の時間を選択してください")
     : baseUnavailable
       ? t("現在このメニューは販売停止中")
     : !cartItems.length
@@ -419,7 +456,10 @@ export function MalatangOrderBuilder({
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
   const pickupSameDayErrorMessage = isBeforeSameDayReception
     ? t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
-    : t("本日のWeb予約受付は終了しました。");
+    : !hasReservationWindows
+      ? t("本日のWeb予約は準備中です。店舗の受付状況をご確認ください。")
+      : t("本日のWeb予約受付は終了しました。");
+  const pickupScheduleErrorMessage = t("選択した受け取り時間は現在の受付枠外です。受付中の時間を選択してください。");
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
@@ -444,14 +484,15 @@ export function MalatangOrderBuilder({
         : nextTime || nextMinimum.time;
     const sameDaySafeDate = safeDate > nextMinimum.date ? nextMinimum.date : safeDate;
     const cutoffSafeTime = sameDaySafeDate === nextMinimum.date && safeTime > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : safeTime;
+    const scheduleSafeTime = sameDaySafeDate === nextMinimum.date ? clampPickupToReservationWindows(cutoffSafeTime, reservationWindows) : cutoffSafeTime;
 
     setMinimumPickup(nextMinimum);
     setPickupDate(sameDaySafeDate);
-    setPickupTime(cutoffSafeTime);
+    setPickupTime(scheduleSafeTime);
 
-    const changed = sameDaySafeDate !== nextDate || cutoffSafeTime !== nextTime;
-    setPickupError(changed ? (sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime ? pickupSameDayErrorMessage : pickupTimeErrorMessage) : "");
-    return { safeDate: sameDaySafeDate, safeTime: cutoffSafeTime, changed };
+    const changed = sameDaySafeDate !== nextDate || scheduleSafeTime !== nextTime;
+    setPickupError(changed ? (scheduleSafeTime !== cutoffSafeTime ? pickupScheduleErrorMessage : sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime ? pickupSameDayErrorMessage : pickupTimeErrorMessage) : "");
+    return { safeDate: sameDaySafeDate, safeTime: scheduleSafeTime, changed };
   };
 
   useEffect(() => {
@@ -502,13 +543,14 @@ export function MalatangOrderBuilder({
       const nextPickupDate = pickupDate < nextMinimum.date || pickupDate > nextMinimum.date ? nextMinimum.date : pickupDate;
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
-      setPickupTime((currentTime) =>
-        nextPickupDate === nextMinimum.date && (!currentTime || currentTime < nextMinimum.time)
+      setPickupTime((currentTime) => {
+        const nextTime = nextPickupDate === nextMinimum.date && (!currentTime || currentTime < nextMinimum.time)
           ? nextMinimum.time
           : currentTime > sameDayPickupCutoffTime
             ? sameDayPickupCutoffTime
-            : currentTime,
-      );
+            : currentTime;
+        return clampPickupToReservationWindows(nextTime, reservationWindows);
+      });
       setPickupError((current) => {
         const selectedTime = pickupDate === nextMinimum.date && pickupTime < nextMinimum.time;
         return selectedTime ? pickupTimeErrorMessage : current;
@@ -517,7 +559,7 @@ export function MalatangOrderBuilder({
 
     const interval = window.setInterval(updateMinimumPickup, 30000);
     return () => window.clearInterval(interval);
-  }, [minimumPickupMinutes, pickupDate]);
+  }, [minimumPickupMinutes, pickupDate, reservationWindows]);
 
   useEffect(() => {
     setFlavors((current) => current.filter((id) => isChoiceOpen(id)));
@@ -665,6 +707,7 @@ export function MalatangOrderBuilder({
         safePickupDate === nextMinimum.date && (!draftPickupTime || draftPickupTime < nextMinimum.time)
           ? nextMinimum.time
           : draftPickupTime || nextMinimum.time;
+      const scheduleSafePickupTime = clampPickupToReservationWindows(safePickupTime, reservationWindows);
 
       if (draftCartItems.length) setCartItems(draftCartItems);
       if (draftSelections) applySelections(draftSelections);
@@ -672,7 +715,7 @@ export function MalatangOrderBuilder({
       if (typeof draft.phone === "string") setPhone(draft.phone);
       setMinimumPickup(nextMinimum);
       setPickupDate(safePickupDate);
-      setPickupTime(safePickupTime);
+      setPickupTime(scheduleSafePickupTime);
     } catch {
       try {
         window.sessionStorage.removeItem(draftStorageKey);
@@ -794,6 +837,11 @@ export function MalatangOrderBuilder({
     }
     if (sameDayBookingClosed) {
       setSubmitError(pickupSameDayErrorMessage);
+      return;
+    }
+    if (isPickupOutsideReservationWindows) {
+      enforceMinimumPickup(pickupDate, pickupTime);
+      setSubmitError(pickupScheduleErrorMessage);
       return;
     }
 
@@ -929,8 +977,8 @@ export function MalatangOrderBuilder({
             {t("受け取り時間")}
             <input
               type="time"
-              min={pickupDate === minimumPickup.date ? minimumPickup.time : undefined}
-              max={sameDayPickupCutoffTime}
+              min={pickupDate === minimumPickup.date ? earliestReservationTime : undefined}
+              max={latestReservationTime}
               value={pickupTime}
               onBlur={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
               onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
@@ -989,7 +1037,7 @@ export function MalatangOrderBuilder({
         <button
           ref={reserveButtonRef}
           className="button primary reserveButton"
-          disabled={reservationsPaused || sameDayBookingClosed || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)}
+          disabled={reservationsPaused || sameDayBookingClosed || isPickupOutsideReservationWindows || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)}
           onClick={createReservation}
         >
           {reserveButtonLabel}
