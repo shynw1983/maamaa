@@ -807,6 +807,13 @@ h3 {
   line-height: 1.55;
 }
 
+.pickupWindowHint {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .memberPointPanel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

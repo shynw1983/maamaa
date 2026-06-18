@@ -58,6 +58,12 @@ const getReservationWindowsForDate = (windows: ReservationWindow[] | undefined, 
   (Array.isArray(windows) ? windows : [])
     .filter((window) => window.date === date && /^\d{2}:\d{2}$/.test(window.start) && /^\d{2}:\d{2}$/.test(window.end) && window.end > window.start)
     .sort((left, right) => left.start.localeCompare(right.start));
+const capReservationWindows = (windows: ReservationWindow[], cutoffTime: string) =>
+  windows
+    .map((window) => ({ ...window, end: window.end > cutoffTime ? cutoffTime : window.end }))
+    .filter((window) => window.end >= window.start);
+const formatReservationWindows = (windows: ReservationWindow[]) =>
+  windows.length ? windows.map((window) => `${window.start}-${window.end}`).join(" / ") : "";
 const isPickupInReservationWindows = (time: string, windows: ReservationWindow[]) =>
   windows.some((window) => time >= window.start && time <= window.end);
 const clampPickupToReservationWindows = (time: string, windows: ReservationWindow[]) => {
@@ -366,13 +372,14 @@ export function MalatangOrderBuilder({
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
   const currentTokyo = getTokyoDateTimeParts();
   const reservationWindows = useMemo(
-    () => getReservationWindowsForDate(menu.storeOperation?.reservationWindows, minimumPickup.date),
+    () => capReservationWindows(getReservationWindowsForDate(menu.storeOperation?.reservationWindows, minimumPickup.date), sameDayPickupCutoffTime),
     [menu.storeOperation?.reservationWindows, minimumPickup.date],
   );
   const hasReservationWindows = reservationWindows.length > 0;
   const earliestReservationTime = reservationWindows[0]?.start ?? minimumPickup.time;
   const latestReservationWindowEnd = reservationWindows[reservationWindows.length - 1]?.end ?? sameDayPickupCutoffTime;
   const latestReservationTime = latestReservationWindowEnd > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : latestReservationWindowEnd;
+  const reservationWindowLabel = formatReservationWindows(reservationWindows);
   const isPickupOutsideReservationWindows = hasReservationWindows ? !isPickupInReservationWindows(pickupTime, reservationWindows) : true;
   const isBeforeSameDayReception = currentTokyo.time < sameDayReceptionStartTime;
   const isAfterSameDayReception = minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime || !hasReservationWindows;
@@ -466,7 +473,7 @@ export function MalatangOrderBuilder({
     if (hasReservationWindows && time < earliestReservationTime) {
       return t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。");
     }
-    return t("選択した受け取り時間は現在の受付枠外です。受付中の時間を選択してください。");
+    return t(`選択した受け取り時間は現在の受付枠外です。受付中の時間: ${reservationWindowLabel || "-"}`);
   };
   const addBowlButtonLabel =
     total < minimumBowlTotal
@@ -992,6 +999,11 @@ export function MalatangOrderBuilder({
               onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
             />
           </label>
+          {reservationWindowLabel ? (
+            <p className="pickupWindowHint">
+              {t(`本日選択できる受け取り時間: ${reservationWindowLabel}`)}
+            </p>
+          ) : null}
           {pickupError ? <p className="formError">{pickupError}</p> : null}
         </div>
         <div className="cartList">
