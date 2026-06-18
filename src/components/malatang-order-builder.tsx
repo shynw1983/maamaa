@@ -9,7 +9,8 @@ import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
-const sameDayReceptionStartTime = "11:30";
+// Conservative launch setting while staffing/opening time is unstable; consider allowing pre-open reservations after operations stabilize.
+const sameDayReceptionStartTime = "12:00";
 const sameDayPickupStartTime = "12:00";
 const sameDayPickupCutoffTime = "23:00";
 const minimumBowlTotal = 800;
