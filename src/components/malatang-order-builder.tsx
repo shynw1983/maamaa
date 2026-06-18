@@ -340,7 +340,9 @@ export function MalatangOrderBuilder({
   } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
   const currentTokyo = getTokyoDateTimeParts();
-  const sameDayBookingClosed = currentTokyo.time < sameDayReceptionStartTime || minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime;
+  const isBeforeSameDayReception = currentTokyo.time < sameDayReceptionStartTime;
+  const isAfterSameDayReception = minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime;
+  const sameDayBookingClosed = isBeforeSameDayReception || isAfterSameDayReception;
   const choiceGroupTitle = (group: MenuGroupLabel | undefined, fallback: string) => {
     const groupName = menuText(group, fallback);
     return t("{name}を選ぶ").replace("{name}", groupName);
@@ -401,7 +403,9 @@ export function MalatangOrderBuilder({
     : reservationsPaused
       ? t("現在予約受付を停止しています")
     : sameDayBookingClosed
-      ? t("本日のWeb予約受付は終了しました")
+      ? isBeforeSameDayReception
+        ? t(`Web予約は${sameDayReceptionStartTime}から受付します`)
+        : t("本日のWeb予約受付は終了しました")
     : baseUnavailable
       ? t("現在このメニューは販売停止中")
     : !cartItems.length
@@ -412,7 +416,9 @@ export function MalatangOrderBuilder({
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
-  const pickupSameDayErrorMessage = t(`Web予約は本日${minimumPickup.time}-${sameDayPickupCutoffTime}受け取り分のみ受け付けています。`);
+  const pickupSameDayErrorMessage = isBeforeSameDayReception
+    ? t(`Web予約は当日${sameDayReceptionStartTime}から受付します。受け取りは${minimumPickup.time}-${sameDayPickupCutoffTime}の間で選択できます。`)
+    : t("本日のWeb予約受付は終了しました。");
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
@@ -993,7 +999,6 @@ export function MalatangOrderBuilder({
           </a>
         ) : null}
         {reservationsPaused ? <p className="reservationClosedNotice">{t(reservationPauseMessage)}</p> : null}
-        {sameDayBookingClosed ? <p className="reservationClosedNotice">{pickupSameDayErrorMessage}</p> : null}
         {submitError ? <p className="formError">{submitError}</p> : null}
         {menuNotice ? <p className="menuNotice">{t(menuNotice)}</p> : null}
         {reservation ? (
