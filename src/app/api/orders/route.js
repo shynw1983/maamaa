@@ -7,7 +7,7 @@ const checkoutCreateError = "予約の受付処理を完了できませんでし
 const reservationPausedError = "現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。";
 const pickupLeadTimeError = "受け取り時間が早すぎます。最新の選択可能時間を確認して、もう一度お試しください。";
 const pickupBusinessHoursError = "選択した受け取り時間は営業時間外です。別の時間を選択してください。";
-const sameDayPickupError = "Web予約は本日12:15-23:00受け取り分のみ受け付けています。";
+const sameDayPickupError = "Web予約は当日11:30から受付します。受け取りは12:15-23:00の間で選択できます。";
 
 const localePrefix = (language) => {
   if (language === "en") return "/en";

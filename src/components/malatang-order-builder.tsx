@@ -9,7 +9,8 @@ import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
-const sameDayReceptionStartTime = "12:00";
+const sameDayReceptionStartTime = "11:30";
+const sameDayPickupStartTime = "12:00";
 const sameDayPickupCutoffTime = "23:00";
 const minimumBowlTotal = 800;
 const getTokyoDateTimeParts = (date = new Date()) => {
@@ -46,7 +47,7 @@ const addMinutesToTime = (time: string, minutes: number) => {
 const getSameDayMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) => {
   const current = getMinimumPickupDateTime(leadMinutes);
   const today = getTokyoDateTimeParts().date;
-  const earliestPickupTime = addMinutesToTime(sameDayReceptionStartTime, leadMinutes);
+  const earliestPickupTime = addMinutesToTime(sameDayPickupStartTime, leadMinutes);
   if (current.date !== today || current.time < earliestPickupTime) {
     return { date: today, time: earliestPickupTime };
   }
@@ -904,6 +905,9 @@ export function MalatangOrderBuilder({
               </a>
             </div>
           ) : null}
+          <p className="pickupNotice">
+            {t(`Web予約は当日${sameDayReceptionStartTime}から受付します。受け取りは${minimumPickup.time}-${sameDayPickupCutoffTime}の間で選択できます。`)}
+          </p>
           <label>
             {t("受け取り日")}
             <input
