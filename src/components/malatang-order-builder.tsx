@@ -9,6 +9,7 @@ import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
+const sameDayReceptionStartTime = "12:00";
 const sameDayPickupCutoffTime = "23:00";
 const minimumBowlTotal = 800;
 const getTokyoDateTimeParts = (date = new Date()) => {
@@ -37,6 +38,20 @@ const getMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) =>
   getTokyoDateTimeParts(new Date(Date.now() + leadMinutes * 60 * 1000));
 const compareDateTime = (leftDate: string, leftTime: string, rightDate: string, rightTime: string) =>
   `${leftDate}T${leftTime}`.localeCompare(`${rightDate}T${rightTime}`);
+const addMinutesToTime = (time: string, minutes: number) => {
+  const [hour, minute] = time.split(":").map(Number);
+  const total = hour * 60 + minute + minutes;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+};
+const getSameDayMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) => {
+  const current = getMinimumPickupDateTime(leadMinutes);
+  const today = getTokyoDateTimeParts().date;
+  const earliestPickupTime = addMinutesToTime(sameDayReceptionStartTime, leadMinutes);
+  if (current.date !== today || current.time < earliestPickupTime) {
+    return { date: today, time: earliestPickupTime };
+  }
+  return current;
+};
 const sectionSelectionLimitError = (sectionTitle: string, limit: number) =>
   `${sectionTitle}は${limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`;
 const optionPrice = (price: number) => `+${yen(price)}`;
@@ -280,7 +295,7 @@ export function MalatangOrderBuilder({
   const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
     menuDisplayName(item, language, t, fallback);
   const initialPickup = useMemo(
-    () => getMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes)),
+    () => getSameDayMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes)),
     [initialMenu.storeOperation?.minimumPickupMinutes],
   );
   const [menu, setMenu] = useState(initialMenu);
@@ -323,8 +338,8 @@ export function MalatangOrderBuilder({
     menuSections,
   } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
-  const today = getTokyoDateTimeParts().date;
-  const sameDayBookingClosed = minimumPickup.date !== today || minimumPickup.time > sameDayPickupCutoffTime;
+  const currentTokyo = getTokyoDateTimeParts();
+  const sameDayBookingClosed = currentTokyo.time < sameDayReceptionStartTime || minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime;
   const choiceGroupTitle = (group: MenuGroupLabel | undefined, fallback: string) => {
     const groupName = menuText(group, fallback);
     return t("{name}を選ぶ").replace("{name}", groupName);
@@ -396,7 +411,7 @@ export function MalatangOrderBuilder({
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
-  const pickupSameDayErrorMessage = t(`Web予約は本日受け取り分のみ、${sameDayPickupCutoffTime}まで受け付けています。`);
+  const pickupSameDayErrorMessage = t(`Web予約は本日${minimumPickup.time}-${sameDayPickupCutoffTime}受け取り分のみ受け付けています。`);
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
@@ -413,7 +428,7 @@ export function MalatangOrderBuilder({
   };
 
   const enforceMinimumPickup = (nextDate: string, nextTime: string) => {
-    const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
+    const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
     const safeDate = nextDate < nextMinimum.date ? nextMinimum.date : nextDate;
     const safeTime =
       safeDate === nextMinimum.date && (!nextTime || nextTime < nextMinimum.time)
@@ -475,7 +490,7 @@ export function MalatangOrderBuilder({
 
   useEffect(() => {
     const updateMinimumPickup = () => {
-      const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
+      const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
       const nextPickupDate = pickupDate < nextMinimum.date || pickupDate > nextMinimum.date ? nextMinimum.date : pickupDate;
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
@@ -634,7 +649,7 @@ export function MalatangOrderBuilder({
       const draft = JSON.parse(rawDraft) as OrderDraft;
       const draftSelections = sanitizeSelections(draft.currentSelections);
       const draftCartItems = sanitizeCartItems(draft.cartItems);
-      const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
+      const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
       const draftPickupDate = typeof draft.pickupDate === "string" ? draft.pickupDate : "";
       const draftPickupTime = typeof draft.pickupTime === "string" ? draft.pickupTime : "";
       const safePickupDate = draftPickupDate && draftPickupDate >= nextMinimum.date ? draftPickupDate : nextMinimum.date;
@@ -769,13 +784,17 @@ export function MalatangOrderBuilder({
       setSubmitError(t(reservationPauseMessage));
       return;
     }
+    if (sameDayBookingClosed) {
+      setSubmitError(pickupSameDayErrorMessage);
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError("");
     setCheckoutUrl("");
     setShowCheckoutFallback(false);
     try {
-      const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
+      const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
       if (compareDateTime(pickupDate, pickupTime, nextMinimum.date, nextMinimum.time) < 0) {
         const { safeDate, safeTime } = enforceMinimumPickup(pickupDate, pickupTime);
         setSubmitError(t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。最短 ${safeDate} ${safeTime} です。`));

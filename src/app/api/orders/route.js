@@ -7,7 +7,7 @@ const checkoutCreateError = "予約の受付処理を完了できませんでし
 const reservationPausedError = "現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。";
 const pickupLeadTimeError = "受け取り時間が早すぎます。最新の選択可能時間を確認して、もう一度お試しください。";
 const pickupBusinessHoursError = "選択した受け取り時間は営業時間外です。別の時間を選択してください。";
-const sameDayPickupError = "Web予約は本日受け取り分のみ、23:00まで受け付けています。";
+const sameDayPickupError = "Web予約は本日12:15-23:00受け取り分のみ受け付けています。";
 
 const localePrefix = (language) => {
   if (language === "en") return "/en";
@@ -261,7 +261,7 @@ export async function POST(request) {
     const isSectionLimitError = upstreamError.includes("まで選択できます") || upstreamError.includes("can only select up to");
     const isReservationPaused = upstreamError.includes("Reservations are temporarily paused");
     const isPickupLeadTime = upstreamError.includes("Pickup time must be at least");
-    const isSameDayPickup = upstreamError.includes("same-day pickup") || upstreamError.includes("available until 23:00");
+    const isSameDayPickup = upstreamError.includes("same-day pickup") || upstreamError.includes("available from") || upstreamError.includes("available until 23:00");
     const isBusinessHours = upstreamError.includes("outside store business hours");
     const isPaymentSetupError =
       foundr1Body.code === "STORE_PAYMENT_NOT_CONFIGURED" ||
