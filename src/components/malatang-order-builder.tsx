@@ -459,7 +459,15 @@ export function MalatangOrderBuilder({
     : !hasReservationWindows
       ? t("本日のWeb予約は準備中です。店舗の受付状況をご確認ください。")
       : t("本日のWeb予約受付は終了しました。");
-  const pickupScheduleErrorMessage = t("選択した受け取り時間は現在の受付枠外です。受付中の時間を選択してください。");
+  const getPickupScheduleErrorMessage = (time: string) => {
+    if (time > sameDayPickupCutoffTime || (hasReservationWindows && time > latestReservationTime)) {
+      return t("本日のWeb予約受付は終了しました。");
+    }
+    if (hasReservationWindows && time < earliestReservationTime) {
+      return t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。");
+    }
+    return t("選択した受け取り時間は現在の受付枠外です。受付中の時間を選択してください。");
+  };
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
@@ -491,7 +499,7 @@ export function MalatangOrderBuilder({
     setPickupTime(scheduleSafeTime);
 
     const changed = sameDaySafeDate !== nextDate || scheduleSafeTime !== nextTime;
-    setPickupError(changed ? (scheduleSafeTime !== cutoffSafeTime ? pickupScheduleErrorMessage : sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime ? pickupSameDayErrorMessage : pickupTimeErrorMessage) : "");
+    setPickupError(changed ? (scheduleSafeTime !== cutoffSafeTime ? getPickupScheduleErrorMessage(cutoffSafeTime) : sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime ? pickupSameDayErrorMessage : pickupTimeErrorMessage) : "");
     return { safeDate: sameDaySafeDate, safeTime: scheduleSafeTime, changed };
   };
 
@@ -841,7 +849,7 @@ export function MalatangOrderBuilder({
     }
     if (isPickupOutsideReservationWindows) {
       enforceMinimumPickup(pickupDate, pickupTime);
-      setSubmitError(pickupScheduleErrorMessage);
+      setSubmitError(getPickupScheduleErrorMessage(pickupTime));
       return;
     }
 
