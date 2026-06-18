@@ -9,6 +9,7 @@ import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
 const defaultMinimumPickupMinutes = 15;
+const sameDayPickupCutoffTime = "23:00";
 const minimumBowlTotal = 800;
 const getTokyoDateTimeParts = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("sv-SE", {
@@ -322,6 +323,8 @@ export function MalatangOrderBuilder({
     menuSections,
   } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
+  const today = getTokyoDateTimeParts().date;
+  const sameDayBookingClosed = minimumPickup.date !== today || minimumPickup.time > sameDayPickupCutoffTime;
   const choiceGroupTitle = (group: MenuGroupLabel | undefined, fallback: string) => {
     const groupName = menuText(group, fallback);
     return t("{name}を選ぶ").replace("{name}", groupName);
@@ -381,6 +384,8 @@ export function MalatangOrderBuilder({
     ? t("送信中...")
     : reservationsPaused
       ? t("現在予約受付を停止しています")
+    : sameDayBookingClosed
+      ? t("本日のWeb予約受付は終了しました")
     : baseUnavailable
       ? t("現在このメニューは販売停止中")
     : !cartItems.length
@@ -391,6 +396,7 @@ export function MalatangOrderBuilder({
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
+  const pickupSameDayErrorMessage = t(`Web予約は本日受け取り分のみ、${sameDayPickupCutoffTime}まで受け付けています。`);
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
@@ -413,14 +419,16 @@ export function MalatangOrderBuilder({
       safeDate === nextMinimum.date && (!nextTime || nextTime < nextMinimum.time)
         ? nextMinimum.time
         : nextTime || nextMinimum.time;
+    const sameDaySafeDate = safeDate > nextMinimum.date ? nextMinimum.date : safeDate;
+    const cutoffSafeTime = sameDaySafeDate === nextMinimum.date && safeTime > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : safeTime;
 
     setMinimumPickup(nextMinimum);
-    setPickupDate(safeDate);
-    setPickupTime(safeTime);
+    setPickupDate(sameDaySafeDate);
+    setPickupTime(cutoffSafeTime);
 
-    const changed = safeDate !== nextDate || safeTime !== nextTime;
-    setPickupError(changed ? pickupTimeErrorMessage : "");
-    return { safeDate, safeTime, changed };
+    const changed = sameDaySafeDate !== nextDate || cutoffSafeTime !== nextTime;
+    setPickupError(changed ? (sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime ? pickupSameDayErrorMessage : pickupTimeErrorMessage) : "");
+    return { safeDate: sameDaySafeDate, safeTime: cutoffSafeTime, changed };
   };
 
   useEffect(() => {
@@ -468,11 +476,15 @@ export function MalatangOrderBuilder({
   useEffect(() => {
     const updateMinimumPickup = () => {
       const nextMinimum = getMinimumPickupDateTime(minimumPickupMinutes);
-      const nextPickupDate = pickupDate < nextMinimum.date ? nextMinimum.date : pickupDate;
+      const nextPickupDate = pickupDate < nextMinimum.date || pickupDate > nextMinimum.date ? nextMinimum.date : pickupDate;
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
       setPickupTime((currentTime) =>
-        nextPickupDate === nextMinimum.date && (!currentTime || currentTime < nextMinimum.time) ? nextMinimum.time : currentTime,
+        nextPickupDate === nextMinimum.date && (!currentTime || currentTime < nextMinimum.time)
+          ? nextMinimum.time
+          : currentTime > sameDayPickupCutoffTime
+            ? sameDayPickupCutoffTime
+            : currentTime,
       );
       setPickupError((current) => {
         const selectedTime = pickupDate === nextMinimum.date && pickupTime < nextMinimum.time;
@@ -769,6 +781,11 @@ export function MalatangOrderBuilder({
         setSubmitError(t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。最短 ${safeDate} ${safeTime} です。`));
         return;
       }
+      if (pickupDate !== nextMinimum.date || pickupTime > sameDayPickupCutoffTime || nextMinimum.time > sameDayPickupCutoffTime) {
+        enforceMinimumPickup(pickupDate, pickupTime);
+        setSubmitError(pickupSameDayErrorMessage);
+        return;
+      }
       const safePickupDate = pickupDate;
       const safePickupTime = pickupTime || nextMinimum.time;
       setMinimumPickup(nextMinimum);
@@ -873,6 +890,7 @@ export function MalatangOrderBuilder({
             <input
               type="date"
               min={minimumPickup.date}
+              max={minimumPickup.date}
               value={pickupDate}
               onChange={(event) => enforceMinimumPickup(event.target.value, pickupTime)}
             />
@@ -882,6 +900,7 @@ export function MalatangOrderBuilder({
             <input
               type="time"
               min={pickupDate === minimumPickup.date ? minimumPickup.time : undefined}
+              max={sameDayPickupCutoffTime}
               value={pickupTime}
               onBlur={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
               onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
@@ -940,7 +959,7 @@ export function MalatangOrderBuilder({
         <button
           ref={reserveButtonRef}
           className="button primary reserveButton"
-          disabled={reservationsPaused || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)}
+          disabled={reservationsPaused || sameDayBookingClosed || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)}
           onClick={createReservation}
         >
           {reserveButtonLabel}
@@ -951,6 +970,7 @@ export function MalatangOrderBuilder({
           </a>
         ) : null}
         {reservationsPaused ? <p className="reservationClosedNotice">{t(reservationPauseMessage)}</p> : null}
+        {sameDayBookingClosed ? <p className="reservationClosedNotice">{pickupSameDayErrorMessage}</p> : null}
         {submitError ? <p className="formError">{submitError}</p> : null}
         {menuNotice ? <p className="menuNotice">{t(menuNotice)}</p> : null}
         {reservation ? (
