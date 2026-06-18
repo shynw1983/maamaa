@@ -405,7 +405,7 @@ export function MalatangOrderBuilder({
       ? t("現在予約受付を停止しています")
     : sameDayBookingClosed
       ? isBeforeSameDayReception
-        ? t(`Web予約は${sameDayReceptionStartTime}から受付します`)
+        ? t("本日のWeb予約は準備中です")
         : t("本日のWeb予約受付は終了しました")
     : baseUnavailable
       ? t("現在このメニューは販売停止中")
@@ -418,7 +418,7 @@ export function MalatangOrderBuilder({
         : t("支払いへ進む");
   const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
   const pickupSameDayErrorMessage = isBeforeSameDayReception
-    ? t(`Web予約は当日${sameDayReceptionStartTime}から受付します。受け取りは${minimumPickup.time}-${sameDayPickupCutoffTime}の間で選択できます。`)
+    ? t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
     : t("本日のWeb予約受付は終了しました。");
   const addBowlButtonLabel =
     total < minimumBowlTotal
@@ -913,7 +913,7 @@ export function MalatangOrderBuilder({
             </div>
           ) : null}
           <p className="pickupNotice">
-            {t(`Web予約は当日${sameDayReceptionStartTime}から受付します。受け取りは${minimumPickup.time}-${sameDayPickupCutoffTime}の間で選択できます。`)}
+            {t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受け取り時間は受付中に選択できます。")}
           </p>
           <label>
             {t("受け取り日")}
