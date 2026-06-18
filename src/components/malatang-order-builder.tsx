@@ -453,7 +453,7 @@ export function MalatangOrderBuilder({
       : !name || !phone
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
-  const pickupTimeErrorMessage = t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。`);
+  const pickupTimeErrorMessage = t(`受付中の受け取り時間を選択してください。最短 ${minimumPickup.date} ${minimumPickup.time} です。`);
   const pickupSameDayErrorMessage = isBeforeSameDayReception
     ? t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
     : !hasReservationWindows
@@ -853,7 +853,7 @@ export function MalatangOrderBuilder({
       const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
       if (compareDateTime(pickupDate, pickupTime, nextMinimum.date, nextMinimum.time) < 0) {
         const { safeDate, safeTime } = enforceMinimumPickup(pickupDate, pickupTime);
-        setSubmitError(t(`受け取り時間は現在時刻から${minimumPickupMinutes}分後以降を選択してください。最短 ${safeDate} ${safeTime} です。`));
+        setSubmitError(t(`受付中の受け取り時間を選択してください。最短 ${safeDate} ${safeTime} です。`));
         return;
       }
       if (pickupDate !== nextMinimum.date || pickupTime > sameDayPickupCutoffTime || nextMinimum.time > sameDayPickupCutoffTime) {
