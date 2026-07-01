@@ -29,6 +29,15 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family:
+    "Hiragino Sans",
+    "Noto Sans JP",
+    "Yu Gothic",
+    Arial,
+    sans-serif;
+}
+
+html:lang(ja) body {
+  font-family:
     "YuKyokasho",
     "Yu Kyokasho",
     "YuKyokasho Yoko",
