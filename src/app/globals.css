@@ -190,6 +190,10 @@ p {
   cursor: pointer;
 }
 
+.homePage {
+  background: #fbfaf8;
+}
+
 .hero {
   position: relative;
   min-height: 92svh;
@@ -199,7 +203,7 @@ p {
   align-items: center;
   overflow: hidden;
   padding: 124px clamp(20px, 6vw, 86px) 104px;
-  background: var(--paper);
+  background: #fbfaf8;
 }
 
 .heroVisual {
@@ -216,6 +220,27 @@ p {
   height: auto;
   display: block;
   object-fit: contain;
+}
+
+.heroScrollCue {
+  position: absolute;
+  left: clamp(20px, 6vw, 86px);
+  bottom: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(25, 27, 26, 0.46);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heroScrollCue::before {
+  content: "";
+  width: 54px;
+  height: 1px;
+  background: rgba(25, 27, 26, 0.24);
 }
 
 .hero::after {
@@ -325,6 +350,7 @@ h1 {
 .section {
   padding: clamp(74px, 8vw, 124px) clamp(20px, 6vw, 86px);
   border-top: 1px solid rgba(25, 27, 26, 0.08);
+  background: #fbfaf8;
 }
 
 .split {
@@ -362,7 +388,7 @@ h2 {
 }
 
 .bowlSection {
-  background: #ffffff;
+  background: #fbfaf8;
 }
 
 .bowlSection .sectionIntro {
@@ -374,6 +400,7 @@ h2 {
 }
 
 .bowlGrid {
+  counter-reset: bowl-feature;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(24px, 5vw, 72px);
@@ -381,12 +408,24 @@ h2 {
 }
 
 .bowlCard {
+  counter-increment: bowl-feature;
+  position: relative;
   min-height: 250px;
   border: 0;
   border-radius: 0;
   padding: 30px 0 0;
   background: transparent;
   box-shadow: none;
+}
+
+.bowlCard::before {
+  content: "0" counter(bowl-feature) ".";
+  display: block;
+  margin-bottom: 18px;
+  color: rgba(25, 27, 26, 0.34);
+  font-size: clamp(1.55rem, 3vw, 3.2rem);
+  line-height: 1;
+  font-weight: 400;
 }
 
 .bowlCard span {
@@ -420,7 +459,7 @@ h2 {
 }
 
 .storeIntroSection {
-  background: #ffffff;
+  background: #fbfaf8;
 }
 
 .storeIntroGrid {
@@ -1664,6 +1703,11 @@ h3 {
     border-bottom: 1px solid var(--line);
   }
 
+  .bowlCard::before {
+    margin-bottom: 14px;
+    font-size: 1.6rem;
+  }
+
   .bowlCard:last-child {
     border-bottom: 0;
   }
@@ -1847,6 +1891,10 @@ h3 {
     width: min(100%, 330px);
     min-height: 58px;
     justify-content: center;
+  }
+
+  .heroScrollCue {
+    display: none;
   }
 
   .heroVisual {

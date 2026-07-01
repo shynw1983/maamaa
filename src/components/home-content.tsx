@@ -43,7 +43,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
   const useHeroWordmark = language === "ja";
 
   return (
-    <main>
+    <main className="homePage">
       <SiteHeader />
 
       <section id="top" className="hero" aria-labelledby="heroTitle">
@@ -89,6 +89,9 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
             sizes="(max-width: 920px) 90vw, 46vw"
           />
         </div>
+        <a className="heroScrollCue" href="#concept" aria-label="Scroll to concept">
+          <span>scroll</span>
+        </a>
       </section>
 
       <section id="concept" className="section split">
