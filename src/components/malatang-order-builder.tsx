@@ -77,6 +77,8 @@ const clampPickupToReservationWindows = (time: string, windows: ReservationWindo
   const nextWindow = windows.find((window) => time < window.start);
   return nextWindow?.start ?? windows[windows.length - 1].end;
 };
+const getPickupTimeFromSchedule = (time: string, windows: ReservationWindow[]) =>
+  windows.length ? clampPickupToReservationWindows(time, windows) : "";
 const sectionSelectionLimitError = (sectionTitle: string, limit: number) =>
   `${sectionTitle}は${limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`;
 const optionPrice = (price: number) => `+${yen(price)}`;
@@ -334,7 +336,7 @@ export function MalatangOrderBuilder({
         minimum.time,
         sameDayPickupCutoffTime,
       );
-      return { date: minimum.date, time: clampPickupToReservationWindows(minimum.time, windows) };
+      return { date: minimum.date, time: getPickupTimeFromSchedule(minimum.time, windows) };
     },
     [initialMenu.storeOperation?.minimumPickupMinutes, initialMenu.storeOperation?.reservationWindows],
   );
@@ -458,9 +460,7 @@ export function MalatangOrderBuilder({
     : sameDayBookingClosed
       ? isBeforeSameDayReception
         ? t("本日のWeb予約は準備中です")
-        : !hasReservationWindows
-          ? t("本日のWeb予約は準備中です")
-          : t("本日のWeb予約受付は終了しました")
+        : t("本日のWeb予約受付は終了しました")
     : isPickupOutsideReservationWindows
       ? t("受付中の時間を選択してください")
     : baseUnavailable
@@ -475,9 +475,7 @@ export function MalatangOrderBuilder({
   const pickupTimeErrorMessage = t(`受付中の受け取り時間を選択してください。最短 ${minimumPickup.date} ${minimumPickup.time} です。`);
   const pickupSameDayErrorMessage = isBeforeSameDayReception
     ? t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
-    : !hasReservationWindows
-      ? t("本日のWeb予約は準備中です。店舗の受付状況をご確認ください。")
-      : t("本日のWeb予約受付は終了しました。");
+    : t("本日のWeb予約受付は終了しました。");
   const getPickupScheduleErrorMessage = (time: string) => {
     if (time > sameDayPickupCutoffTime || (hasReservationWindows && time > latestReservationTime)) {
       return t("本日のWeb予約受付は終了しました。");
@@ -511,7 +509,7 @@ export function MalatangOrderBuilder({
         : nextTime || nextMinimum.time;
     const sameDaySafeDate = safeDate > nextMinimum.date ? nextMinimum.date : safeDate;
     const cutoffSafeTime = sameDaySafeDate === nextMinimum.date && safeTime > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : safeTime;
-    const scheduleSafeTime = sameDaySafeDate === nextMinimum.date ? clampPickupToReservationWindows(cutoffSafeTime, reservationWindows) : cutoffSafeTime;
+    const scheduleSafeTime = sameDaySafeDate === nextMinimum.date ? getPickupTimeFromSchedule(cutoffSafeTime, reservationWindows) : cutoffSafeTime;
 
     setMinimumPickup(nextMinimum);
     setPickupDate(sameDaySafeDate);
@@ -581,7 +579,7 @@ export function MalatangOrderBuilder({
           : currentTime > sameDayPickupCutoffTime
             ? sameDayPickupCutoffTime
             : currentTime;
-        return nextReservationWindows.length ? clampPickupToReservationWindows(nextTime, nextReservationWindows) : nextTime;
+        return getPickupTimeFromSchedule(nextTime, nextReservationWindows);
       });
       setPickupError((current) => {
         const selectedTime = pickupDate === nextMinimum.date && pickupTime < nextMinimum.time;
@@ -739,7 +737,7 @@ export function MalatangOrderBuilder({
         safePickupDate === nextMinimum.date && (!draftPickupTime || draftPickupTime < nextMinimum.time)
           ? nextMinimum.time
           : draftPickupTime || nextMinimum.time;
-      const scheduleSafePickupTime = clampPickupToReservationWindows(safePickupTime, reservationWindows);
+      const scheduleSafePickupTime = getPickupTimeFromSchedule(safePickupTime, reservationWindows);
 
       if (draftCartItems.length) setCartItems(draftCartItems);
       if (draftSelections) applySelections(draftSelections);
@@ -1012,6 +1010,7 @@ export function MalatangOrderBuilder({
               min={pickupDate === minimumPickup.date ? earliestReservationTime : undefined}
               max={latestReservationTime}
               value={pickupTime}
+              disabled={!hasReservationWindows || sameDayBookingClosed}
               onBlur={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
               onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
             />
@@ -1020,7 +1019,11 @@ export function MalatangOrderBuilder({
             <p className="pickupWindowHint">
               {t(`本日選択できる受け取り時間: ${reservationWindowLabel}`)}
             </p>
-          ) : null}
+          ) : (
+            <p className="pickupWindowHint">
+              {t("本日選択できる受け取り時間はありません。")}
+            </p>
+          )}
           {pickupError ? <p className="formError">{pickupError}</p> : null}
         </div>
         <div className="cartList">
