@@ -1710,17 +1710,6 @@ h3 {
   }
 }
 
-@keyframes mobileHeroBowlFloat {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(-0.25deg);
-  }
-
-  50% {
-    transform: translate3d(-7px, -12px, 0) rotate(0.45deg);
-  }
-}
-
 @keyframes mobileScrollFloat {
   from {
     opacity: 0.82;
@@ -1875,9 +1864,7 @@ h3 {
   .heroImage {
     width: 100%;
     max-width: none;
-    animation: mobileHeroBowlFloat 6.5s ease-in-out infinite;
     transform-origin: 58% 80%;
-    will-change: transform;
   }
 
   @supports (animation-timeline: view()) {
