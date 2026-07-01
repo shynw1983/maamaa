@@ -587,6 +587,7 @@ export function MalatangOrderBuilder({
       });
     };
 
+    updateMinimumPickup();
     const interval = window.setInterval(updateMinimumPickup, 30000);
     return () => window.clearInterval(interval);
   }, [menu.storeOperation?.reservationWindows, minimumPickupMinutes, pickupDate, pickupTime, pickupTimeErrorMessage]);
@@ -1005,15 +1006,18 @@ export function MalatangOrderBuilder({
           </label>
           <label>
             {t("受け取り時間")}
-            <input
-              type="time"
-              min={pickupDate === minimumPickup.date ? earliestReservationTime : undefined}
-              max={latestReservationTime}
-              value={pickupTime}
-              disabled={!hasReservationWindows || sameDayBookingClosed}
-              onBlur={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
-              onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
-            />
+            {hasReservationWindows && !sameDayBookingClosed ? (
+              <input
+                type="time"
+                min={pickupDate === minimumPickup.date ? earliestReservationTime : undefined}
+                max={latestReservationTime}
+                value={pickupTime}
+                onBlur={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
+                onChange={(event) => enforceMinimumPickup(pickupDate, event.target.value)}
+              />
+            ) : (
+              <input type="text" value="-" disabled aria-label={t("受け取り時間")} />
+            )}
           </label>
           {reservationWindowLabel ? (
             <p className="pickupWindowHint">
