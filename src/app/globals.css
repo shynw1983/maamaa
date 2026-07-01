@@ -2,15 +2,15 @@
   --ink: #191b1a;
   --muted: #686f6a;
   --paper: #ffffff;
-  --wash: #f6f7f4;
-  --mint: #edf4ef;
-  --brand: #315f52;
-  --tomato: #6a625e;
-  --sun: #e8ede8;
-  --soft: #f7f8f5;
-  --soft-accent: #f1f6f2;
-  --danger: #73524d;
-  --success: #2f6b4f;
+  --wash: #f8f8f7;
+  --mint: #fff4f4;
+  --brand: #b70012;
+  --tomato: #c94b47;
+  --sun: #f3f3f1;
+  --soft: #f8f8f7;
+  --soft-accent: #fff5f5;
+  --danger: #9f2d2d;
+  --success: #7d1f24;
   --line: rgba(25, 27, 26, 0.12);
   --shadow: 0 24px 80px rgba(25, 27, 26, 0.09);
   --header-circle-size: 42px;
@@ -141,12 +141,12 @@ p {
 }
 
 .memberIconLink:hover {
-  border-color: rgba(49, 95, 82, 0.28);
+  border-color: rgba(183, 0, 18, 0.24);
   color: var(--brand);
 }
 
 .memberIconLink.isLoggedIn {
-  border-color: rgba(49, 95, 82, 0.28);
+  border-color: rgba(183, 0, 18, 0.24);
 }
 
 .memberIconLink.isLoggedIn svg {
@@ -387,11 +387,11 @@ h2 {
 }
 
 .bowlCard:nth-child(2) span {
-  background: #e9f0eb;
+  background: #fff5f5;
 }
 
 .bowlCard:nth-child(3) span {
-  background: #dde9e1;
+  background: #f3f3f1;
 }
 
 .bowlCard p {
@@ -802,7 +802,7 @@ h3 {
 .pickupNotice {
   margin: 0;
   padding: 10px 12px;
-  border: 1px solid rgba(49, 95, 82, 0.14);
+  border: 1px solid rgba(183, 0, 18, 0.12);
   border-radius: 8px;
   background: var(--soft);
   color: var(--muted);
@@ -823,7 +823,7 @@ h3 {
   align-items: center;
   gap: 12px;
   padding: 14px;
-  border: 1px solid rgba(49, 95, 82, 0.16);
+  border: 1px solid rgba(183, 0, 18, 0.14);
   border-radius: 8px;
   background: var(--soft-accent);
 }
@@ -858,7 +858,7 @@ h3 {
   justify-content: center;
   min-height: 38px;
   padding: 0 12px;
-  border: 1px solid rgba(49, 95, 82, 0.24);
+  border: 1px solid rgba(183, 0, 18, 0.2);
   border-radius: 999px;
   color: var(--brand);
   font-size: 0.78rem;
@@ -871,7 +871,7 @@ h3 {
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid rgba(49, 95, 82, 0.16);
+  border: 1px solid rgba(183, 0, 18, 0.14);
   border-radius: 8px;
   background: var(--soft-accent);
 }
@@ -901,9 +901,9 @@ h3 {
 }
 
 .memberCouponPanel button.isSelected {
-  border-color: rgba(49, 95, 82, 0.46);
+  border-color: rgba(183, 0, 18, 0.36);
   background: #ffffff;
-  box-shadow: 0 8px 24px rgba(49, 95, 82, 0.12);
+  box-shadow: 0 8px 24px rgba(183, 0, 18, 0.08);
 }
 
 .memberCouponPanel button.isSelected::before {
@@ -1110,7 +1110,7 @@ h3 {
 }
 
 .optionButton.selected {
-  border-color: rgba(49, 95, 82, 0.38);
+  border-color: rgba(183, 0, 18, 0.3);
   background: var(--soft-accent);
 }
 
@@ -1134,7 +1134,7 @@ h3 {
   width: 18px;
   height: 18px;
   place-items: center;
-  border: 1px solid rgba(49, 95, 82, 0.34);
+  border: 1px solid rgba(183, 0, 18, 0.28);
   border-radius: 999px;
   color: var(--brand);
   font-size: 0.62rem;
@@ -1235,7 +1235,7 @@ h3 {
 .menuNotice {
   margin: 0;
   padding: 10px 12px;
-  border: 1px solid rgba(49, 95, 82, 0.18);
+  border: 1px solid rgba(183, 0, 18, 0.12);
   border-radius: 8px;
   background: var(--soft);
   color: var(--muted);
@@ -1350,7 +1350,7 @@ h3 {
 }
 
 .orderStatusBadge.is-ready {
-  border-color: rgba(47, 107, 79, 0.32);
+  border-color: rgba(183, 0, 18, 0.22);
   background: var(--soft-accent);
   color: var(--success);
 }
@@ -1406,7 +1406,7 @@ h3 {
   gap: 12px;
   width: min(520px, 100%);
   padding: 14px;
-  border: 1px solid rgba(49, 95, 82, 0.16);
+  border: 1px solid rgba(183, 0, 18, 0.14);
   border-radius: 8px;
   background: var(--soft-accent);
   text-align: left;
@@ -1442,7 +1442,7 @@ h3 {
   justify-content: center;
   min-height: 38px;
   padding: 0 12px;
-  border: 1px solid rgba(49, 95, 82, 0.24);
+  border: 1px solid rgba(183, 0, 18, 0.2);
   border-radius: 999px;
   color: var(--brand);
   font-size: 0.78rem;
@@ -1519,7 +1519,7 @@ h3 {
 }
 
 .orderProgressSteps li.isComplete > span {
-  border-color: rgba(49, 95, 82, 0.32);
+  border-color: rgba(183, 0, 18, 0.24);
   background: var(--soft-accent);
   color: var(--brand);
 }
@@ -1532,7 +1532,7 @@ h3 {
   border-color: var(--brand);
   background: var(--brand);
   color: #ffffff;
-  box-shadow: 0 0 0 5px rgba(49, 95, 82, 0.12);
+  box-shadow: 0 0 0 5px rgba(183, 0, 18, 0.1);
 }
 
 .orderProgressSteps strong,
@@ -1551,7 +1551,7 @@ h3 {
   gap: 4px;
   margin-top: 24px;
   padding: 16px;
-  border: 1px solid rgba(49, 95, 82, 0.18);
+  border: 1px solid rgba(183, 0, 18, 0.12);
   border-radius: 8px;
   background: var(--soft);
 }
