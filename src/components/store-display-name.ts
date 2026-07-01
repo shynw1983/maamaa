@@ -4,6 +4,12 @@ export type StoreDisplayMenu = {
     id?: string;
     label?: string;
     name?: string;
+    displayName?: string;
+    publicName?: string;
+    customerDisplayName?: string;
+    customerDisplayNames?: {
+      defaultName?: string;
+    };
     osStoreId?: string;
   }>;
 };
@@ -18,7 +24,15 @@ export function resolveMenuStoreDisplayName(menu?: StoreDisplayMenu | null) {
     String(store.osStoreId || "").trim() === selectedStoreId
   )) || stores[0];
 
-  return String(selectedStore?.label || selectedStore?.name || fallbackStoreDisplayName).trim();
+  return String(
+    selectedStore?.customerDisplayName ||
+    selectedStore?.displayName ||
+    selectedStore?.publicName ||
+    selectedStore?.customerDisplayNames?.defaultName ||
+    selectedStore?.label ||
+    selectedStore?.name ||
+    fallbackStoreDisplayName,
+  ).trim();
 }
 
 export function formatStoreNameTemplate(template: string, storeName: string) {

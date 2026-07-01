@@ -96,7 +96,15 @@ const resolveMenuStoreDisplayName = (menu = null) => {
     String(store?.osStoreId || "").trim() === selectedStoreId
   )) || stores[0];
 
-  return String(selectedStore?.label || selectedStore?.name || fallbackMenu().stores[0].label).trim();
+  return String(
+    selectedStore?.customerDisplayName ||
+    selectedStore?.displayName ||
+    selectedStore?.publicName ||
+    selectedStore?.customerDisplayNames?.defaultName ||
+    selectedStore?.label ||
+    selectedStore?.name ||
+    fallbackMenu().stores[0].label,
+  ).trim();
 };
 
 const menuPrice = (item, fallback = 0) => {
