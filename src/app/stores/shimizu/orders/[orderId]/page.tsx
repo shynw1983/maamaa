@@ -6,10 +6,16 @@ import { fetchFoundr1Order } from "@/server/foundr1-orders";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export const metadata = {
-  title: "受け取り番号・制作状況 | まぁ麻",
-  description: "まぁ麻 清水店の受け取り予約の受け取り番号と制作状況を確認できます。",
-};
+export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params;
+  const order = await fetchFoundr1Order(orderId).catch(() => null);
+  const storeDisplayName = order?.storeName || "まぁ麻";
+
+  return {
+    title: `受け取り番号・制作状況 | ${storeDisplayName}`,
+    description: `${storeDisplayName}の受け取り予約の受け取り番号と制作状況を確認できます。`,
+  };
+}
 
 export default async function ShimizuOrderPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;

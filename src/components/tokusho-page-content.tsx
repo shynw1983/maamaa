@@ -3,6 +3,7 @@
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { SiteHeader } from "@/components/site-header";
+import { formatStoreNameTemplate } from "@/components/store-display-name";
 
 const legalRows = [
   ["販売事業者", "ジェー・プラス合同会社"],
@@ -53,26 +54,25 @@ const legalRows = [
   ["配送について", "配送は行っておりません。店頭受け取りのみとなります。"],
 ] as const;
 
-export function TokushoPageContent() {
+export function TokushoPageContent({ storeDisplayName = "まぁ麻" }: { storeDisplayName?: string }) {
   const { language, t } = useI18n();
+  const rows = legalRows.map(([label, value]) => [label, value.replaceAll("まぁ麻 清水店", storeDisplayName)] as const);
 
   return (
     <main>
       <SiteHeader menu />
 
       <section className="legalHero">
-        <p className="kicker">{t("Maama Shimizu Shop")}</p>
+        <p className="kicker">{storeDisplayName}</p>
         <h1>{t("特定商取引法に基づく表記")}</h1>
         <p>
-          {t(
-            "まぁ麻 清水店の店頭受け取り予約に関する表示事項です。ご注文前に内容をご確認ください。",
-          )}
+          {formatStoreNameTemplate(t("{storeName}の店頭受け取り予約に関する表示事項です。ご注文前に内容をご確認ください。"), storeDisplayName)}
         </p>
       </section>
 
       <section className="legalSection" aria-label={t("特定商取引法に基づく表記")}>
         <dl className="legalList">
-          {legalRows.map(([label, value]) => (
+          {rows.map(([label, value]) => (
             <div className="legalRow" key={label}>
               <dt>{label}</dt>
               <dd>
@@ -91,7 +91,7 @@ export function TokushoPageContent() {
             {t("プライバシーポリシー")}
           </a>
           <a className="textLink" href={localizedPath(language, "/stores/shimizu/menu")}>
-            {t("清水店の受け取り予約へ戻る")}
+            {formatStoreNameTemplate(t("{storeName}の受け取り予約へ戻る"), storeDisplayName)}
           </a>
         </div>
       </section>

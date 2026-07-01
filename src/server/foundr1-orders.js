@@ -1,13 +1,17 @@
+const { fallbackMenu, resolveMenuStoreDisplayName } = require("./menu-source");
+
 const foundr1BaseUrl = () => {
   const value = process.env.FOUNDR1_API_BASE_URL || process.env.NEXT_PUBLIC_FOUNDR1_API_BASE_URL || "";
   return String(value).trim().replace(/\/$/, "");
 };
 
+const fallbackStoreDisplayName = () => resolveMenuStoreDisplayName(fallbackMenu());
+
 const toPublicOrder = (order) => ({
   orderId: order.orderId,
   pickupCode: order.pickupCode,
   storeId: order.storeId || "shimizu",
-  storeName: order.storeName || "まぁ麻 清水店",
+  storeName: order.storeName || fallbackStoreDisplayName(),
   status: order.status,
   paymentStatus: order.paymentStatus,
   refundStatus: order.refundStatus || "",

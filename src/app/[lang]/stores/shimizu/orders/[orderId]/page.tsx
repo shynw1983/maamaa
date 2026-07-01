@@ -8,12 +8,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; orderId: string }> }) {
-  const { lang } = await params;
+  const { lang, orderId } = await params;
   if (!isLocale(lang) || lang === "ja") return {};
+  const order = await fetchFoundr1Order(orderId).catch(() => null);
+  const storeDisplayName = order?.storeName || "Maama";
 
   return {
-    title: "Pickup number / Order status | まぁ麻",
-    description: "Check your pickup number and preparation status for Maama Shimizu shop.",
+    title: `Pickup number / Order status | ${storeDisplayName}`,
+    description: `Check your pickup number and preparation status for ${storeDisplayName}.`,
   };
 }
 

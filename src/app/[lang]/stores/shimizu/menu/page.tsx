@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { LocalizedShell } from "@/components/localized-shell";
 import { MenuPageContent } from "@/components/menu-page-content";
+import { resolveMenuStoreDisplayName } from "@/components/store-display-name";
 import { isLocale, languageAlternates, translatedLocales, withLocalePath } from "@/data/locales";
 import { getBrandSiteSections } from "@/server/brand-site-source";
 import { getMenuData } from "@/server/menu-source";
@@ -16,10 +17,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang) || lang === "ja") return {};
+  const storeDisplayName = resolveMenuStoreDisplayName(await getMenuData("shimizu"));
 
   return {
-    title: "Shimizu shop menu / Pickup reservation | まぁ麻",
-    description: "Customize Maama Shimizu shop's freshly made malatang and create a pickup reservation.",
+    title: `${storeDisplayName} menu / Pickup reservation | まぁ麻`,
+    description: `Customize ${storeDisplayName}'s freshly made malatang and create a pickup reservation.`,
     alternates: {
       canonical: withLocalePath(lang, shimizuMenuPath),
       languages: languageAlternates(shimizuMenuPath),

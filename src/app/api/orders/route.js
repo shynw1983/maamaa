@@ -1,4 +1,4 @@
-const { getMenuData } = require("../../../server/menu-source");
+const { getMenuData, resolveMenuStoreDisplayName } = require("../../../server/menu-source");
 
 const minimumBowlTotal = 800;
 const missingOrderFieldsError = "お名前、電話番号、受け取り日時、注文内容を確認してください。";
@@ -318,7 +318,7 @@ export async function POST(request) {
       paymentStatus: "pending",
       paymentProvider: "komoju",
       storeId: foundr1StoreId(),
-      storeName: "まぁ麻 清水店",
+      storeName: resolveMenuStoreDisplayName(menu),
       drink: body.items.map((item, index) => `${index + 1}. ${item.title || menu.baseSoup.name}`).join(" / "),
       size: body.items.map((item) => (item.summary || []).join(" / ")).join("\n"),
       temperature: "",

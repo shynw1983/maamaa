@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
+import { formatStoreNameTemplate } from "@/components/store-display-name";
 
-export function ShimizuReservationLogin({ nextPath = "/stores/shimizu/menu" }: { nextPath?: string }) {
+export function ShimizuReservationLogin({ nextPath = "/stores/shimizu/menu", storeDisplayName = "まぁ麻" }: { nextPath?: string; storeDisplayName?: string }) {
   const router = useRouter();
   const { t } = useI18n();
   const [username, setUsername] = useState("");
@@ -36,8 +37,8 @@ export function ShimizuReservationLogin({ nextPath = "/stores/shimizu/menu" }: {
   return (
     <main className="store-login-page">
       <section className="store-login-card">
-        <p className="kicker">{t("Maama Shimizu Shop")}</p>
-        <h1>{t("清水店 受け取り予約ログイン")}</h1>
+        <p className="kicker">{storeDisplayName}</p>
+        <h1>{formatStoreNameTemplate(t("{storeName} 受け取り予約ログイン"), storeDisplayName)}</h1>
         <p className="store-login-hint">{t("確認用のユーザー名とパスワードを入力してください。")}</p>
         <form onSubmit={handleSubmit}>
           <label>

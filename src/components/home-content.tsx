@@ -4,12 +4,13 @@ import Image from "next/image";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { SiteHeader } from "@/components/site-header";
+import { formatStoreNameTemplate, resolveMenuStoreDisplayName, type StoreDisplayMenu } from "@/components/store-display-name";
 import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const stores = [
   {
     label: "1st store",
-    title: "まぁ麻 清水店",
+    title: "pickup-store",
     address: "福岡市南区清水 1-2-8-103",
     body: "現在営業中の店舗です。Uber Eats などのデリバリーとテイクアウトに対応し、ご注文を受けてから一杯ずつ出来立てで仕上げます。",
   },
@@ -29,8 +30,9 @@ const bowls = [
 const findSection = (sections: BrandSiteSection[], key: string) =>
   sections.find((section) => section.sectionKey === key);
 
-export function HomeContent({ siteSections = [] }: { siteSections?: BrandSiteSection[] }) {
+export function HomeContent({ siteSections = [], initialMenu }: { siteSections?: BrandSiteSection[]; initialMenu?: StoreDisplayMenu }) {
   const { language, t } = useI18n();
+  const storeDisplayName = resolveMenuStoreDisplayName(initialMenu);
   const hero = findSection(siteSections, "hero");
   const concept = findSection(siteSections, "concept");
   const buildBowl = findSection(siteSections, "build-a-bowl");
@@ -104,19 +106,22 @@ export function HomeContent({ siteSections = [] }: { siteSections?: BrandSiteSec
           <h2 id="storesTitle">{t(shops?.title || "出来立てを受け取る店から、店内で味わう店へ。")}</h2>
         </div>
         <div className="storeIntroGrid">
-          {stores.map((item) => (
+          {stores.map((item, index) => {
+            const isPickupStore = index === 0;
+            const title = isPickupStore ? storeDisplayName : t(item.title);
+            return (
             <article className="storeIntroItem" key={item.title}>
               <p className="pill">{t(item.label)}</p>
-              <h3>{t(item.title)}</h3>
+              <h3>{title}</h3>
               {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
               <p className="storeCopy">{t(item.body)}</p>
-              {item.title === "まぁ麻 清水店" ? (
+              {isPickupStore ? (
                 <a className="textLink" href={localizedPath(language, "/stores/shimizu/menu")}>
-                  {t("清水店の受け取り予約")}
+                  {formatStoreNameTemplate(t("{storeName}の受け取り予約"), storeDisplayName)}
                 </a>
               ) : null}
             </article>
-          ))}
+          );})}
         </div>
       </section>
 

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { LegalDocumentPage } from "@/components/legal-document-page";
 import { LocalizedShell } from "@/components/localized-shell";
+import { resolveMenuStoreDisplayName } from "@/components/store-display-name";
 import { isLocale, languageAlternates, translatedLocales, withLocalePath } from "@/data/locales";
 import { termsSections } from "@/data/shimizu-legal";
+import { getMenuData } from "@/server/menu-source";
 
 const shimizuTermsPath = "/stores/shimizu/legal/terms";
 
@@ -13,10 +15,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang) || lang === "ja") return {};
+  const storeDisplayName = resolveMenuStoreDisplayName(await getMenuData("shimizu"));
 
   return {
-    title: "Terms of Service | Maama Shimizu Shop",
-    description: "Terms of service for pickup reservations at Maama Shimizu Shop.",
+    title: `Terms of Service | ${storeDisplayName}`,
+    description: `Terms of service for pickup reservations at ${storeDisplayName}.`,
     alternates: {
       canonical: withLocalePath(lang, shimizuTermsPath),
       languages: languageAlternates(shimizuTermsPath),
@@ -27,6 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LocalizedShimizuTermsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang) || lang === "ja") notFound();
+  const storeDisplayName = resolveMenuStoreDisplayName(await getMenuData("shimizu"));
 
   return (
     <LocalizedShell language={lang}>
@@ -34,6 +38,7 @@ export default async function LocalizedShimizuTermsPage({ params }: { params: Pr
         title="利用規約"
         lead="まぁ麻 清水店の店頭受け取り予約サービスをご利用いただく際の条件を定めたものです。"
         sections={termsSections}
+        storeDisplayName={storeDisplayName}
       />
     </LocalizedShell>
   );

@@ -76,7 +76,7 @@ const fallbackMenu = () => ({
   },
   specialFlavors: localMenu.specialFlavors,
   menuSections: localMenu.menuSections,
-  stores: [{ id: "shimizu", label: "まぁ麻 清水店", osStoreId: fallbackStoreId() }],
+  stores: [{ id: "shimizu", label: "まぁ麻", osStoreId: fallbackStoreId() }],
   selectedStoreId: "shimizu",
   storeOperation: {
     reservationsEnabled: true,
@@ -87,6 +87,17 @@ const fallbackMenu = () => ({
   },
   source: "local-fallback",
 });
+
+const resolveMenuStoreDisplayName = (menu = null) => {
+  const stores = Array.isArray(menu?.stores) ? menu.stores : [];
+  const selectedStoreId = String(menu?.selectedStoreId || "").trim();
+  const selectedStore = stores.find((store) => (
+    String(store?.id || "").trim() === selectedStoreId ||
+    String(store?.osStoreId || "").trim() === selectedStoreId
+  )) || stores[0];
+
+  return String(selectedStore?.label || selectedStore?.name || fallbackMenu().stores[0].label).trim();
+};
 
 const menuPrice = (item, fallback = 0) => {
   const value = item?.price ?? item?.priceDelta ?? item?.price_delta ?? item?.basePrice ?? item?.base_price ?? fallback;
@@ -269,4 +280,5 @@ const getMenuData = async (store = "", options = {}) => (await fetchOsMenu(store
 module.exports = {
   fallbackMenu,
   getMenuData,
+  resolveMenuStoreDisplayName,
 };
