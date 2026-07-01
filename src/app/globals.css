@@ -1943,7 +1943,7 @@ h3 {
   .heroWordmark {
     width: min(78vw, 338px);
     max-width: none;
-    transform: translateX(-38px);
+    transform: translateX(-22px);
   }
 
   .heroLead {
