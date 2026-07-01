@@ -38,6 +38,9 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
   const buildBowl = findSection(siteSections, "build-a-bowl");
   const shops = findSection(siteSections, "shops");
   const footer = findSection(siteSections, "footer");
+  const heroSubtitle = t(hero?.subtitle || "出来立て麻辣湯");
+  const heroTitle = t(hero?.title || "まぁ麻");
+  const useHeroWordmark = language === "ja";
 
   return (
     <main>
@@ -45,8 +48,25 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
 
       <section id="top" className="hero" aria-labelledby="heroTitle">
         <div className="heroContent">
-          <p className="kicker">{t(hero?.subtitle || "出来立て麻辣湯")}</p>
-          <h1 id="heroTitle" className="heroTitle">{hero?.title || "まぁ麻"}</h1>
+          {useHeroWordmark ? (
+            <div className="heroBrandLockup">
+              <Image
+                className="heroWordmark"
+                src="/images/maamaa-hero-wordmark.png"
+                alt=""
+                width={1180}
+                height={470}
+                priority
+                sizes="(max-width: 920px) 78vw, 430px"
+              />
+              <h1 id="heroTitle" className="visuallyHidden">{`${heroSubtitle} ${heroTitle}`}</h1>
+            </div>
+          ) : (
+            <>
+              <p className="kicker">{heroSubtitle}</p>
+              <h1 id="heroTitle" className="heroTitle">{heroTitle}</h1>
+            </>
+          )}
           <p className="heroLead">
             {t(
               hero?.body || "ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。",

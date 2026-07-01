@@ -222,6 +222,28 @@ p {
   max-width: 660px;
 }
 
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.heroBrandLockup {
+  margin: 0 0 28px;
+}
+
+.heroWordmark {
+  display: block;
+  width: min(100%, 430px);
+  height: auto;
+}
+
 .kicker {
   margin: 0 0 16px;
   color: var(--brand);
@@ -1614,6 +1636,10 @@ h3 {
 
   .heroImage {
     max-width: min(88vw, 520px);
+  }
+
+  .heroWordmark {
+    width: min(78vw, 360px);
   }
 
   .storeIntroGrid {
