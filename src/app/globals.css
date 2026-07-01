@@ -29,6 +29,12 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family:
+    "YuKyokasho",
+    "Yu Kyokasho",
+    "YuKyokasho Yoko",
+    "UD Digi Kyokasho N-R",
+    "UD Digi Kyokasho NP-R",
+    "UD Digi Kyokasho NK-R",
     "Hiragino Sans",
     "Noto Sans JP",
     "Yu Gothic",
