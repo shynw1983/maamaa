@@ -68,33 +68,13 @@ p {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   color: var(--ink);
-}
-
-.brandText {
-  display: grid;
-  gap: 2px;
-  line-height: 1.08;
-}
-
-.brandName {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.brandSlogan {
-  color: var(--brand);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
 }
 
 .brandLogo {
   display: block;
-  width: var(--header-circle-size);
-  height: var(--header-circle-size);
-  border-radius: 50%;
+  width: clamp(168px, 15vw, 224px);
+  height: auto;
   object-fit: contain;
 }
 
@@ -1677,20 +1657,11 @@ h3 {
 
 @media (max-width: 580px) {
   .siteHeader {
-    --header-circle-size: 44px;
     padding: 14px 24px;
   }
 
-  .brandText {
-    gap: 1px;
-  }
-
-  .brandName {
-    font-size: 0.94rem;
-  }
-
-  .brandSlogan {
-    font-size: 0.58rem;
+  .brandLogo {
+    width: min(46vw, 178px);
   }
 
   .navToggle {
