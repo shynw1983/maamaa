@@ -1763,8 +1763,53 @@ h3 {
   }
 
   .hero {
-    min-height: 96svh;
-    padding-top: 108px;
+    display: block;
+    min-height: 100svh;
+    padding: 132px 28px max(42svh, 320px);
+  }
+
+  .heroContent {
+    max-width: none;
+  }
+
+  .heroBrandLockup {
+    margin-bottom: 34px;
+  }
+
+  .heroWordmark {
+    width: min(68vw, 292px);
+  }
+
+  .heroLead {
+    max-width: 31rem;
+    margin-top: 0;
+    font-size: 1rem;
+    line-height: 1.9;
+  }
+
+  .heroActions {
+    margin-top: 34px;
+  }
+
+  .heroActions .button {
+    width: min(100%, 340px);
+    min-height: 58px;
+    justify-content: center;
+  }
+
+  .heroVisual {
+    position: absolute;
+    z-index: 0;
+    right: -22vw;
+    bottom: -10px;
+    width: min(108vw, 520px);
+    justify-content: flex-end;
+    pointer-events: none;
+  }
+
+  .heroImage {
+    width: 100%;
+    max-width: none;
   }
 
   .heroTitle {
