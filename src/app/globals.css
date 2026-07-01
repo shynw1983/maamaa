@@ -1765,7 +1765,7 @@ h3 {
   .hero {
     display: block;
     min-height: 100svh;
-    padding: 132px 28px max(42svh, 320px);
+    padding: 128px 28px max(39svh, 300px);
   }
 
   .heroContent {
@@ -1773,26 +1773,26 @@ h3 {
   }
 
   .heroBrandLockup {
-    margin-bottom: 34px;
+    margin-bottom: 42px;
   }
 
   .heroWordmark {
-    width: min(68vw, 292px);
+    width: min(70vw, 304px);
   }
 
   .heroLead {
-    max-width: 31rem;
+    max-width: 29rem;
     margin-top: 0;
     font-size: 1rem;
-    line-height: 1.9;
+    line-height: 2;
   }
 
   .heroActions {
-    margin-top: 34px;
+    margin-top: 40px;
   }
 
   .heroActions .button {
-    width: min(100%, 340px);
+    width: min(100%, 330px);
     min-height: 58px;
     justify-content: center;
   }
@@ -1800,9 +1800,9 @@ h3 {
   .heroVisual {
     position: absolute;
     z-index: 0;
-    right: -22vw;
-    bottom: -10px;
-    width: min(108vw, 520px);
+    right: -27vw;
+    bottom: -118px;
+    width: min(118vw, 560px);
     justify-content: flex-end;
     pointer-events: none;
   }
