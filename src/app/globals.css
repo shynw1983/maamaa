@@ -1688,6 +1688,27 @@ h3 {
   }
 }
 
+@keyframes mobileHeroBowlFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.25deg);
+  }
+
+  50% {
+    transform: translate3d(-7px, -12px, 0) rotate(0.45deg);
+  }
+}
+
+@keyframes mobileHeroBowlScroll {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(-18px, 36px, 0) scale(1.04);
+  }
+}
+
 @media (max-width: 580px) {
   .siteHeader {
     padding: 14px 24px;
@@ -1811,11 +1832,32 @@ h3 {
     width: min(118vw, 560px);
     justify-content: flex-end;
     pointer-events: none;
+    transform-origin: 62% 82%;
+    will-change: transform;
   }
 
   .heroImage {
     width: 100%;
     max-width: none;
+    animation: mobileHeroBowlFloat 6.5s ease-in-out infinite;
+    transform-origin: 58% 80%;
+    will-change: transform;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .heroVisual {
+      animation: mobileHeroBowlScroll linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 460px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heroVisual,
+    .heroImage {
+      animation: none;
+      transform: none;
+    }
   }
 
   .heroTitle {
