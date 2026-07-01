@@ -26,7 +26,7 @@ export function MenuPageContent({
 
       <section className="menuPageHero">
         <p className="kicker">{formatStoreNameTemplate(t("{storeName} / pickup reservation"), storeDisplayName)}</p>
-        <h1>{formatStoreNameTemplate(t("{storeName}の出来立て麻辣湯を、自由にカスタム。"), storeDisplayName)}</h1>
+        <h1>{t("出来立て麻辣湯を、自由にカスタム。")}</h1>
         <p>
           {formatStoreNameTemplate(
             t("{storeName}の店頭受け取り用カスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。"),

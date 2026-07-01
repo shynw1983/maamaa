@@ -491,12 +491,13 @@ h3 {
 }
 
 .menuPageHero h1 {
-  max-width: none;
+  max-width: min(100%, 1040px);
   margin: 0;
-  font-size: clamp(2rem, 3.4vw, 3.4rem);
-  line-height: 1.14;
+  font-size: clamp(1.8rem, 3vw, 3.1rem);
+  line-height: 1.16;
   font-weight: 400;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .menuPageHero p:last-child {

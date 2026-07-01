@@ -133,6 +133,7 @@
   "Pickup": "Nhận hàng",
   "Contact": "Liên hệ",
   "{storeName} / pickup reservation": "{storeName} / đặt nhận hàng",
+  "出来立て麻辣湯を、自由にカスタム。": "Tùy chỉnh món malatang mới nấu.",
   "{storeName}の出来立て麻辣湯を、自由にカスタム。": "Tùy chỉnh món malatang mới nấu của {storeName}.",
   "{storeName}の店頭受け取り用カスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。": "Bạn có thể tạo món tùy chỉnh để nhận tại {storeName}. Chọn độ cay, độ tê, mì, topping và giờ nhận.",
   "清水店の受け取り予約": "Đặt nhận hàng tại cửa hàng Shimizu",
