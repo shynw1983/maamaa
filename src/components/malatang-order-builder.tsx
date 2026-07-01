@@ -496,8 +496,8 @@ export function MalatangOrderBuilder({
   const addBowlButtonLabel =
     total < minimumBowlTotal
       ? cartItems.length > 0 && !editingCartItemId
-        ? t(`次の一杯も${yen(minimumBowlTotal)}以上で追加`)
-        : t(`${yen(minimumBowlTotal)}以上で追加`)
+        ? formatTemplate(t("次の一杯も{amount}以上で追加"), { amount: yen(minimumBowlTotal) })
+        : formatTemplate(t("{amount}以上で追加"), { amount: yen(minimumBowlTotal) })
       : editingCartItemId
         ? t("変更を保存")
         : lastAddedTotal !== null
@@ -867,7 +867,9 @@ export function MalatangOrderBuilder({
       .map((item, index) => (item.total < minimumBowlTotal ? `${index + 1}. ${item.title} ${yen(item.total)}` : ""))
       .filter(Boolean);
     if (underMinimumItems.length) {
-      setSubmitError(t(`${minimumBowlTotalError} 対象: ${underMinimumItems.join("、")}`));
+      setSubmitError(formatTemplate(t("一杯あたり¥800以上になるように具材を追加してください。対象: {items}"), {
+        items: underMinimumItems.join("、"),
+      }));
       return;
     }
     if (reservationsPaused) {
