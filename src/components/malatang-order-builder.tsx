@@ -524,7 +524,17 @@ export function MalatangOrderBuilder({
     setPickupTime(scheduleSafeTime);
 
     const changed = sameDaySafeDate !== nextDate || scheduleSafeTime !== nextTime;
-    setPickupError(changed ? (scheduleSafeTime !== cutoffSafeTime ? getPickupScheduleErrorMessage(cutoffSafeTime) : sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime ? pickupSameDayErrorMessage : pickupTimeErrorMessage) : "");
+    setPickupError(
+      sameDayBookingClosed
+        ? ""
+        : changed
+          ? scheduleSafeTime !== cutoffSafeTime
+            ? getPickupScheduleErrorMessage(cutoffSafeTime)
+            : sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime
+              ? pickupSameDayErrorMessage
+              : pickupTimeErrorMessage
+          : "",
+    );
     return { safeDate: sameDaySafeDate, safeTime: scheduleSafeTime, changed };
   };
 
@@ -579,6 +589,12 @@ export function MalatangOrderBuilder({
         nextMinimum.time,
         sameDayPickupCutoffTime,
       );
+      const nextTokyo = getTokyoDateTimeParts();
+      const nextSameDayBookingClosed =
+        nextTokyo.time < sameDayReceptionStartTime ||
+        nextMinimum.date !== nextTokyo.date ||
+        nextMinimum.time > sameDayPickupCutoffTime ||
+        !nextReservationWindows.length;
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
       setPickupTime((currentTime) => {
@@ -590,6 +606,7 @@ export function MalatangOrderBuilder({
         return getPickupTimeFromSchedule(nextTime, nextReservationWindows);
       });
       setPickupError((current) => {
+        if (nextSameDayBookingClosed) return "";
         const selectedTime = pickupDate === nextMinimum.date && pickupTime < nextMinimum.time;
         return selectedTime ? pickupTimeErrorMessage : current;
       });
@@ -1040,7 +1057,7 @@ export function MalatangOrderBuilder({
               {t("本日選択できる受け取り時間はありません。")}
             </p>
           )}
-          {pickupError ? <p className="formError">{pickupError}</p> : null}
+          {!sameDayBookingClosed && pickupError ? <p className="formError">{pickupError}</p> : null}
         </div>
         <div className="cartList">
           {cartItems.length ? (
