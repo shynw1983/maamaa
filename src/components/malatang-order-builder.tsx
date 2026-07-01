@@ -8,6 +8,8 @@ import { buildMemberHandoffUrl, consumeMemberHandoff, type MemberProfile } from 
 import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
+const formatTemplate = (template: string, values: Record<string, string>) =>
+  Object.entries(values).reduce((text, [key, value]) => text.split(`{${key}}`).join(value), template);
 const defaultMinimumPickupMinutes = 15;
 // Conservative launch setting while staffing/opening time is unstable; consider allowing pre-open reservations after operations stabilize.
 const sameDayReceptionStartTime = "12:00";
@@ -449,8 +451,10 @@ export function MalatangOrderBuilder({
   const baseUnavailable = baseSoup.websiteEnabled === false || baseSoup.isAvailable === false;
   const reservationsPaused = menu.storeOperation?.reservationsEnabled === false;
   const reservationPauseMessage = menu.storeOperation?.statusNote
-    ? `現在予約受付を停止しています（${menu.storeOperation.statusNote}）。店頭での受付状況は店舗へご確認ください。`
-    : "現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。";
+    ? formatTemplate(t("現在予約受付を停止しています（{reason}）。店頭での受付状況は店舗へご確認ください。"), {
+        reason: menu.storeOperation.statusNote,
+      })
+    : t("現在予約受付を停止しています。店頭での受付状況は店舗へご確認ください。");
   const reserveButtonLabel = checkoutUrl
     ? t("決済ページへ移動中...")
     : isSubmitting
@@ -472,7 +476,9 @@ export function MalatangOrderBuilder({
       : !name || !phone
         ? t("お名前・電話番号を入力")
         : t("支払いへ進む");
-  const pickupTimeErrorMessage = t(`受付中の受け取り時間を選択してください。最短 ${minimumPickup.date} ${minimumPickup.time} です。`);
+  const pickupTimeErrorMessage = formatTemplate(t("受付中の受け取り時間を選択してください。最短 {datetime} です。"), {
+    datetime: `${minimumPickup.date} ${minimumPickup.time}`,
+  });
   const pickupSameDayErrorMessage = isBeforeSameDayReception
     ? t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
     : t("本日のWeb予約受付は終了しました。");
@@ -483,7 +489,9 @@ export function MalatangOrderBuilder({
     if (hasReservationWindows && time < earliestReservationTime) {
       return t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。");
     }
-    return t(`選択した受け取り時間は現在の受付枠外です。受付中の時間: ${reservationWindowLabel || "-"}`);
+    return formatTemplate(t("選択した受け取り時間は現在の受付枠外です。受付中の時間: {windows}"), {
+      windows: reservationWindowLabel || "-",
+    });
   };
   const addBowlButtonLabel =
     total < minimumBowlTotal
@@ -863,7 +871,7 @@ export function MalatangOrderBuilder({
       return;
     }
     if (reservationsPaused) {
-      setSubmitError(t(reservationPauseMessage));
+      setSubmitError(reservationPauseMessage);
       return;
     }
     if (sameDayBookingClosed) {
@@ -884,7 +892,9 @@ export function MalatangOrderBuilder({
       const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
       if (compareDateTime(pickupDate, pickupTime, nextMinimum.date, nextMinimum.time) < 0) {
         const { safeDate, safeTime } = enforceMinimumPickup(pickupDate, pickupTime);
-        setSubmitError(t(`受付中の受け取り時間を選択してください。最短 ${safeDate} ${safeTime} です。`));
+        setSubmitError(formatTemplate(t("受付中の受け取り時間を選択してください。最短 {datetime} です。"), {
+          datetime: `${safeDate} ${safeTime}`,
+        }));
         return;
       }
       if (pickupDate !== nextMinimum.date || pickupTime > sameDayPickupCutoffTime || nextMinimum.time > sameDayPickupCutoffTime) {
@@ -1021,7 +1031,7 @@ export function MalatangOrderBuilder({
           </label>
           {reservationWindowLabel ? (
             <p className="pickupWindowHint">
-              {t(`本日選択できる受け取り時間: ${reservationWindowLabel}`)}
+              {formatTemplate(t("本日選択できる受け取り時間: {windows}"), { windows: reservationWindowLabel })}
             </p>
           ) : (
             <p className="pickupWindowHint">
@@ -1072,7 +1082,7 @@ export function MalatangOrderBuilder({
                 type="button"
                 onClick={() => setSelectedCouponId((current) => (current === coupon.id ? "" : coupon.id))}
               >
-                <strong>{coupon.name}</strong>
+                <strong>{t(coupon.name)}</strong>
                 <small>{formatCouponValue(coupon)}</small>
               </button>
             ))}
@@ -1235,7 +1245,7 @@ function ChoiceGroup({
   return (
     <section className="menuPanel">
       <div className="menuPanelHeader">
-        <p className="kicker">Required</p>
+        <p className="kicker">{t("Required")}</p>
         <h2>{title}</h2>
         <span>{t("1個選択")}</span>
       </div>
