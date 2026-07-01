@@ -44,30 +44,22 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
       <SiteHeader />
 
       <section id="top" className="hero" aria-labelledby="heroTitle">
-        <div className="heroContent">
-          <p className="kicker">{t(hero?.subtitle || "出来立て麻辣湯")}</p>
-          <h1 id="heroTitle" className="heroTitle">{hero?.title || "まぁ麻"}</h1>
-          <p className="heroLead">
-            {t(
-              hero?.body || "ご注文を受けてから、一杯ずつ仕上げる麻辣湯。まぁ麻は、熱さ、香り、具材の食感まで、出来立てのおいしさを届けます。",
-            )}
-          </p>
-          <div className="heroActions">
-            <a className="button primary" href={localizedPath(language, hero?.actionUrl || "/stores/shimizu/menu")}>
-              {t(hero?.actionLabel || "メニューを見る")}
-            </a>
-          </div>
-        </div>
+        <h1 id="heroTitle" className="srOnly">{hero?.title || "まぁ麻 出来立て麻辣湯"}</h1>
         <div className="heroVisual" aria-hidden="true">
           <Image
             className="heroImage"
-            src={hero?.imageUrl || "/images/maamaa-hero-bowl.jpg"}
+            src="/images/maamaa-hero-2026.jpg"
             alt={hero?.imageAlt || ""}
-            width={990}
-            height={1152}
+            width={2880}
+            height={2304}
             priority
-            sizes="(max-width: 920px) 90vw, 46vw"
+            sizes="100vw"
           />
+        </div>
+        <div className="heroActions">
+          <a className="button primary" href={localizedPath(language, hero?.actionUrl || "/stores/shimizu/menu")}>
+            {t(hero?.actionLabel || "メニューを見る")}
+          </a>
         </div>
       </section>
 
