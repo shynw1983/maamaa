@@ -48,18 +48,6 @@ p {
   overflow-wrap: anywhere;
 }
 
-.srOnly {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
-  margin: -1px;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-}
-
 .siteHeader {
   position: fixed;
   top: 0;
@@ -200,11 +188,11 @@ p {
   position: relative;
   min-height: 90svh;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 18px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.82fr);
+  gap: clamp(28px, 5vw, 76px);
+  align-items: center;
   overflow: hidden;
-  padding: 112px clamp(16px, 4vw, 56px) 28px;
+  padding: 118px clamp(20px, 6vw, 86px) 96px;
   background: var(--paper);
 }
 
@@ -212,22 +200,26 @@ p {
   position: relative;
   z-index: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-  width: 100%;
 }
 
 .heroImage {
   width: 100%;
-  max-width: 1320px;
-  max-height: calc(100svh - 210px);
+  max-width: min(46vw, 640px);
   height: auto;
   display: block;
-  object-fit: scale-down;
+  object-fit: contain;
 }
 
 .hero::after {
   content: none;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 660px;
 }
 
 .kicker {
@@ -247,12 +239,24 @@ h1 {
   letter-spacing: 0;
 }
 
+.heroTitle {
+  font-size: clamp(3.2rem, 7.2vw, 6rem);
+}
+
+.heroLead {
+  max-width: 650px;
+  margin: 24px 0 0;
+  color: rgba(25, 27, 26, 0.7);
+  font-size: clamp(1.02rem, 1.2vw, 1.16rem);
+  line-height: 1.85;
+  font-weight: 500;
+}
+
 .heroActions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  justify-content: center;
-  margin-top: 0;
+  margin-top: 34px;
 }
 
 .button {
@@ -1599,9 +1603,16 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .hero {
+    align-items: start;
+  }
+
+  .heroVisual {
+    justify-content: center;
+  }
+
   .heroImage {
-    max-width: 100%;
-    max-height: calc(100svh - 190px);
+    max-width: min(88vw, 520px);
   }
 
   .storeIntroGrid {
@@ -1725,12 +1736,12 @@ h3 {
   }
 
   .hero {
-    min-height: auto;
+    min-height: 96svh;
     padding-top: 108px;
   }
 
-  .heroImage {
-    max-height: none;
+  .heroTitle {
+    font-size: clamp(3.2rem, 19vw, 5.4rem);
   }
 
   .button {
