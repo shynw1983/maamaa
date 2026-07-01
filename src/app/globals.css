@@ -1,15 +1,18 @@
 :root {
-  --ink: #1d1716;
-  --muted: #706866;
+  --ink: #191b1a;
+  --muted: #686f6a;
   --paper: #ffffff;
-  --wash: #f8f5f2;
-  --mint: #f3dfdc;
-  --brand: #b70012;
-  --red: var(--brand);
-  --tomato: #d95b4f;
-  --sun: #f0d3a2;
-  --line: rgba(29, 23, 22, 0.12);
-  --shadow: 0 24px 80px rgba(29, 23, 22, 0.1);
+  --wash: #f6f7f4;
+  --mint: #edf4ef;
+  --brand: #315f52;
+  --tomato: #6a625e;
+  --sun: #e8ede8;
+  --soft: #f7f8f5;
+  --soft-accent: #f1f6f2;
+  --danger: #73524d;
+  --success: #2f6b4f;
+  --line: rgba(25, 27, 26, 0.12);
+  --shadow: 0 24px 80px rgba(25, 27, 26, 0.09);
   --header-circle-size: 42px;
 }
 
@@ -55,9 +58,9 @@ p {
   justify-content: space-between;
   width: 100%;
   padding: 20px clamp(20px, 5vw, 72px);
-  border-bottom: 1px solid rgba(29, 23, 22, 0.08);
+  border-bottom: 1px solid rgba(25, 27, 26, 0.08);
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 14px 38px rgba(29, 23, 22, 0.06);
+  box-shadow: 0 14px 38px rgba(25, 27, 26, 0.06);
   backdrop-filter: blur(18px) saturate(1.08);
   -webkit-backdrop-filter: blur(18px) saturate(1.08);
 }
@@ -112,7 +115,7 @@ p {
   display: flex;
   align-items: center;
   gap: clamp(14px, 2.4vw, 32px);
-  color: rgba(29, 23, 22, 0.72);
+  color: rgba(25, 27, 26, 0.72);
   font-size: 0.86rem;
   font-weight: 600;
 }
@@ -128,7 +131,7 @@ p {
   flex: 0 0 auto;
   width: var(--header-circle-size);
   height: var(--header-circle-size);
-  border: 1px solid rgba(29, 23, 22, 0.12);
+  border: 1px solid rgba(25, 27, 26, 0.12);
   border-radius: 50%;
   background: #ffffff;
   color: var(--ink);
@@ -138,12 +141,12 @@ p {
 }
 
 .memberIconLink:hover {
-  border-color: rgba(183, 0, 18, 0.24);
+  border-color: rgba(49, 95, 82, 0.28);
   color: var(--brand);
 }
 
 .memberIconLink.isLoggedIn {
-  border-color: rgba(183, 0, 18, 0.24);
+  border-color: rgba(49, 95, 82, 0.28);
 }
 
 .memberIconLink.isLoggedIn svg {
@@ -165,7 +168,7 @@ p {
   display: none;
   width: var(--header-circle-size);
   height: var(--header-circle-size);
-  border: 1px solid rgba(29, 23, 22, 0.12);
+  border: 1px solid rgba(25, 27, 26, 0.12);
   border-radius: 50%;
   background: #ffffff;
   color: var(--ink);
@@ -185,7 +188,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: rgba(29, 23, 22, 0.68);
+  color: rgba(25, 27, 26, 0.68);
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -263,7 +266,7 @@ h1 {
 .heroLead {
   max-width: 650px;
   margin: 24px 0 0;
-  color: rgba(29, 23, 22, 0.7);
+  color: rgba(25, 27, 26, 0.7);
   font-size: clamp(1.02rem, 1.2vw, 1.16rem);
   line-height: 1.85;
   font-weight: 500;
@@ -384,16 +387,16 @@ h2 {
 }
 
 .bowlCard:nth-child(2) span {
-  background: #f4e8df;
+  background: #e9f0eb;
 }
 
 .bowlCard:nth-child(3) span {
-  background: #f7d7d1;
+  background: #dde9e1;
 }
 
 .bowlCard p {
   margin: 48px 0 0;
-  color: rgba(29, 23, 22, 0.72);
+  color: rgba(25, 27, 26, 0.72);
   font-size: 0.96rem;
   line-height: 1.72;
   font-weight: 800;
@@ -799,9 +802,9 @@ h3 {
 .pickupNotice {
   margin: 0;
   padding: 10px 12px;
-  border: 1px solid rgba(118, 43, 25, 0.14);
+  border: 1px solid rgba(49, 95, 82, 0.14);
   border-radius: 8px;
-  background: #fffaf7;
+  background: var(--soft);
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.55;
@@ -820,9 +823,9 @@ h3 {
   align-items: center;
   gap: 12px;
   padding: 14px;
-  border: 1px solid rgba(118, 43, 25, 0.16);
+  border: 1px solid rgba(49, 95, 82, 0.16);
   border-radius: 8px;
-  background: #fff8ec;
+  background: var(--soft-accent);
 }
 
 .memberPointPanel div {
@@ -855,7 +858,7 @@ h3 {
   justify-content: center;
   min-height: 38px;
   padding: 0 12px;
-  border: 1px solid rgba(118, 43, 25, 0.22);
+  border: 1px solid rgba(49, 95, 82, 0.24);
   border-radius: 999px;
   color: var(--brand);
   font-size: 0.78rem;
@@ -868,9 +871,9 @@ h3 {
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid rgba(118, 43, 25, 0.16);
+  border: 1px solid rgba(49, 95, 82, 0.16);
   border-radius: 8px;
-  background: #fff8ec;
+  background: var(--soft-accent);
 }
 
 .memberCouponPanel > span {
@@ -898,9 +901,9 @@ h3 {
 }
 
 .memberCouponPanel button.isSelected {
-  border-color: rgba(183, 0, 18, 0.58);
+  border-color: rgba(49, 95, 82, 0.46);
   background: #ffffff;
-  box-shadow: 0 8px 24px rgba(183, 0, 18, 0.1);
+  box-shadow: 0 8px 24px rgba(49, 95, 82, 0.12);
 }
 
 .memberCouponPanel button.isSelected::before {
@@ -942,7 +945,7 @@ h3 {
   gap: 4px;
   border-radius: 8px;
   padding: 14px;
-  background: #f8f5f2;
+  background: var(--soft);
 }
 
 .reservationResult strong {
@@ -1007,7 +1010,7 @@ h3 {
   border-radius: 8px;
   padding: 28px 32px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 20px 52px rgba(29, 23, 22, 0.12);
+  box-shadow: 0 20px 52px rgba(25, 27, 26, 0.12);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -1024,7 +1027,7 @@ h3 {
 }
 
 .currentBowlBar .successText {
-  color: #027a48;
+  color: var(--success);
 }
 
 .currentBowlBar .editingText {
@@ -1107,8 +1110,8 @@ h3 {
 }
 
 .optionButton.selected {
-  border-color: rgba(183, 0, 18, 0.38);
-  background: #fff5f3;
+  border-color: rgba(49, 95, 82, 0.38);
+  background: var(--soft-accent);
 }
 
 .optionButton > span,
@@ -1131,7 +1134,7 @@ h3 {
   width: 18px;
   height: 18px;
   place-items: center;
-  border: 1px solid rgba(183, 0, 18, 0.34);
+  border: 1px solid rgba(49, 95, 82, 0.34);
   border-radius: 999px;
   color: var(--brand);
   font-size: 0.62rem;
@@ -1211,7 +1214,7 @@ h3 {
 
 .formError {
   margin: 0;
-  color: #b42318;
+  color: var(--danger);
   font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.55;
@@ -1220,10 +1223,10 @@ h3 {
 .reservationClosedNotice {
   margin: 0;
   padding: 12px 14px;
-  border: 1px solid rgba(180, 35, 24, 0.26);
+  border: 1px solid rgba(115, 82, 77, 0.22);
   border-radius: 8px;
-  background: #fff1f0;
-  color: #9f1f16;
+  background: var(--soft);
+  color: var(--danger);
   font-size: 0.88rem;
   font-weight: 800;
   line-height: 1.55;
@@ -1232,10 +1235,10 @@ h3 {
 .menuNotice {
   margin: 0;
   padding: 10px 12px;
-  border: 1px solid rgba(188, 108, 37, 0.28);
+  border: 1px solid rgba(49, 95, 82, 0.18);
   border-radius: 8px;
-  background: #fff7ed;
-  color: #8a4b14;
+  background: var(--soft);
+  color: var(--muted);
   font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.55;
@@ -1347,17 +1350,17 @@ h3 {
 }
 
 .orderStatusBadge.is-ready {
-  border-color: rgba(30, 122, 74, 0.36);
-  background: #effaf4;
-  color: #1e7a4a;
+  border-color: rgba(47, 107, 79, 0.32);
+  background: var(--soft-accent);
+  color: var(--success);
 }
 
 .orderStatusBadge.is-payment_failed,
 .orderStatusBadge.is-checkout_failed,
 .orderStatusBadge.is-cancelled {
-  border-color: rgba(183, 0, 18, 0.28);
-  background: #fff1ef;
-  color: var(--red);
+  border-color: rgba(115, 82, 77, 0.24);
+  background: var(--soft);
+  color: var(--danger);
 }
 
 .orderCancelBlock {
@@ -1366,14 +1369,14 @@ h3 {
   gap: 10px;
   width: min(420px, 100%);
   padding: 14px 16px;
-  border: 1px solid rgba(183, 0, 18, 0.24);
+  border: 1px solid rgba(115, 82, 77, 0.22);
   border-radius: 8px;
-  background: #fff8f5;
+  background: var(--soft);
 }
 
 .orderCancelBlock p {
   margin: 0;
-  color: var(--red);
+  color: var(--danger);
   font-size: 0.95rem;
   font-weight: 900;
   line-height: 1.55;
@@ -1403,9 +1406,9 @@ h3 {
   gap: 12px;
   width: min(520px, 100%);
   padding: 14px;
-  border: 1px solid rgba(118, 43, 25, 0.16);
+  border: 1px solid rgba(49, 95, 82, 0.16);
   border-radius: 8px;
-  background: #fff8ec;
+  background: var(--soft-accent);
   text-align: left;
 }
 
@@ -1439,7 +1442,7 @@ h3 {
   justify-content: center;
   min-height: 38px;
   padding: 0 12px;
-  border: 1px solid rgba(118, 43, 25, 0.22);
+  border: 1px solid rgba(49, 95, 82, 0.24);
   border-radius: 999px;
   color: var(--brand);
   font-size: 0.78rem;
@@ -1516,9 +1519,9 @@ h3 {
 }
 
 .orderProgressSteps li.isComplete > span {
-  border-color: rgba(183, 0, 18, 0.32);
-  background: #fff1ef;
-  color: var(--red);
+  border-color: rgba(49, 95, 82, 0.32);
+  background: var(--soft-accent);
+  color: var(--brand);
 }
 
 .orderProgressSteps li.isCurrent {
@@ -1526,10 +1529,10 @@ h3 {
 }
 
 .orderProgressSteps li.isCurrent > span {
-  border-color: var(--red);
-  background: var(--red);
+  border-color: var(--brand);
+  background: var(--brand);
   color: #ffffff;
-  box-shadow: 0 0 0 5px rgba(183, 0, 18, 0.12);
+  box-shadow: 0 0 0 5px rgba(49, 95, 82, 0.12);
 }
 
 .orderProgressSteps strong,
@@ -1539,7 +1542,7 @@ h3 {
 }
 
 .orderProgressSteps small {
-  color: var(--red);
+  color: var(--brand);
   font-weight: 700;
 }
 
@@ -1548,9 +1551,9 @@ h3 {
   gap: 4px;
   margin-top: 24px;
   padding: 16px;
-  border: 1px solid rgba(183, 0, 18, 0.22);
+  border: 1px solid rgba(49, 95, 82, 0.18);
   border-radius: 8px;
-  background: #fff8f5;
+  background: var(--soft);
 }
 
 .orderPaymentNotice span,
@@ -1712,10 +1715,10 @@ h3 {
     display: grid;
     gap: 18px;
     padding: 20px;
-    border: 1px solid rgba(29, 23, 22, 0.1);
+    border: 1px solid rgba(25, 27, 26, 0.1);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 22px 60px rgba(29, 23, 22, 0.12);
+    box-shadow: 0 22px 60px rgba(25, 27, 26, 0.12);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-8px);
@@ -1741,7 +1744,7 @@ h3 {
 
   .nav a {
     padding: 14px 0;
-    border-bottom: 1px solid rgba(29, 23, 22, 0.08);
+    border-bottom: 1px solid rgba(25, 27, 26, 0.08);
   }
 
   .languagePicker {
