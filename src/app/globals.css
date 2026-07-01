@@ -1699,13 +1699,27 @@ h3 {
   }
 }
 
-@keyframes mobileHeroBowlScroll {
+@keyframes mobileScrollFloat {
   from {
-    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.82;
+    transform: translate3d(0, 28px, 0);
   }
 
   to {
-    transform: translate3d(-18px, 36px, 0) scale(1.04);
+    opacity: 1;
+    transform: translate3d(0, -18px, 0);
+  }
+}
+
+@keyframes mobileHeroVisualScrollFloat {
+  from {
+    opacity: 0.9;
+    transform: translate3d(0, 34px, 0) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, -24px, 0) scale(1.035);
   }
 }
 
@@ -1844,17 +1858,31 @@ h3 {
     will-change: transform;
   }
 
-  @supports (animation-timeline: scroll()) {
+  @supports (animation-timeline: view()) {
+    .heroContent,
+    .heroVisual,
+    .section,
+    .storeIntroItem,
+    .footer {
+      animation: mobileScrollFloat linear both;
+      animation-timeline: view(block);
+      animation-range: entry -10% cover 42%;
+      will-change: transform, opacity;
+    }
+
     .heroVisual {
-      animation: mobileHeroBowlScroll linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0px 460px;
+      animation-name: mobileHeroVisualScrollFloat;
+      animation-range: entry 0% cover 58%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .heroContent,
     .heroVisual,
-    .heroImage {
+    .heroImage,
+    .section,
+    .storeIntroItem,
+    .footer {
       animation: none;
       transform: none;
     }
