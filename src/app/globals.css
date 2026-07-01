@@ -192,13 +192,13 @@ p {
 
 .hero {
   position: relative;
-  min-height: 90svh;
+  min-height: 92svh;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.82fr);
+  grid-template-columns: minmax(0, 0.78fr) minmax(360px, 1fr);
   gap: clamp(28px, 5vw, 76px);
   align-items: center;
   overflow: hidden;
-  padding: 118px clamp(20px, 6vw, 86px) 96px;
+  padding: 124px clamp(20px, 6vw, 86px) 104px;
   background: var(--paper);
 }
 
@@ -212,7 +212,7 @@ p {
 
 .heroImage {
   width: 100%;
-  max-width: min(46vw, 640px);
+  max-width: min(52vw, 720px);
   height: auto;
   display: block;
   object-fit: contain;
@@ -225,7 +225,7 @@ p {
 .heroContent {
   position: relative;
   z-index: 1;
-  max-width: 660px;
+  max-width: 590px;
 }
 
 .visuallyHidden {
@@ -246,7 +246,7 @@ p {
 
 .heroWordmark {
   display: block;
-  width: min(100%, 430px);
+  width: min(100%, 470px);
   height: auto;
 }
 
@@ -272,11 +272,11 @@ h1 {
 }
 
 .heroLead {
-  max-width: 650px;
-  margin: 24px 0 0;
-  color: rgba(25, 27, 26, 0.7);
+  max-width: 590px;
+  margin: 30px 0 0;
+  color: rgba(25, 27, 26, 0.66);
   font-size: clamp(1.02rem, 1.2vw, 1.16rem);
-  line-height: 1.85;
+  line-height: 2;
   font-weight: 400;
 }
 
@@ -284,7 +284,7 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 34px;
+  margin-top: 42px;
 }
 
 .button {
@@ -312,6 +312,10 @@ h1 {
   color: var(--paper);
 }
 
+.primary:hover {
+  background: var(--brand);
+}
+
 .quiet {
   border-color: var(--line);
   background: rgba(255, 255, 255, 0.72);
@@ -319,12 +323,13 @@ h1 {
 }
 
 .section {
-  padding: clamp(58px, 7vw, 98px) clamp(20px, 6vw, 86px);
+  padding: clamp(74px, 8vw, 124px) clamp(20px, 6vw, 86px);
+  border-top: 1px solid rgba(25, 27, 26, 0.08);
 }
 
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(280px, 0.74fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(320px, 0.74fr);
   gap: clamp(34px, 7vw, 112px);
   align-items: start;
 }
@@ -346,14 +351,14 @@ h2 {
 .footer p {
   margin: 0;
   color: var(--muted);
-  font-size: clamp(0.92rem, 1.08vw, 1rem);
-  line-height: 1.85;
+  font-size: clamp(0.96rem, 1.1vw, 1.04rem);
+  line-height: 2;
   font-weight: 400;
 }
 
 .sectionIntro {
   max-width: 820px;
-  margin-bottom: 34px;
+  margin-bottom: 54px;
 }
 
 .bowlSection {
@@ -371,42 +376,46 @@ h2 {
 .bowlGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: clamp(24px, 5vw, 72px);
+  border-top: 1px solid var(--line);
 }
 
 .bowlCard {
-  min-height: 230px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 26px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: var(--shadow);
+  min-height: 250px;
+  border: 0;
+  border-radius: 0;
+  padding: 30px 0 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .bowlCard span {
-  display: inline-grid;
-  width: 54px;
-  height: 54px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--mint);
-  color: var(--ink);
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  place-items: initial;
+  border-radius: 0;
+  background: transparent;
+  color: var(--brand);
+  font-size: 0.78rem;
   font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .bowlCard:nth-child(2) span {
-  background: #fff5f5;
+  background: transparent;
 }
 
 .bowlCard:nth-child(3) span {
-  background: #f3f3f1;
+  background: transparent;
 }
 
 .bowlCard p {
-  margin: 48px 0 0;
-  color: rgba(25, 27, 26, 0.72);
-  font-size: 0.96rem;
-  line-height: 1.72;
+  margin: 72px 0 0;
+  color: rgba(25, 27, 26, 0.74);
+  font-size: clamp(1rem, 1.16vw, 1.08rem);
+  line-height: 1.92;
   font-weight: 400;
 }
 
@@ -418,11 +427,12 @@ h2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .storeIntroItem {
-  min-height: 300px;
-  padding: 30px clamp(26px, 4vw, 54px) 0 0;
+  min-height: 320px;
+  padding: 34px clamp(26px, 4vw, 54px) 34px 0;
   border-right: 1px solid var(--line);
 }
 
@@ -469,7 +479,7 @@ h3 {
   display: inline-flex;
   width: fit-content;
   margin-top: 18px;
-  border-bottom: 1px solid currentColor;
+  border-bottom: 1px solid rgba(183, 0, 18, 0.34);
   color: var(--brand);
   font-size: 0.9rem;
   font-weight: 400;
@@ -1648,18 +1658,30 @@ h3 {
     width: min(78vw, 360px);
   }
 
-  .storeIntroGrid {
-    border-top: 0;
+  .bowlCard {
+    min-height: auto;
+    padding: 24px 0 34px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bowlCard:last-child {
+    border-bottom: 0;
+  }
+
+  .bowlCard p {
+    margin-top: 34px;
   }
 
   .storeIntroItem {
     min-height: auto;
     border-right: 0;
-    border-top: 1px solid var(--line);
-    padding: 28px 0;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 34px 0;
   }
 
   .storeIntroItem:last-child {
+    border-bottom: 0;
     padding-left: 0;
   }
 
