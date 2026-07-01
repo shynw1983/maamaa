@@ -1937,10 +1937,13 @@ h3 {
 
   .heroBrandLockup {
     margin-bottom: 42px;
+    overflow: visible;
   }
 
   .heroWordmark {
-    width: min(70vw, 304px);
+    width: min(78vw, 338px);
+    max-width: none;
+    transform: translateX(-38px);
   }
 
   .heroLead {
