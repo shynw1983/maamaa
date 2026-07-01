@@ -18,7 +18,6 @@ export function MenuPageContent({
 }) {
   const { t } = useI18n();
   const storeDisplayName = resolveMenuStoreDisplayName(initialMenu);
-  const hero = findSection(siteSections, "menu-hero");
   const reservationSummary = findSection(siteSections, "reservation-summary");
 
   return (
@@ -26,15 +25,13 @@ export function MenuPageContent({
       <SiteHeader menu />
 
       <section className="menuPageHero">
-        <p className="kicker">{hero?.subtitle ? t(hero.subtitle) : formatStoreNameTemplate(t("{storeName} / pickup reservation"), storeDisplayName)}</p>
-        <h1>{hero?.title ? t(hero.title) : formatStoreNameTemplate(t("{storeName}の出来立て麻辣湯を、自由にカスタム。"), storeDisplayName)}</h1>
+        <p className="kicker">{formatStoreNameTemplate(t("{storeName} / pickup reservation"), storeDisplayName)}</p>
+        <h1>{formatStoreNameTemplate(t("{storeName}の出来立て麻辣湯を、自由にカスタム。"), storeDisplayName)}</h1>
         <p>
-          {hero?.body
-            ? t(hero.body)
-            : formatStoreNameTemplate(
-                t("{storeName}の店頭受け取り用カスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。"),
-                storeDisplayName,
-              )}
+          {formatStoreNameTemplate(
+            t("{storeName}の店頭受け取り用カスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。"),
+            storeDisplayName,
+          )}
         </p>
       </section>
 
