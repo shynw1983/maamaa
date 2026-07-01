@@ -373,6 +373,40 @@ h2 {
   gap: 18px;
 }
 
+.editorialVisual {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(25, 27, 26, 0.1);
+  background:
+    linear-gradient(135deg, rgba(183, 0, 18, 0.06), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 243, 239, 0.68));
+}
+
+.editorialVisual::before,
+.editorialVisual::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.editorialVisual::before {
+  inset: 18px;
+  border: 1px solid rgba(25, 27, 26, 0.08);
+}
+
+.editorialVisual::after {
+  right: 18px;
+  bottom: 18px;
+  width: 38%;
+  height: 1px;
+  background: rgba(183, 0, 18, 0.22);
+}
+
+.conceptVisual {
+  min-height: clamp(220px, 30vw, 380px);
+  margin-bottom: clamp(30px, 5vw, 58px);
+}
+
 .copyStack p,
 .footer p {
   margin: 0;
@@ -451,11 +485,16 @@ h2 {
 }
 
 .bowlCard p {
-  margin: 72px 0 0;
+  margin: 34px 0 0;
   color: rgba(25, 27, 26, 0.74);
   font-size: clamp(1rem, 1.16vw, 1.08rem);
   line-height: 1.92;
   font-weight: 400;
+}
+
+.bowlVisual {
+  aspect-ratio: 4 / 3;
+  margin-top: 30px;
 }
 
 .storeIntroSection {
@@ -473,6 +512,11 @@ h2 {
   min-height: 320px;
   padding: 34px clamp(26px, 4vw, 54px) 34px 0;
   border-right: 1px solid var(--line);
+}
+
+.storeVisual {
+  aspect-ratio: 16 / 10;
+  margin-bottom: 30px;
 }
 
 .storeIntroItem:last-child {
@@ -1708,12 +1752,23 @@ h3 {
     font-size: 1.6rem;
   }
 
+  .conceptVisual {
+    min-height: 220px;
+  }
+
+  .bowlVisual,
+  .storeVisual {
+    aspect-ratio: 16 / 9;
+    margin-top: 22px;
+    margin-bottom: 24px;
+  }
+
   .bowlCard:last-child {
     border-bottom: 0;
   }
 
   .bowlCard p {
-    margin-top: 34px;
+    margin-top: 24px;
   }
 
   .storeIntroItem {

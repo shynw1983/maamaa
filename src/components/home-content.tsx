@@ -100,6 +100,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           <h2>{t(concept?.title || "作り置きではなく、注文ごとに仕上げる。")}</h2>
         </div>
         <div className="copyStack">
+          <div className="editorialVisual conceptVisual" aria-hidden="true" />
           <p>
             {t(
               concept?.body || "まぁ麻の麻辣湯は、大きな鍋でまとめて煮込むスタイルではありません。注文を受けてから具材とスープを合わせ、一杯ずつ出来立てでお渡しします。",
@@ -117,6 +118,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           {bowls.map(([title, body]) => (
             <article className="bowlCard" key={title}>
               <span>{t(title)}</span>
+              <div className="editorialVisual bowlVisual" aria-hidden="true" />
               <p>{t(body)}</p>
             </article>
           ))}
@@ -135,6 +137,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
             return (
             <article className="storeIntroItem" key={item.title}>
               <p className="pill">{t(item.label)}</p>
+              <div className="editorialVisual storeVisual" aria-hidden="true" />
               <h3>{title}</h3>
               {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
               <p className="storeCopy">{t(item.body)}</p>
