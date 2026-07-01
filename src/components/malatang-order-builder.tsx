@@ -62,6 +62,10 @@ const capReservationWindows = (windows: ReservationWindow[], cutoffTime: string)
   windows
     .map((window) => ({ ...window, end: window.end > cutoffTime ? cutoffTime : window.end }))
     .filter((window) => window.end >= window.start);
+const getSelectableReservationWindows = (windows: ReservationWindow[], minimumTime: string, cutoffTime: string) =>
+  capReservationWindows(windows, cutoffTime)
+    .map((window) => ({ ...window, start: window.start < minimumTime ? minimumTime : window.start }))
+    .filter((window) => window.end >= window.start);
 const formatReservationWindows = (windows: ReservationWindow[]) =>
   windows.length ? windows.map((window) => `${window.start}-${window.end}`).join(" / ") : "";
 const isPickupInReservationWindows = (time: string, windows: ReservationWindow[]) =>
@@ -325,7 +329,11 @@ export function MalatangOrderBuilder({
   const initialPickup = useMemo(
     () => {
       const minimum = getSameDayMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes));
-      const windows = getReservationWindowsForDate(initialMenu.storeOperation?.reservationWindows, minimum.date);
+      const windows = getSelectableReservationWindows(
+        getReservationWindowsForDate(initialMenu.storeOperation?.reservationWindows, minimum.date),
+        minimum.time,
+        sameDayPickupCutoffTime,
+      );
       return { date: minimum.date, time: clampPickupToReservationWindows(minimum.time, windows) };
     },
     [initialMenu.storeOperation?.minimumPickupMinutes, initialMenu.storeOperation?.reservationWindows],
@@ -372,8 +380,12 @@ export function MalatangOrderBuilder({
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
   const currentTokyo = getTokyoDateTimeParts();
   const reservationWindows = useMemo(
-    () => capReservationWindows(getReservationWindowsForDate(menu.storeOperation?.reservationWindows, minimumPickup.date), sameDayPickupCutoffTime),
-    [menu.storeOperation?.reservationWindows, minimumPickup.date],
+    () => getSelectableReservationWindows(
+      getReservationWindowsForDate(menu.storeOperation?.reservationWindows, minimumPickup.date),
+      minimumPickup.time,
+      sameDayPickupCutoffTime,
+    ),
+    [menu.storeOperation?.reservationWindows, minimumPickup.date, minimumPickup.time],
   );
   const hasReservationWindows = reservationWindows.length > 0;
   const earliestReservationTime = reservationWindows[0]?.start ?? minimumPickup.time;
@@ -556,6 +568,11 @@ export function MalatangOrderBuilder({
     const updateMinimumPickup = () => {
       const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
       const nextPickupDate = pickupDate < nextMinimum.date || pickupDate > nextMinimum.date ? nextMinimum.date : pickupDate;
+      const nextReservationWindows = getSelectableReservationWindows(
+        getReservationWindowsForDate(menu.storeOperation?.reservationWindows, nextMinimum.date),
+        nextMinimum.time,
+        sameDayPickupCutoffTime,
+      );
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
       setPickupTime((currentTime) => {
@@ -564,7 +581,7 @@ export function MalatangOrderBuilder({
           : currentTime > sameDayPickupCutoffTime
             ? sameDayPickupCutoffTime
             : currentTime;
-        return clampPickupToReservationWindows(nextTime, reservationWindows);
+        return nextReservationWindows.length ? clampPickupToReservationWindows(nextTime, nextReservationWindows) : nextTime;
       });
       setPickupError((current) => {
         const selectedTime = pickupDate === nextMinimum.date && pickupTime < nextMinimum.time;
@@ -574,7 +591,7 @@ export function MalatangOrderBuilder({
 
     const interval = window.setInterval(updateMinimumPickup, 30000);
     return () => window.clearInterval(interval);
-  }, [minimumPickupMinutes, pickupDate, reservationWindows]);
+  }, [menu.storeOperation?.reservationWindows, minimumPickupMinutes, pickupDate, pickupTime, pickupTimeErrorMessage]);
 
   useEffect(() => {
     setFlavors((current) => current.filter((id) => isChoiceOpen(id)));
