@@ -8,7 +8,7 @@
   --tomato: #c94b47;
   --sun: #ffffff;
   --soft: #ffffff;
-  --soft-accent: #fff8f8;
+  --soft-accent: #ffffff;
   --danger: #9f2d2d;
   --success: #7d1f24;
   --line: rgba(25, 27, 26, 0.12);
@@ -186,7 +186,7 @@ p {
 }
 
 .homePage {
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .hero {
@@ -198,7 +198,7 @@ p {
   align-items: center;
   overflow: hidden;
   padding: 124px clamp(20px, 6vw, 86px) 104px;
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .heroVisual {
@@ -680,8 +680,7 @@ h3 {
   gap: clamp(28px, 5vw, 72px);
   padding: clamp(58px, 7vw, 92px) clamp(20px, 6vw, 86px) clamp(34px, 4vw, 52px);
   border-top: 1px solid rgba(25, 27, 26, 0.1);
-  background:
-    linear-gradient(180deg, #fbfaf8 0%, #ffffff 100%);
+  background: #ffffff;
 }
 
 .footer::before {
