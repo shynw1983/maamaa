@@ -170,7 +170,7 @@ p {
   align-items: center;
   gap: 8px;
   color: rgba(25, 27, 26, 0.68);
-  font-size: 0.72rem;
+  font-size: 0.86rem;
   font-weight: 400;
 }
 
@@ -2053,7 +2053,7 @@ h3 {
   .languagePicker {
     justify-content: space-between;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.92rem;
   }
 
   .memberIconLink {
