@@ -638,41 +638,74 @@ h3 {
 }
 
 .footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 38px clamp(20px, 6vw, 86px);
-  background: var(--ink);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(28px, 5vw, 72px);
+  padding: clamp(58px, 7vw, 92px) clamp(20px, 6vw, 86px) clamp(34px, 4vw, 52px);
+  border-top: 1px solid rgba(25, 27, 26, 0.1);
+  background:
+    linear-gradient(180deg, #fbfaf8 0%, #ffffff 100%);
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  top: clamp(28px, 4vw, 46px);
+  left: clamp(20px, 6vw, 86px);
+  width: min(180px, 34vw);
+  height: 1px;
+  background: rgba(183, 0, 18, 0.34);
+}
+
+.footer > div {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
 }
 
 .footerLogo {
-  margin: 0 0 6px;
-  color: var(--paper) !important;
-  font-size: 1.34rem !important;
-  font-weight: 500 !important;
-  line-height: 1.1 !important;
+  margin: 0;
+  color: var(--brand) !important;
+  font-size: clamp(1.55rem, 2.2vw, 2.2rem) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: 0;
 }
 
 .footerButton {
-  border-color: rgba(251, 250, 246, 0.24);
-  color: var(--paper);
+  justify-self: end;
+  min-width: 148px;
+  border-color: rgba(25, 27, 26, 0.18);
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 16px 38px rgba(25, 27, 26, 0.07);
+}
+
+.footerButton:hover {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
 }
 
 .footerLegalLinks {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
-  margin-top: 12px;
+  gap: 10px 18px;
+  margin-top: 2px;
 }
 
 .footerLegalLink {
   display: inline-flex;
-  color: rgba(251, 250, 246, 0.76);
+  color: rgba(25, 27, 26, 0.52);
   font-size: 0.82rem;
   font-weight: 400;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration: none;
+}
+
+.footerLegalLink:hover {
+  color: var(--brand);
 }
 
 .menuPageHero {
@@ -2144,6 +2177,12 @@ h3 {
 
   .footer {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .footerButton {
+    justify-self: start;
+    width: min(100%, 260px);
   }
 
   .legalRow {
