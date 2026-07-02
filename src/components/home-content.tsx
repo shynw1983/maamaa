@@ -41,21 +41,21 @@ const bowls = [
   {
     title: "Select",
     body: "野菜、きのこ、肉、海鮮、麺まで。その日の気分で自由に選べます。",
-    imageSrc: "/images/maamaa-select-ingredients.png",
+    imageSrc: "/images/maamaa-select-ingredients.jpg",
     imageAlt: "麻辣湯に選べる野菜、きのこ、海鮮、麺の具材",
     imageClass: "isSelectImage",
   },
   {
     title: "Cook",
     body: "一杯ずつ鍋を分けて、スープの香りと具材の食感を引き出します。",
-    imageSrc: "/images/maamaa-cook-commercial-range.png",
+    imageSrc: "/images/maamaa-cook-commercial-range.jpg",
     imageAlt: "商用厨房のガスレンジで一杯ずつ仕上げる麻辣湯",
     imageClass: "isCookImage",
   },
   {
     title: "Balance",
     body: "辛さ、しびれ、香りを重ねて、自分にちょうどいい一杯へ。",
-    imageSrc: "/images/maamaa-balance-chili-oil-swirl.png",
+    imageSrc: "/images/maamaa-balance-chili-oil-swirl.jpg",
     imageAlt: "麻辣湯のスープに広がる赤い辣油と香りのバランス",
   },
 ];
@@ -106,10 +106,10 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
         <div className="heroVisual" aria-hidden="true">
           <Image
             className="heroImage"
-            src="/images/maamaa-hero-bowl-2026.jpg"
+            src="/images/maamaa-hero-bowl-2026-light.jpg"
             alt={hero?.imageAlt || ""}
-            width={1930}
-            height={2304}
+            width={1000}
+            height={1193}
             priority
             sizes="(max-width: 920px) 90vw, 46vw"
           />
@@ -128,7 +128,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           <div className="conceptImageFrame">
             <Image
               className="conceptImage"
-              src="/images/maamaa-concept-choice-to-bowl.png"
+              src="/images/maamaa-concept-choice-to-bowl.jpg"
               alt={t("好きな具材を選んで出来立ての一杯に仕上げる麻辣湯")}
               fill
               sizes="(max-width: 920px) 88vw, 42vw"
