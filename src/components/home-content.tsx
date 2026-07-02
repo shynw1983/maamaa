@@ -27,7 +27,7 @@ const stores: StorePreview[] = [
   },
   {
     label: "Eat in",
-    title: "福岡桜並木店",
+    title: "桜並木店",
     body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。ゆっくり味わえるまぁ麻を広げていきます。",
   },
   {
