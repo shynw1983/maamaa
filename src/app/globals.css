@@ -29,6 +29,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family:
+    var(--font-newsreader),
     "Hiragino Sans",
     "Noto Sans JP",
     "Yu Gothic",
