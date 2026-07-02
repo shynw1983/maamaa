@@ -271,8 +271,6 @@ type BowlSelections = {
 type OrderDraft = {
   cartItems?: CartItem[];
   currentSelections?: BowlSelections;
-  name?: string;
-  phone?: string;
   pickupDate?: string;
   pickupTime?: string;
 };
@@ -775,8 +773,6 @@ export function MalatangOrderBuilder({
 
       if (draftCartItems.length) setCartItems(draftCartItems);
       if (draftSelections) applySelections(draftSelections);
-      if (typeof draft.name === "string") setName(draft.name);
-      if (typeof draft.phone === "string") setPhone(draft.phone);
       setMinimumPickup(nextMinimum);
       setPickupDate(safePickupDate);
       setPickupTime(scheduleSafePickupTime);
@@ -795,8 +791,6 @@ export function MalatangOrderBuilder({
     if (!draftReady) return;
     const hasDraft =
       cartItems.length > 0 ||
-      Boolean(name.trim()) ||
-      Boolean(phone.trim()) ||
       flavors.length > 0 ||
       Object.keys(items).length > 0;
 
@@ -808,8 +802,6 @@ export function MalatangOrderBuilder({
       const draft: OrderDraft = {
         cartItems,
         currentSelections: getCurrentSelections(),
-        name,
-        phone,
         pickupDate,
         pickupTime,
       };
@@ -817,7 +809,7 @@ export function MalatangOrderBuilder({
     } catch {
       // Continue without draft persistence.
     }
-  }, [cartItems, draftReady, flavors, heat, items, name, numb, phone, pickupDate, pickupTime, spice]);
+  }, [cartItems, draftReady, flavors, heat, items, numb, pickupDate, pickupTime, spice]);
 
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
