@@ -25,11 +25,11 @@ export function MenuPageContent({
       <SiteHeader menu />
 
       <section className="menuPageHero">
-        <p className="kicker">{formatStoreNameTemplate(t("{storeName} / pickup reservation"), storeDisplayName)}</p>
-        <h1>{t("出来立て麻辣湯を、自由にカスタム。")}</h1>
+        <p className="kicker">{formatStoreNameTemplate(t("{storeName} / Web予約"), storeDisplayName)}</p>
+        <h1>{t("一杯ずつ、鍋を分けて仕上げる麻辣湯。")}</h1>
         <p>
           {formatStoreNameTemplate(
-            t("{storeName}の店頭受け取り用カスタムメニューを作成できます。辛さ、痺れ、麺、トッピングを選んで、受け取り時間を指定してください。"),
+            t("{storeName}では、辛さ、痺れ、麺、具材を選んで、ご注文ごとに鍋を分けて仕上げる一杯をご予約いただけます。受付時間と受け取り方法は店舗の営業状況により異なります。"),
             storeDisplayName,
           )}
         </p>

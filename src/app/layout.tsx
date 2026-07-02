@@ -12,7 +12,7 @@ const kleeOne = Klee_One({
 export const metadata: Metadata = {
   title: "まぁ麻 | 出来立て麻辣湯",
   description:
-    "まぁ麻は注文を受けてから一杯ずつ仕上げる、出来立て麻辣湯のブランドです。デリバリー、ピックアップ、イートインへ展開しています。",
+    "まぁ麻は、具材、麺、辛さ、しびれを自分好みに選べる麻辣湯専門店です。ご注文ごとに鍋を分け、一杯ずつ出来立てで仕上げます。",
   alternates: {
     canonical: "/",
     languages: languageAlternates("/"),
