@@ -1242,11 +1242,11 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  min-height: 132px;
+  gap: 32px;
+  min-height: 116px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 28px 32px;
+  padding: 24px 32px;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 20px 52px rgba(25, 27, 26, 0.12);
   backdrop-filter: blur(18px);
@@ -1280,17 +1280,20 @@ h3 {
 
 .currentBowlActions {
   display: grid;
-  gap: 10px;
-  width: min(280px, 100%);
+  gap: 16px;
+  width: clamp(220px, 24vw, 260px);
   flex: 0 0 auto;
 }
 
 .currentBowlBar .button {
-  min-height: 72px;
-  padding: 0 36px;
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 24px;
+  font-size: 0.95rem;
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1.2;
   min-width: 0;
   text-align: center;
   white-space: normal;
@@ -1971,7 +1974,7 @@ h3 {
 
   .currentBowlBar {
     top: 86px;
-    min-height: 112px;
+    min-height: 104px;
     padding: 22px;
   }
 
@@ -2246,10 +2249,14 @@ h3 {
     flex-direction: column;
   }
 
-  .currentBowlBar .button {
-    min-height: 58px;
+  .currentBowlActions {
     width: 100%;
-    font-size: 1rem;
+  }
+
+  .currentBowlBar .button {
+    min-height: 52px;
+    width: 100%;
+    font-size: 0.96rem;
   }
 
   .footer {
