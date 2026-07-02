@@ -40,7 +40,6 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
   const footer = findSection(siteSections, "footer");
   const heroSubtitle = t(hero?.subtitle || "出来立て麻辣湯");
   const heroTitle = t(hero?.title || "まぁ麻");
-  const useHeroWordmark = language === "ja";
 
   return (
     <main className="homePage">
@@ -48,25 +47,18 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
 
       <section id="top" className="hero" aria-labelledby="heroTitle">
         <div className="heroContent">
-          {useHeroWordmark ? (
-            <div className="heroBrandLockup">
-              <Image
-                className="heroWordmark"
-                src="/images/maamaa-hero-wordmark.png"
-                alt=""
-                width={1180}
-                height={470}
-                priority
-                sizes="(max-width: 920px) 78vw, 430px"
-              />
-              <h1 id="heroTitle" className="visuallyHidden">{`${heroSubtitle} ${heroTitle}`}</h1>
-            </div>
-          ) : (
-            <>
-              <p className="kicker">{heroSubtitle}</p>
-              <h1 id="heroTitle" className="heroTitle">{heroTitle}</h1>
-            </>
-          )}
+          <div className="heroBrandLockup">
+            <Image
+              className="heroWordmark"
+              src="/images/maamaa-hero-wordmark.png"
+              alt=""
+              width={1180}
+              height={470}
+              priority
+              sizes="(max-width: 920px) 78vw, 430px"
+            />
+            <h1 id="heroTitle" className="visuallyHidden">{`${heroSubtitle} ${heroTitle}`}</h1>
+          </div>
           <p className="heroLead">
             {t(
               hero?.body || "まぁ麻は、具材、麺、辛さ、しびれを自分好みに選べる麻辣湯専門店です。ご注文ごとに鍋を分け、スープと具材を一杯ずつ合わせて仕上げます。店舗ごとの受付状況に合わせて、店頭受け取り、店内飲食、デリバリーでお楽しみいただけます。",
