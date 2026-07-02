@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const storeDisplayName = resolveMenuStoreDisplayName(await getMenuData("shimizu"));
 
   return {
-    title: `${storeDisplayName} pickup login | Maama`,
+    title: `${storeDisplayName} pickup login | maamaa`,
     description: `Login page for reviewing ${storeDisplayName} pickup reservations.`,
     alternates: {
       canonical: withLocalePath(lang, shimizuLoginPath),

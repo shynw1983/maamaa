@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang, orderId } = await params;
   if (!isLocale(lang) || lang === "ja") return {};
   const order = await fetchFoundr1Order(orderId).catch(() => null);
-  const storeDisplayName = order?.storeName || "Maama";
+  const storeDisplayName = order?.storeName || "maamaa";
 
   return {
     title: `Pickup number / Order status | ${storeDisplayName}`,
