@@ -708,6 +708,15 @@ h3 {
   letter-spacing: 0;
 }
 
+.footerAffiliation {
+  margin: -4px 0 0;
+  color: rgba(25, 27, 26, 0.48) !important;
+  font-size: 0.76rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .footerButton {
   justify-self: end;
   min-width: 148px;
