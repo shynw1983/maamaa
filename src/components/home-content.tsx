@@ -53,6 +53,8 @@ const bowls = [
   {
     title: "Balance",
     body: "辛さ、しびれ、香りを重ねて、自分にちょうどいい一杯へ。",
+    imageSrc: "/images/maamaa-balance-chili-oil-swirl.png",
+    imageAlt: "麻辣湯のスープに広がる赤い辣油と香りのバランス",
   },
 ];
 
