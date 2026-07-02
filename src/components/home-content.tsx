@@ -123,7 +123,15 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           <h2>{t(concept?.title || "選ぶたのしさを、出来立てで。")}</h2>
         </div>
         <div className="copyStack">
-          <div className="editorialVisual conceptVisual" aria-hidden="true" />
+          <div className="conceptImageFrame">
+            <Image
+              className="conceptImage"
+              src="/images/maamaa-concept-choice-to-bowl.png"
+              alt={t("好きな具材を選んで出来立ての一杯に仕上げる麻辣湯")}
+              fill
+              sizes="(max-width: 920px) 88vw, 42vw"
+            />
+          </div>
           <p>
             {t(
               concept?.body || "野菜、きのこ、肉、海鮮、麺。好きな具材を選んだら、辛さとしびれを好みに合わせて。一杯ずつ鍋を分け、スープの香りと具材の食感が立つ麻辣湯に仕上げます。",

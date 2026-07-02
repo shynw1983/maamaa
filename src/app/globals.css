@@ -477,6 +477,18 @@ h2 {
   margin-bottom: clamp(30px, 5vw, 58px);
 }
 
+.conceptImageFrame {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(220px, 30vw, 380px);
+  margin-bottom: clamp(30px, 5vw, 58px);
+  border: 1px solid rgba(25, 27, 26, 0.1);
+}
+
+.conceptImage {
+  object-fit: cover;
+}
+
 .copyStack p,
 .footer p {
   margin: 0;
