@@ -367,6 +367,8 @@ export function MalatangOrderBuilder({
   const [draftReady, setDraftReady] = useState(false);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
   const reserveButtonRef = useRef<HTMLButtonElement | null>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
   const {
     baseSoup,
     medicinalSpiceGroup,
@@ -723,6 +725,15 @@ export function MalatangOrderBuilder({
         .map(([id, quantity]) => [id, formatCartChoiceLabel(item, id, quantity)]),
     ].filter(Boolean) as Array<[string, string]>);
 
+  const clearContactInputs = (force = false) => {
+    const activeElement = document.activeElement;
+    if (!force && (activeElement === nameInputRef.current || activeElement === phoneInputRef.current)) return;
+    setName("");
+    setPhone("");
+    if (nameInputRef.current) nameInputRef.current.value = "";
+    if (phoneInputRef.current) phoneInputRef.current.value = "";
+  };
+
   useEffect(() => {
     setMemberHref(buildMemberHandoffUrl());
     consumeMemberHandoff()
@@ -730,9 +741,12 @@ export function MalatangOrderBuilder({
         if (!profile) {
           setMemberProfile(null);
           if (hasRecentMemberSignOut()) {
-            setName("");
-            setPhone("");
+            clearContactInputs(true);
             setSelectedCouponId("");
+          } else {
+            clearContactInputs();
+            window.setTimeout(() => clearContactInputs(), 80);
+            window.setTimeout(() => clearContactInputs(), 400);
           }
           return;
         }
@@ -1002,11 +1016,26 @@ export function MalatangOrderBuilder({
         <div className="pickupFields">
           <label>
             {t("お名前")}
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("例: 山田")} required />
+            <input
+              ref={nameInputRef}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t("例: 山田")}
+              autoComplete={memberProfile ? "name" : "new-password"}
+              required
+            />
           </label>
           <label>
             {t("電話番号")}
-            <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="090..." required />
+            <input
+              ref={phoneInputRef}
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder="090..."
+              autoComplete={memberProfile ? "tel" : "new-password"}
+              inputMode="tel"
+              required
+            />
           </label>
           {!memberProfile ? (
             <div className="memberPointPanel">

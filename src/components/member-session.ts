@@ -26,6 +26,8 @@ export type MemberProfile = {
 };
 
 const memberStorageKey = "foundr1-member-profile";
+const memberSessionVersionKey = "maamaa-member-session-version";
+const memberSessionVersion = "20260702-contact-privacy";
 const languageStorageKey = "maamaa-language";
 const reservationDraftStorageKey = "maamaa-shimizu-menu-draft-v2";
 const memberSignedOutStorageKey = "maamaa-member-signed-out-at";
@@ -77,12 +79,16 @@ function clearReservationDraftContact() {
 
 function markMemberSignedOut() {
   window.sessionStorage.setItem(memberSignedOutStorageKey, String(Date.now()));
+  window.localStorage.setItem(memberSignedOutStorageKey, String(Date.now()));
 }
 
 export function hasRecentMemberSignOut() {
   if (typeof window === "undefined") return false;
   try {
-    const signedOutAt = Number(window.sessionStorage.getItem(memberSignedOutStorageKey) || 0);
+    const signedOutAt = Math.max(
+      Number(window.sessionStorage.getItem(memberSignedOutStorageKey) || 0),
+      Number(window.localStorage.getItem(memberSignedOutStorageKey) || 0),
+    );
     return signedOutAt > 0 && Date.now() - signedOutAt < recentSignOutMs;
   } catch {
     return false;
@@ -109,6 +115,10 @@ export function buildMemberHandoffUrl() {
 export function getStoredMemberProfile(): MemberProfile | null {
   if (typeof window === "undefined") return null;
   try {
+    if (hasRecentMemberSignOut() || window.localStorage.getItem(memberSessionVersionKey) !== memberSessionVersion) {
+      window.localStorage.removeItem(memberStorageKey);
+      return null;
+    }
     const raw = window.localStorage.getItem(memberStorageKey);
     return raw ? JSON.parse(raw) as MemberProfile : null;
   } catch {
@@ -123,9 +133,15 @@ async function refreshStoredMemberProfile(profile: MemberProfile | null) {
       cache: "no-store"
     });
     const body = await response.json().catch(() => ({}));
-    if (!response.ok || !body?.member) return profile;
+    if (!response.ok || !body?.member) {
+      window.localStorage.removeItem(memberStorageKey);
+      window.localStorage.removeItem(memberSessionVersionKey);
+      clearReservationDraftContact();
+      return null;
+    }
     const nextProfile = { ...body.member, coupons: Array.isArray(body.coupons) ? body.coupons : [] };
     window.localStorage.setItem(memberStorageKey, JSON.stringify(nextProfile));
+    window.localStorage.setItem(memberSessionVersionKey, memberSessionVersion);
     return nextProfile as MemberProfile;
   } catch {
     return profile;
@@ -138,6 +154,7 @@ export async function consumeMemberHandoff() {
   const url = new URL(window.location.href);
   if (url.searchParams.get("memberSignedOut") === "1") {
     window.localStorage.removeItem(memberStorageKey);
+    window.localStorage.removeItem(memberSessionVersionKey);
     clearReservationDraftContact();
     markMemberSignedOut();
     url.searchParams.delete("memberSignedOut");
@@ -156,7 +173,9 @@ export async function consumeMemberHandoff() {
 
   const profile = { ...body.member, coupons: Array.isArray(body.coupons) ? body.coupons : [] };
   window.localStorage.setItem(memberStorageKey, JSON.stringify(profile));
+  window.localStorage.setItem(memberSessionVersionKey, memberSessionVersion);
   window.sessionStorage.removeItem(memberSignedOutStorageKey);
+  window.localStorage.removeItem(memberSignedOutStorageKey);
   url.searchParams.delete("memberHandoff");
   window.history.replaceState({}, "", url.toString());
   return profile as MemberProfile;
