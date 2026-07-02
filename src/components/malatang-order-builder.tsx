@@ -1220,8 +1220,9 @@ export function MalatangOrderBuilder({
               {section.items.filter((item) => isChoiceOpen(item.id)).map((item) => {
                 const sectionSelectedCount = getSectionSelectedCount(section);
                 const canIncrease = sectionSelectedCount < section.limit;
+                const quantity = items[item.id] || 0;
                 return (
-                <div className="toppingRow" key={item.id}>
+                <div className={quantity > 0 ? "toppingRow isSelected" : "toppingRow"} key={item.id}>
                   <button className="toppingItemButton" type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
                     <strong>
                       <OptionName item={item} />
@@ -1232,7 +1233,7 @@ export function MalatangOrderBuilder({
                     <button type="button" onClick={() => changeQuantity(section, item.id, -1)}>
                       -
                     </button>
-                    <span>{items[item.id] || 0}</span>
+                    <span>{quantity}</span>
                     <button type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
                       +
                     </button>

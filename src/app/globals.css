@@ -1348,8 +1348,9 @@ h3 {
 }
 
 .optionButton.selected {
-  border-color: rgba(183, 0, 18, 0.3);
-  background: var(--soft-accent);
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
 }
 
 .optionButton > span,
@@ -1365,6 +1366,15 @@ h3 {
 
 .optionButton small {
   color: var(--muted);
+}
+
+.optionButton.selected small {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.optionButton.selected .recommendIcon {
+  border-color: rgba(255, 255, 255, 0.65);
+  color: #ffffff;
 }
 
 .recommendIcon {
@@ -1394,6 +1404,12 @@ h3 {
   padding: 14px 16px;
 }
 
+.toppingRow.isSelected {
+  border-bottom-color: rgba(255, 255, 255, 0.24);
+  background: var(--brand);
+  color: #ffffff;
+}
+
 .toppingRow:last-child {
   border-bottom: 0;
 }
@@ -1414,6 +1430,10 @@ h3 {
   opacity: 0.58;
 }
 
+.toppingRow.isSelected .toppingItemButton:disabled {
+  opacity: 1;
+}
+
 .toppingRow strong {
   font-size: 0.95rem;
   font-weight: 400;
@@ -1422,6 +1442,10 @@ h3 {
 .toppingRow span {
   color: var(--muted);
   font-size: 0.84rem;
+}
+
+.toppingRow.isSelected span {
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .quantityControl {
@@ -1434,6 +1458,11 @@ h3 {
   background: #ffffff;
 }
 
+.toppingRow.isSelected .quantityControl {
+  border-color: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .quantityControl button {
   width: 32px;
   height: 32px;
@@ -1444,10 +1473,18 @@ h3 {
   font-size: 1rem;
 }
 
+.toppingRow.isSelected .quantityControl button {
+  color: #ffffff;
+}
+
 .quantityControl span {
   color: var(--ink);
   text-align: center;
   font-weight: 400;
+}
+
+.toppingRow.isSelected .quantityControl span {
+  color: #ffffff;
 }
 
 .formError {
