@@ -606,7 +606,7 @@ h2 {
 }
 
 .bowlImage.isCookImage {
-  transform: scale(1.72);
+  transform: translateY(7%) scale(1.72);
 }
 
 .storeIntroSection {
