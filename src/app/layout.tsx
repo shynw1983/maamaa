@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Klee_One } from "next/font/google";
+import { Gaegu, Kalam, Klee_One, LXGW_WenKai_TC } from "next/font/google";
 import { languageAlternates, localeConfig, type Locale } from "@/data/locales";
 import "./globals.css";
 
@@ -7,6 +7,26 @@ const kleeOne = Klee_One({
   weight: ["400", "600"],
   display: "swap",
   variable: "--font-klee-one",
+});
+
+const lxgwWenKai = LXGW_WenKai_TC({
+  weight: ["400", "700"],
+  display: "swap",
+  variable: "--font-lxgw-wenkai",
+});
+
+const gaegu = Gaegu({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-gaegu",
+});
+
+const kalam = Kalam({
+  weight: ["400", "700"],
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  variable: "--font-kalam",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +50,7 @@ export default async function RootLayout({
   const htmlLang = localeConfig[routeParams?.lang || "ja"]?.htmlLang || "ja";
 
   return (
-    <html lang={htmlLang} className={kleeOne.variable}>
+    <html lang={htmlLang} className={`${kleeOne.variable} ${lxgwWenKai.variable} ${gaegu.variable} ${kalam.variable}`}>
       <body>{children}</body>
     </html>
   );

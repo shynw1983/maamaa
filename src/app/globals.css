@@ -317,6 +317,61 @@ html:lang(ja) .menuPageHero p:last-child {
     sans-serif;
 }
 
+html:lang(zh) .homePage .heroLead,
+html:lang(zh) .homePage h2,
+html:lang(zh) .homePage .copyStack p,
+html:lang(zh) .homePage .bowlCard p,
+html:lang(zh) .homePage .storeIntroItem h3,
+html:lang(zh) .homePage .storeCopy,
+html:lang(zh) .menuPageHero h1,
+html:lang(zh) .menuPageHero p:last-child {
+  font-family:
+    var(--font-lxgw-wenkai),
+    "KaiTi",
+    "STKaiti",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+}
+
+html:lang(ko) .homePage .heroLead,
+html:lang(ko) .homePage h2,
+html:lang(ko) .homePage .copyStack p,
+html:lang(ko) .homePage .bowlCard p,
+html:lang(ko) .homePage .storeIntroItem h3,
+html:lang(ko) .homePage .storeCopy,
+html:lang(ko) .menuPageHero h1,
+html:lang(ko) .menuPageHero p:last-child {
+  font-family:
+    var(--font-gaegu),
+    "Nanum Pen Script",
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    sans-serif;
+}
+
+html:lang(en) .homePage .heroLead,
+html:lang(en) .homePage h2,
+html:lang(en) .homePage .copyStack p,
+html:lang(en) .homePage .bowlCard p,
+html:lang(en) .homePage .storeIntroItem h3,
+html:lang(en) .homePage .storeCopy,
+html:lang(en) .menuPageHero h1,
+html:lang(en) .menuPageHero p:last-child,
+html:lang(vi) .homePage .heroLead,
+html:lang(vi) .homePage h2,
+html:lang(vi) .homePage .copyStack p,
+html:lang(vi) .homePage .bowlCard p,
+html:lang(vi) .homePage .storeIntroItem h3,
+html:lang(vi) .homePage .storeCopy,
+html:lang(vi) .menuPageHero h1,
+html:lang(vi) .menuPageHero p:last-child {
+  font-family:
+    var(--font-kalam),
+    "Segoe Print",
+    sans-serif;
+}
+
 .heroActions {
   display: flex;
   flex-wrap: wrap;
