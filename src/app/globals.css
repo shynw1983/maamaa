@@ -2,13 +2,13 @@
   --ink: #191b1a;
   --muted: #686f6a;
   --paper: #ffffff;
-  --wash: #f8f8f7;
+  --wash: #ffffff;
   --mint: #fff4f4;
   --brand: #b70012;
   --tomato: #c94b47;
-  --sun: #f3f3f1;
-  --soft: #f8f8f7;
-  --soft-accent: #fff5f5;
+  --sun: #ffffff;
+  --soft: #ffffff;
+  --soft-accent: #fff8f8;
   --danger: #9f2d2d;
   --success: #7d1f24;
   --line: rgba(25, 27, 26, 0.12);
@@ -419,7 +419,7 @@ html:lang(vi) .menuPageHero p:last-child {
 .section {
   padding: clamp(74px, 8vw, 124px) clamp(20px, 6vw, 86px);
   border-top: 1px solid rgba(25, 27, 26, 0.08);
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .split {
@@ -500,7 +500,7 @@ h2 {
 }
 
 .bowlSection {
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .bowlSection .sectionIntro {
@@ -576,7 +576,7 @@ h2 {
 }
 
 .storeIntroSection {
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .storeIntroGrid {
