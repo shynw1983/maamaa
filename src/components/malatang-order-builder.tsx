@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
-import { buildMemberHandoffUrl, consumeMemberHandoff, type MemberProfile } from "@/components/member-session";
+import { buildMemberHandoffUrl, consumeMemberHandoff, hasRecentMemberSignOut, type MemberProfile } from "@/components/member-session";
 import type { BrandSiteSection } from "@/server/brand-site-source";
 
 const yen = (price: number) => `¥${price.toLocaleString("ja-JP")}`;
@@ -729,7 +729,15 @@ export function MalatangOrderBuilder({
     setMemberHref(buildMemberHandoffUrl());
     consumeMemberHandoff()
       .then((profile) => {
-        if (!profile) return;
+        if (!profile) {
+          setMemberProfile(null);
+          if (hasRecentMemberSignOut()) {
+            setName("");
+            setPhone("");
+            setSelectedCouponId("");
+          }
+          return;
+        }
         setMemberProfile(profile);
         setName(memberContactName(profile));
         setPhone((current) => current || profile.phone || "");

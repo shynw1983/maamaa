@@ -28,8 +28,10 @@ export type MemberProfile = {
 const memberStorageKey = "foundr1-member-profile";
 const languageStorageKey = "maamaa-language";
 const reservationDraftStorageKey = "maamaa-shimizu-menu-draft-v2";
+const memberSignedOutStorageKey = "maamaa-member-signed-out-at";
 const memberPortalUrl = process.env.NEXT_PUBLIC_FOUNDR1_MEMBER_URL || "https://foundr1.jp/member";
 const memberBrand = "maamaa";
+const recentSignOutMs = 5 * 60 * 1000;
 const supportedLanguages = ["ja", "en", "zh", "zh-Hant", "ko", "vi", "ne"] as const;
 type SupportedLanguage = typeof supportedLanguages[number];
 
@@ -70,6 +72,20 @@ function clearReservationDraftContact() {
     window.sessionStorage.setItem(reservationDraftStorageKey, JSON.stringify(draft));
   } catch {
     window.sessionStorage.removeItem(reservationDraftStorageKey);
+  }
+}
+
+function markMemberSignedOut() {
+  window.sessionStorage.setItem(memberSignedOutStorageKey, String(Date.now()));
+}
+
+export function hasRecentMemberSignOut() {
+  if (typeof window === "undefined") return false;
+  try {
+    const signedOutAt = Number(window.sessionStorage.getItem(memberSignedOutStorageKey) || 0);
+    return signedOutAt > 0 && Date.now() - signedOutAt < recentSignOutMs;
+  } catch {
+    return false;
   }
 }
 
@@ -123,6 +139,7 @@ export async function consumeMemberHandoff() {
   if (url.searchParams.get("memberSignedOut") === "1") {
     window.localStorage.removeItem(memberStorageKey);
     clearReservationDraftContact();
+    markMemberSignedOut();
     url.searchParams.delete("memberSignedOut");
     window.history.replaceState({}, "", url.toString());
     return null;
@@ -139,6 +156,7 @@ export async function consumeMemberHandoff() {
 
   const profile = { ...body.member, coupons: Array.isArray(body.coupons) ? body.coupons : [] };
   window.localStorage.setItem(memberStorageKey, JSON.stringify(profile));
+  window.sessionStorage.removeItem(memberSignedOutStorageKey);
   url.searchParams.delete("memberHandoff");
   window.history.replaceState({}, "", url.toString());
   return profile as MemberProfile;
