@@ -42,10 +42,7 @@ export function SiteHeader({ menu = false }: { menu?: boolean }) {
     const refreshMember = () => setMemberProfile(getStoredMemberProfile());
     refreshMember();
     consumeMemberHandoff()
-      .then((profile) => {
-        if (!profile) return;
-        setMemberProfile(profile);
-      })
+      .then((profile) => setMemberProfile(profile))
       .catch(refreshMember);
 
     window.addEventListener("focus", refreshMember);

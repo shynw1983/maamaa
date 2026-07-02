@@ -27,6 +27,7 @@ export type MemberProfile = {
 
 const memberStorageKey = "foundr1-member-profile";
 const languageStorageKey = "maamaa-language";
+const reservationDraftStorageKey = "maamaa-shimizu-menu-draft-v2";
 const memberPortalUrl = process.env.NEXT_PUBLIC_FOUNDR1_MEMBER_URL || "https://foundr1.jp/member";
 const memberBrand = "maamaa";
 const supportedLanguages = ["ja", "en", "zh", "zh-Hant", "ko", "vi", "ne"] as const;
@@ -57,6 +58,19 @@ function cleanReturnUrl() {
   url.searchParams.delete("memberHandoff");
   url.searchParams.delete("memberSignedOut");
   return url.toString();
+}
+
+function clearReservationDraftContact() {
+  try {
+    const rawDraft = window.sessionStorage.getItem(reservationDraftStorageKey);
+    if (!rawDraft) return;
+    const draft = JSON.parse(rawDraft) as Record<string, unknown>;
+    delete draft.name;
+    delete draft.phone;
+    window.sessionStorage.setItem(reservationDraftStorageKey, JSON.stringify(draft));
+  } catch {
+    window.sessionStorage.removeItem(reservationDraftStorageKey);
+  }
 }
 
 function buildMemberUrl({ handoff }: { handoff: boolean }) {
@@ -108,6 +122,7 @@ export async function consumeMemberHandoff() {
   const url = new URL(window.location.href);
   if (url.searchParams.get("memberSignedOut") === "1") {
     window.localStorage.removeItem(memberStorageKey);
+    clearReservationDraftContact();
     url.searchParams.delete("memberSignedOut");
     window.history.replaceState({}, "", url.toString());
     return null;
