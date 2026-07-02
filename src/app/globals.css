@@ -601,6 +601,14 @@ h2 {
   object-fit: cover;
 }
 
+.bowlImage.isSelectImage {
+  transform: scale(1.18);
+}
+
+.bowlImage.isCookImage {
+  transform: scale(1.72);
+}
+
 .storeIntroSection {
   background: #ffffff;
 }

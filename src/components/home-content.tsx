@@ -39,16 +39,18 @@ const stores: StorePreview[] = [
 
 const bowls = [
   {
-    title: "Cook",
-    body: "一杯ずつ鍋を分けて、スープの香りと具材の食感を引き出します。",
-    imageSrc: "/images/maamaa-cook-commercial-range.png",
-    imageAlt: "商用厨房のガスレンジで一杯ずつ仕上げる麻辣湯",
-  },
-  {
     title: "Select",
     body: "野菜、きのこ、肉、海鮮、麺まで。その日の気分で自由に選べます。",
     imageSrc: "/images/maamaa-select-ingredients.png",
     imageAlt: "麻辣湯に選べる野菜、きのこ、海鮮、麺の具材",
+    imageClass: "isSelectImage",
+  },
+  {
+    title: "Cook",
+    body: "一杯ずつ鍋を分けて、スープの香りと具材の食感を引き出します。",
+    imageSrc: "/images/maamaa-cook-commercial-range.png",
+    imageAlt: "商用厨房のガスレンジで一杯ずつ仕上げる麻辣湯",
+    imageClass: "isCookImage",
   },
   {
     title: "Balance",
@@ -152,7 +154,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
               {item.imageSrc ? (
                 <div className="bowlImageFrame">
                   <Image
-                    className="bowlImage"
+                    className={["bowlImage", item.imageClass].filter(Boolean).join(" ")}
                     src={item.imageSrc}
                     alt={t(item.imageAlt || "")}
                     fill
