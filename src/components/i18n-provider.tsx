@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { localeConfig, type Locale } from "@/data/locales";
 
 const LANGUAGE_STORAGE_KEY = "maamaa-language";
-const LOCALE_CACHE_VERSION = "20260702-maamaa-store-copy";
+const LOCALE_CACHE_VERSION = "20260702-maamaa-store-carousel";
 
 type Dictionary = Record<string, string>;
 

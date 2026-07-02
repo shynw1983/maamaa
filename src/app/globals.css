@@ -490,6 +490,15 @@ h2 {
   margin-bottom: 54px;
 }
 
+.sectionIntro > p:not(.kicker) {
+  max-width: 680px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: clamp(0.96rem, 1.08vw, 1.04rem);
+  line-height: 1.9;
+  font-weight: 400;
+}
+
 .bowlSection {
   background: #fbfaf8;
 }
@@ -572,15 +581,41 @@ h2 {
 
 .storeIntroGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  grid-auto-columns: minmax(320px, 38vw);
+  grid-auto-flow: column;
+  gap: clamp(18px, 3vw, 34px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-right: calc(clamp(20px, 6vw, 86px) * -1);
+  padding: 2px clamp(20px, 6vw, 86px) 18px 0;
+  scroll-padding-left: clamp(20px, 6vw, 86px);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.storeIntroGrid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.storeIntroGrid::-webkit-scrollbar-track {
+  background: rgba(25, 27, 26, 0.06);
+}
+
+.storeIntroGrid::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(183, 0, 18, 0.3);
 }
 
 .storeIntroItem {
-  min-height: 320px;
-  padding: 34px clamp(26px, 4vw, 54px) 34px 0;
-  border-right: 1px solid var(--line);
+  display: grid;
+  align-content: start;
+  min-height: 420px;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 18px 48px rgba(25, 27, 26, 0.06);
+  scroll-snap-align: start;
 }
 
 .storeVisual {
@@ -589,8 +624,7 @@ h2 {
 }
 
 .storeIntroItem:last-child {
-  border-right: 0;
-  padding-left: clamp(0px, 2vw, 28px);
+  border-right: 1px solid var(--line);
 }
 
 .pill {
@@ -630,7 +664,8 @@ h3 {
 .textLink {
   display: inline-flex;
   width: fit-content;
-  margin-top: 18px;
+  align-self: end;
+  margin-top: 24px;
   border-bottom: 1px solid rgba(183, 0, 18, 0.34);
   color: var(--brand);
   font-size: 0.9rem;
@@ -1873,17 +1908,23 @@ h3 {
     margin-top: 24px;
   }
 
+  .storeIntroGrid {
+    grid-template-columns: none;
+    grid-auto-columns: minmax(276px, 82vw);
+    gap: 16px;
+    margin-right: -28px;
+    padding-right: 28px;
+  }
+
   .storeIntroItem {
     min-height: auto;
-    border-right: 0;
-    border-top: 0;
-    border-bottom: 1px solid var(--line);
-    padding: 34px 0;
+    border: 1px solid var(--line);
+    padding: 24px;
   }
 
   .storeIntroItem:last-child {
-    border-bottom: 0;
-    padding-left: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 24px;
   }
 
   .orderSummary {

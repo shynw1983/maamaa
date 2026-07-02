@@ -7,17 +7,33 @@ import { SiteHeader } from "@/components/site-header";
 import { formatStoreNameTemplate, resolveMenuStoreDisplayName, type StoreDisplayMenu } from "@/components/store-display-name";
 import type { BrandSiteSection } from "@/server/brand-site-source";
 
-const stores = [
+type StorePreview = {
+  label: string;
+  title: string;
+  address?: string;
+  body: string;
+  actionLabel?: string;
+  actionUrl?: string;
+};
+
+const stores: StorePreview[] = [
   {
-    label: "1st store",
+    label: "受付中",
     title: "pickup-store",
     address: "福岡市南区清水 1-2-8-103",
-    body: "福岡南店では、Web予約、デリバリー、テイクアウトを受付状況に合わせて承ります。気軽な一食にも、しっかり食べたい日にも、出来立ての麻辣湯をお楽しみください。",
+    body: "Web予約、デリバリー、テイクアウトを受付状況に合わせてご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
+    actionLabel: "{storeName}の受け取り予約",
+    actionUrl: "/stores/shimizu/menu",
   },
   {
-    label: "2nd store",
-    title: "店内で味わうまぁ麻",
-    body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。店舗ごとの営業情報は、順次このサイトでお知らせします。",
+    label: "Eat in",
+    title: "福岡桜並木店",
+    body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。ゆっくり味わえるまぁ麻を広げていきます。",
+  },
+  {
+    label: "Next",
+    title: "次の街にも、まぁ麻を。",
+    body: "新しい店舗情報は、公開準備が整い次第お知らせします。トップページでは代表的な受付店舗を中心にご案内します。",
   },
 ];
 
@@ -120,26 +136,28 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
       <section id="stores" className="section storeIntroSection" aria-labelledby="storesTitle">
         <div className="sectionIntro">
           <p className="kicker">{shops?.subtitle || "Shop information"}</p>
-          <h2 id="storesTitle">{t(shops?.title || "今日の一杯を、好きな場所で。")}</h2>
+          <h2 id="storesTitle">{t(shops?.title || "お近くのまぁ麻へ。")}</h2>
+          <p>{t(shops?.body || "Web予約、デリバリー、店内飲食は、店舗ごとの受付状況に合わせてご利用いただけます。")}</p>
         </div>
         <div className="storeIntroGrid">
           {stores.map((item, index) => {
             const isPickupStore = index === 0;
             const title = isPickupStore ? storeDisplayName : t(item.title);
             return (
-            <article className="storeIntroItem" key={item.title}>
-              <p className="pill">{t(item.label)}</p>
-              <div className="editorialVisual storeVisual" aria-hidden="true" />
-              <h3>{title}</h3>
-              {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
-              <p className="storeCopy">{t(item.body)}</p>
-              {isPickupStore ? (
-                <a className="textLink" href={localizedPath(language, "/stores/shimizu/menu")}>
-                  {formatStoreNameTemplate(t("{storeName}の受け取り予約"), storeDisplayName)}
-                </a>
-              ) : null}
-            </article>
-          );})}
+              <article className="storeIntroItem" key={item.title}>
+                <p className="pill">{t(item.label)}</p>
+                <div className="editorialVisual storeVisual" aria-hidden="true" />
+                <h3>{title}</h3>
+                {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
+                <p className="storeCopy">{t(item.body)}</p>
+                {item.actionUrl ? (
+                  <a className="textLink" href={localizedPath(language, item.actionUrl)}>
+                    {formatStoreNameTemplate(t(item.actionLabel || "店舗情報を見る"), storeDisplayName)}
+                  </a>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
       </section>
 
