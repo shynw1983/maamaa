@@ -140,14 +140,15 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
             <article className="bowlCard" key={item.title}>
               <span>{t(item.title)}</span>
               {item.imageSrc ? (
-                <Image
-                  className="bowlImage"
-                  src={item.imageSrc}
-                  alt={t(item.imageAlt || "")}
-                  width={1448}
-                  height={1086}
-                  sizes="(max-width: 920px) 88vw, 28vw"
-                />
+                <div className="bowlImageFrame">
+                  <Image
+                    className="bowlImage"
+                    src={item.imageSrc}
+                    alt={t(item.imageAlt || "")}
+                    fill
+                    sizes="(max-width: 920px) 88vw, 28vw"
+                  />
+                </div>
               ) : (
                 <div className="editorialVisual bowlVisual" aria-hidden="true" />
               )}
