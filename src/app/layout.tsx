@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Gaegu, Kalam, Klee_One, LXGW_WenKai_TC } from "next/font/google";
+import { Gowun_Batang, Kalam, Klee_One, LXGW_WenKai_TC } from "next/font/google";
 import { languageAlternates, localeConfig, type Locale } from "@/data/locales";
 import "./globals.css";
 
@@ -15,11 +15,11 @@ const lxgwWenKai = LXGW_WenKai_TC({
   variable: "--font-lxgw-wenkai",
 });
 
-const gaegu = Gaegu({
+const gowunBatang = Gowun_Batang({
   weight: ["400", "700"],
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-gaegu",
+  variable: "--font-gowun-batang",
 });
 
 const kalam = Kalam({
@@ -50,7 +50,7 @@ export default async function RootLayout({
   const htmlLang = localeConfig[routeParams?.lang || "ja"]?.htmlLang || "ja";
 
   return (
-    <html lang={htmlLang} className={`${kleeOne.variable} ${lxgwWenKai.variable} ${gaegu.variable} ${kalam.variable}`}>
+    <html lang={htmlLang} className={`${kleeOne.variable} ${lxgwWenKai.variable} ${gowunBatang.variable} ${kalam.variable}`}>
       <body>{children}</body>
     </html>
   );

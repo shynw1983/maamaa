@@ -343,8 +343,9 @@ html:lang(ko) .homePage .storeCopy,
 html:lang(ko) .menuPageHero h1,
 html:lang(ko) .menuPageHero p:last-child {
   font-family:
-    var(--font-gaegu),
-    "Nanum Pen Script",
+    var(--font-gowun-batang),
+    "Batang",
+    "Gungsuh",
     "Apple SD Gothic Neo",
     "Noto Sans KR",
     sans-serif;
