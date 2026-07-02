@@ -12,19 +12,19 @@ const stores = [
     label: "1st store",
     title: "pickup-store",
     address: "福岡市南区清水 1-2-8-103",
-    body: "福岡南店では、Web予約、デリバリー、テイクアウトを店舗の受付状況に合わせて承ります。ご注文ごとに鍋を分け、出来立てで仕上げます。",
+    body: "福岡南店では、Web予約、デリバリー、テイクアウトを受付状況に合わせて承ります。気軽な一食にも、しっかり食べたい日にも、出来立ての麻辣湯をお楽しみください。",
   },
   {
     label: "2nd store",
-    title: "店内でも楽しめる店舗",
-    body: "店内でゆっくり麻辣湯を楽しめる店舗も展開しています。営業情報、受付方法、開始時期は各店舗の案内をご確認ください。",
+    title: "店内で味わうまぁ麻",
+    body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。店舗ごとの営業情報は、順次このサイトでお知らせします。",
   },
 ];
 
 const bowls = [
-  ["Cook", "ご注文ごとに鍋を分け、スープと具材を一杯ずつ合わせて仕上げます。"],
-  ["Select", "野菜、きのこ、肉、海鮮、麺を組み合わせ、自分好みの一杯に。"],
-  ["Balance", "辛さ、しびれ、香りのバランスを整え、出来立てでお渡しします。"],
+  ["Cook", "一杯ずつ鍋を分けて、スープの香りと具材の食感を引き出します。"],
+  ["Select", "野菜、きのこ、肉、海鮮、麺まで。その日の気分で自由に選べます。"],
+  ["Balance", "辛さ、しびれ、香りを重ねて、自分にちょうどいい一杯へ。"],
 ];
 
 const findSection = (sections: BrandSiteSection[], key: string) =>
@@ -61,7 +61,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           </div>
           <p className="heroLead">
             {t(
-              hero?.body || "まぁ麻は、具材、麺、辛さ、しびれを自分好みに選べる麻辣湯専門店です。ご注文ごとに鍋を分け、スープと具材を一杯ずつ合わせて仕上げます。店舗ごとの受付状況に合わせて、店頭受け取り、店内飲食、デリバリーでお楽しみいただけます。",
+              hero?.body || "その日の気分に合わせて、具材も、辛さも、しびれも自由に。まぁ麻は、選ぶ楽しさと出来立ての香りを大切にする麻辣湯専門店です。一杯ずつ鍋を分けて仕上げる、熱々の一杯をお楽しみください。",
             )}
           </p>
           <div className="heroActions">
@@ -89,13 +89,13 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
       <section id="concept" className="section split">
         <div>
           <p className="kicker">{concept?.subtitle || "Brand concept"}</p>
-          <h2>{t(concept?.title || "一杯ごとに、鍋を分けて仕上げる。")}</h2>
+          <h2>{t(concept?.title || "選ぶたのしさを、出来立てで。")}</h2>
         </div>
         <div className="copyStack">
           <div className="editorialVisual conceptVisual" aria-hidden="true" />
           <p>
             {t(
-              concept?.body || "ご注文ごとに鍋を分け、選んだ具材とスープを一杯ずつ合わせます。辛さ、しびれ、具材の組み合わせをその一杯に合わせて整え、香りと温度感のある麻辣湯としてお渡しします。",
+              concept?.body || "野菜、きのこ、肉、海鮮、麺。好きな具材を選んだら、辛さとしびれを好みに合わせて。一杯ずつ鍋を分け、スープの香りと具材の食感が立つ麻辣湯に仕上げます。",
             )}
           </p>
         </div>
@@ -104,7 +104,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
       <section className="section bowlSection" aria-labelledby="bowlTitle">
         <div className="sectionIntro">
           <p className="kicker">{buildBowl?.subtitle || "Build a bowl"}</p>
-          <h2 id="bowlTitle">{t(buildBowl?.title || "選べる自由と、一杯ごとの仕上げ。")}</h2>
+          <h2 id="bowlTitle">{t(buildBowl?.title || "一杯の中に、好きなものを少しずつ。")}</h2>
         </div>
         <div className="bowlGrid">
           {bowls.map(([title, body]) => (
@@ -120,7 +120,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
       <section id="stores" className="section storeIntroSection" aria-labelledby="storesTitle">
         <div className="sectionIntro">
           <p className="kicker">{shops?.subtitle || "Shop information"}</p>
-          <h2 id="storesTitle">{t(shops?.title || "店舗ごとの楽しみ方を。")}</h2>
+          <h2 id="storesTitle">{t(shops?.title || "今日の一杯を、好きな場所で。")}</h2>
         </div>
         <div className="storeIntroGrid">
           {stores.map((item, index) => {
@@ -146,7 +146,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
       <footer id="contact" className="footer">
         <div>
           <p className="footerLogo">{footer?.title || "まぁ麻"}</p>
-          <p>{t(footer?.body || "鍋を分けて一杯ずつ仕上げる、出来立て麻辣湯の専門店。")}</p>
+          <p>{t(footer?.body || "選ぶ楽しさと出来立ての香りを届ける、麻辣湯専門店。")}</p>
           <div className="footerLegalLinks">
             <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
               {t("特定商取引法に基づく表記")}

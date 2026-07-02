@@ -26,10 +26,10 @@ export function MenuPageContent({
 
       <section className="menuPageHero">
         <p className="kicker">{formatStoreNameTemplate(t("{storeName} / Web予約"), storeDisplayName)}</p>
-        <h1>{t("一杯ずつ、鍋を分けて仕上げる麻辣湯。")}</h1>
+        <h1>{t("好きな具材で、今日の麻辣湯を。")}</h1>
         <p>
           {formatStoreNameTemplate(
-            t("{storeName}では、辛さ、痺れ、麺、具材を選んで、ご注文ごとに鍋を分けて仕上げる一杯をご予約いただけます。受付時間と受け取り方法は店舗の営業状況により異なります。"),
+            t("{storeName}では、具材、麺、辛さ、痺れを選んで、自分好みの一杯をWeb予約できます。一杯ずつ鍋を分けて仕上げる、出来立ての麻辣湯をお楽しみください。"),
             storeDisplayName,
           )}
         </p>

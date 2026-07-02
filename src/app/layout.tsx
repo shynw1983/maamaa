@@ -32,7 +32,7 @@ const kalam = Kalam({
 export const metadata: Metadata = {
   title: "まぁ麻 | 出来立て麻辣湯",
   description:
-    "まぁ麻は、具材、麺、辛さ、しびれを自分好みに選べる麻辣湯専門店です。ご注文ごとに鍋を分け、一杯ずつ出来立てで仕上げます。",
+    "まぁ麻は、選ぶ楽しさと出来立ての香りを大切にする麻辣湯専門店です。一杯ずつ鍋を分けて仕上げる、熱々の一杯をお楽しみください。",
   alternates: {
     canonical: "/",
     languages: languageAlternates("/"),

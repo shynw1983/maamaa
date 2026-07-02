@@ -15,7 +15,7 @@ export async function generateMetadata() {
   const storeDisplayName = resolveMenuStoreDisplayName(await getMenuData("shimizu"));
   return {
     title: `${storeDisplayName} メニュー・受け取り予約 | まぁ麻`,
-    description: `${storeDisplayName}で、辛さ、痺れ、麺、具材を選び、ご注文ごとに鍋を分けて仕上げる麻辣湯を予約できます。`,
+    description: `${storeDisplayName}で、具材、麺、辛さ、痺れを選んで、自分好みの麻辣湯をWeb予約できます。`,
     alternates: {
       canonical: shimizuMenuPath,
       languages: languageAlternates(shimizuMenuPath),
