@@ -24,7 +24,6 @@ const gowunBatang = Gowun_Batang({
 
 const newsreader = Newsreader({
   weight: ["400", "500"],
-  axes: ["opsz"],
   subsets: ["latin", "latin-ext", "vietnamese"],
   display: "swap",
   variable: "--font-newsreader",
