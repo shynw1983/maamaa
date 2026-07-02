@@ -38,9 +38,22 @@ const stores: StorePreview[] = [
 ];
 
 const bowls = [
-  ["Cook", "一杯ずつ鍋を分けて、スープの香りと具材の食感を引き出します。"],
-  ["Select", "野菜、きのこ、肉、海鮮、麺まで。その日の気分で自由に選べます。"],
-  ["Balance", "辛さ、しびれ、香りを重ねて、自分にちょうどいい一杯へ。"],
+  {
+    title: "Cook",
+    body: "一杯ずつ鍋を分けて、スープの香りと具材の食感を引き出します。",
+    imageSrc: "/images/maamaa-cook-commercial-range.png",
+    imageAlt: "商用厨房のガスレンジで一杯ずつ仕上げる麻辣湯",
+  },
+  {
+    title: "Select",
+    body: "野菜、きのこ、肉、海鮮、麺まで。その日の気分で自由に選べます。",
+    imageSrc: "/images/maamaa-select-ingredients.png",
+    imageAlt: "麻辣湯に選べる野菜、きのこ、海鮮、麺の具材",
+  },
+  {
+    title: "Balance",
+    body: "辛さ、しびれ、香りを重ねて、自分にちょうどいい一杯へ。",
+  },
 ];
 
 const findSection = (sections: BrandSiteSection[], key: string) =>
@@ -123,11 +136,22 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           <h2 id="bowlTitle">{t(buildBowl?.title || "一杯の中に、好きなものを少しずつ。")}</h2>
         </div>
         <div className="bowlGrid">
-          {bowls.map(([title, body]) => (
-            <article className="bowlCard" key={title}>
-              <span>{t(title)}</span>
-              <div className="editorialVisual bowlVisual" aria-hidden="true" />
-              <p>{t(body)}</p>
+          {bowls.map((item) => (
+            <article className="bowlCard" key={item.title}>
+              <span>{t(item.title)}</span>
+              {item.imageSrc ? (
+                <Image
+                  className="bowlImage"
+                  src={item.imageSrc}
+                  alt={t(item.imageAlt || "")}
+                  width={1448}
+                  height={1086}
+                  sizes="(max-width: 920px) 88vw, 28vw"
+                />
+              ) : (
+                <div className="editorialVisual bowlVisual" aria-hidden="true" />
+              )}
+              <p>{t(item.body)}</p>
             </article>
           ))}
         </div>
