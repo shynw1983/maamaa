@@ -1879,25 +1879,37 @@ h3 {
 
 @keyframes mobileScrollFloat {
   from {
-    opacity: 0.82;
-    transform: translate3d(0, 28px, 0);
+    opacity: 0.94;
+    transform: translate3d(0, 82px, 0) scale(0.985);
   }
 
   to {
     opacity: 1;
-    transform: translate3d(0, -18px, 0);
+    transform: translate3d(0, -38px, 0) scale(1.01);
   }
 }
 
 @keyframes mobileHeroVisualScrollFloat {
   from {
-    opacity: 0.9;
-    transform: translate3d(0, 34px, 0) scale(0.98);
+    opacity: 0.96;
+    transform: translate3d(0, 76px, 0) scale(0.94);
   }
 
   to {
     opacity: 1;
-    transform: translate3d(0, -24px, 0) scale(1.035);
+    transform: translate3d(0, -42px, 0) scale(1.06);
+  }
+}
+
+@keyframes mobileCardScrollPush {
+  from {
+    opacity: 0.96;
+    transform: translate3d(0, 118px, 0) scale(0.975);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, -30px, 0) scale(1.01);
   }
 }
 
@@ -2045,17 +2057,34 @@ h3 {
     .heroContent,
     .heroVisual,
     .section,
-    .storeIntroItem,
     .footer {
       animation: mobileScrollFloat linear both;
       animation-timeline: view(block);
-      animation-range: entry -10% cover 42%;
+      animation-range: entry -18% cover 52%;
       will-change: transform, opacity;
     }
 
     .heroVisual {
       animation-name: mobileHeroVisualScrollFloat;
       animation-range: entry 0% cover 58%;
+    }
+
+    .bowlCard,
+    .storeIntroItem {
+      animation: mobileCardScrollPush linear both;
+      animation-timeline: view(block);
+      animation-range: entry 0% cover 46%;
+      will-change: transform, opacity;
+    }
+
+    .bowlCard:nth-child(2),
+    .storeIntroItem:nth-child(2) {
+      animation-range: entry 8% cover 52%;
+    }
+
+    .bowlCard:nth-child(3),
+    .storeIntroItem:nth-child(3) {
+      animation-range: entry 16% cover 58%;
     }
   }
 
@@ -2064,6 +2093,7 @@ h3 {
     .heroVisual,
     .heroImage,
     .section,
+    .bowlCard,
     .storeIntroItem,
     .footer {
       animation: none;
