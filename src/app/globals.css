@@ -368,8 +368,9 @@ html:lang(vi) .homePage .storeCopy,
 html:lang(vi) .menuPageHero h1,
 html:lang(vi) .menuPageHero p:last-child {
   font-family:
-    var(--font-kalam),
-    "Segoe Print",
+    var(--font-andika),
+    "Trebuchet MS",
+    "Gill Sans",
     sans-serif;
 }
 

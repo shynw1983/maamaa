@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Gowun_Batang, Kalam, Klee_One, LXGW_WenKai_TC } from "next/font/google";
+import { Andika, Gowun_Batang, Klee_One, LXGW_WenKai_TC } from "next/font/google";
 import { languageAlternates, localeConfig, type Locale } from "@/data/locales";
 import "./globals.css";
 
@@ -22,11 +22,11 @@ const gowunBatang = Gowun_Batang({
   variable: "--font-gowun-batang",
 });
 
-const kalam = Kalam({
+const andika = Andika({
   weight: ["400", "700"],
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
   display: "swap",
-  variable: "--font-kalam",
+  variable: "--font-andika",
 });
 
 export const metadata: Metadata = {
@@ -50,7 +50,7 @@ export default async function RootLayout({
   const htmlLang = localeConfig[routeParams?.lang || "ja"]?.htmlLang || "ja";
 
   return (
-    <html lang={htmlLang} className={`${kleeOne.variable} ${lxgwWenKai.variable} ${gowunBatang.variable} ${kalam.variable}`}>
+    <html lang={htmlLang} className={`${kleeOne.variable} ${lxgwWenKai.variable} ${gowunBatang.variable} ${andika.variable}`}>
       <body>{children}</body>
     </html>
   );
