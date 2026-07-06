@@ -4,8 +4,10 @@ import Image from "next/image";
 import { useI18n } from "@/components/i18n-provider";
 import { localizedPath } from "@/components/localized-path";
 import { SiteHeader } from "@/components/site-header";
-import { formatStoreNameTemplate, resolveMenuStoreDisplayName, type StoreDisplayMenu } from "@/components/store-display-name";
+import { formatStoreNameTemplate, type StoreDisplayMenu } from "@/components/store-display-name";
 import type { BrandSiteSection } from "@/server/brand-site-source";
+
+type MenuStore = NonNullable<StoreDisplayMenu["stores"]>[number];
 
 type StorePreview = {
   label: string;
@@ -14,12 +16,16 @@ type StorePreview = {
   body: string;
   actionLabel?: string;
   actionUrl?: string;
+  translateTitle?: boolean;
 };
 
-const stores: StorePreview[] = [
+const shimizuStoreId = "ed6c3b1f-e68a-4cbd-92e2-06a800eb7183";
+const sakuranamikiStoreId = "069bce96-a233-4284-a301-2f32ad79a548";
+
+const fallbackStoreCards: StorePreview[] = [
   {
     label: "受付中",
-    title: "pickup-store",
+    title: "出来立て麻辣湯 まぁ麻 福岡南店",
     address: "福岡市南区清水 1-2-8-103",
     body: "Web予約、デリバリーをご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
     actionLabel: "{storeName}の受け取り予約",
@@ -31,12 +37,66 @@ const stores: StorePreview[] = [
     address: "福岡市博多区竹丘町2-1-14-101",
     body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。ゆっくり味わえるまぁ麻を広げていきます。",
   },
+];
+
+const nextStoreCard: StorePreview = {
+  label: "Next",
+  title: "次の街にも、まぁ麻を。",
+  translateTitle: true,
+  body: "新しい店舗情報は、公開準備が整い次第お知らせします。トップページでは代表的な受付店舗を中心にご案内します。",
+};
+
+const storeCardMetadata = [
   {
-    label: "Next",
-    title: "次の街にも、まぁ麻を。",
-    body: "新しい店舗情報は、公開準備が整い次第お知らせします。トップページでは代表的な受付店舗を中心にご案内します。",
+    keys: ["shimizu", "清水店", shimizuStoreId],
+    priority: 0,
+    card: fallbackStoreCards[0],
+  },
+  {
+    keys: ["sakuranamiki", "桜並木店", sakuranamikiStoreId],
+    priority: 1,
+    card: fallbackStoreCards[1],
   },
 ];
+
+const normalizeStoreKey = (value = "") => String(value).trim().toLowerCase();
+
+const resolveStoreTitle = (store: MenuStore) => String(
+  store.customerDisplayName ||
+  store.displayName ||
+  store.publicName ||
+  store.customerDisplayNames?.defaultName ||
+  store.label ||
+  store.name ||
+  "まぁ麻",
+).trim();
+
+const metadataForStore = (store: MenuStore) => {
+  const values = [store.id, store.osStoreId, store.name, store.label].map(normalizeStoreKey);
+  return storeCardMetadata.find((metadata) =>
+    metadata.keys.some((key) => values.includes(normalizeStoreKey(key))),
+  );
+};
+
+const storeCardsFromMenu = (stores: MenuStore[] = []) => {
+  const cards = stores
+    .map((store) => {
+      const metadata = metadataForStore(store);
+      if (!metadata) return null;
+      return {
+        priority: metadata.priority,
+        card: {
+          ...metadata.card,
+          title: resolveStoreTitle(store),
+        },
+      };
+    })
+    .filter((item): item is { priority: number; card: StorePreview } => Boolean(item))
+    .sort((a, b) => a.priority - b.priority)
+    .map((item) => item.card);
+
+  return cards.length >= 2 ? cards : fallbackStoreCards;
+};
 
 const bowls = [
   {
@@ -64,9 +124,14 @@ const bowls = [
 const findSection = (sections: BrandSiteSection[], key: string) =>
   sections.find((section) => section.sectionKey === key);
 
-export function HomeContent({ siteSections = [], initialMenu }: { siteSections?: BrandSiteSection[]; initialMenu?: StoreDisplayMenu }) {
+export function HomeContent({
+  siteSections = [],
+  brandStores = [],
+}: {
+  siteSections?: BrandSiteSection[];
+  brandStores?: MenuStore[];
+}) {
   const { language, t } = useI18n();
-  const storeDisplayName = resolveMenuStoreDisplayName(initialMenu);
   const hero = findSection(siteSections, "hero");
   const concept = findSection(siteSections, "concept");
   const buildBowl = findSection(siteSections, "build-a-bowl");
@@ -74,6 +139,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
   const footer = findSection(siteSections, "footer");
   const heroSubtitle = t(hero?.subtitle || "出来立て麻辣湯");
   const heroTitle = t(hero?.title || "まぁ麻");
+  const storeCards = [...storeCardsFromMenu(brandStores), nextStoreCard];
 
   return (
     <main className="homePage">
@@ -178,9 +244,8 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
           <p>{t(shops?.body || "Web予約、デリバリー、店内飲食をご利用いただけます。")}</p>
         </div>
         <div className="storeIntroGrid">
-          {stores.map((item, index) => {
-            const isPickupStore = index === 0;
-            const title = isPickupStore ? storeDisplayName : t(item.title);
+          {storeCards.map((item) => {
+            const title = item.translateTitle ? t(item.title) : item.title;
             return (
               <article className="storeIntroItem" key={item.title}>
                 <p className="pill">{t(item.label)}</p>
@@ -190,7 +255,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
                 <p className="storeCopy">{t(item.body)}</p>
                 {item.actionUrl ? (
                   <a className="textLink" href={localizedPath(language, item.actionUrl)}>
-                    {formatStoreNameTemplate(t(item.actionLabel || "店舗情報を見る"), storeDisplayName)}
+                    {formatStoreNameTemplate(t(item.actionLabel || "店舗情報を見る"), item.title)}
                   </a>
                 ) : null}
               </article>

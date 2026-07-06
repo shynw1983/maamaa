@@ -28,6 +28,13 @@ const normalizeMenuApiUrl = (value = "") => {
   }
 };
 
+const getFoundr1BaseUrl = () => cleanBaseUrl(
+  process.env.FOUNDR1_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_FOUNDR1_API_BASE_URL ||
+  process.env.FOUNDR1_OS_BASE_URL ||
+  defaultOsBaseUrl,
+);
+
 const getMenuApiUrl = () => {
   const configured = cleanBaseUrl(
     process.env.FOUNDR1_OS_MENU_API_URL ||
@@ -36,14 +43,10 @@ const getMenuApiUrl = () => {
   );
   if (configured) return normalizeMenuApiUrl(configured);
 
-  const baseUrl = cleanBaseUrl(
-    process.env.FOUNDR1_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_FOUNDR1_API_BASE_URL ||
-    process.env.FOUNDR1_OS_BASE_URL ||
-    defaultOsBaseUrl,
-  );
-  return `${baseUrl}/api/public/menus?brand=${encodeURIComponent("まぁ麻")}`;
+  return `${getFoundr1BaseUrl()}/api/public/menus?brand=${encodeURIComponent("まぁ麻")}`;
 };
+
+const getBrandStoresApiUrl = () => `${getFoundr1BaseUrl()}/api/public/menus/maamaa-compatible`;
 
 const fallbackMenu = () => ({
   baseSoup: {
@@ -285,8 +288,35 @@ const fetchOsMenu = async (store = "", options = {}) => {
 
 const getMenuData = async (store = "", options = {}) => (await fetchOsMenu(store, options)) || fallbackMenu();
 
+const getBrandStores = async (options = {}) => {
+  try {
+    const headers = { Accept: "application/json" };
+    if (process.env.FOUNDR1_OS_MENU_API_BYPASS_SECRET) {
+      headers["x-vercel-protection-bypass"] = process.env.FOUNDR1_OS_MENU_API_BYPASS_SECRET;
+    }
+
+    const fetchOptions = {
+      headers,
+      next: { revalidate: brandMenuRevalidateSeconds },
+    };
+    if (options.noStore) {
+      delete fetchOptions.next;
+      fetchOptions.cache = "no-store";
+    }
+
+    const response = await fetch(getBrandStoresApiUrl(), fetchOptions);
+    if (!response.ok) throw new Error(`Foundr1 OS brand stores returned ${response.status}`);
+    const payload = await response.json();
+    return Array.isArray(payload?.stores) && payload.stores.length ? payload.stores : fallbackMenu().stores;
+  } catch (error) {
+    console.error(error);
+    return fallbackMenu().stores;
+  }
+};
+
 module.exports = {
   fallbackMenu,
+  getBrandStores,
   getMenuData,
   resolveMenuStoreDisplayName,
 };

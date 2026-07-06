@@ -3,7 +3,7 @@ import { HomeContent } from "@/components/home-content";
 import { LocalizedShell } from "@/components/localized-shell";
 import { isLocale, languageAlternates, translatedLocales, withLocalePath } from "@/data/locales";
 import { getBrandSiteSections } from "@/server/brand-site-source";
-import { getMenuData } from "@/server/menu-source";
+import { getBrandStores } from "@/server/menu-source";
 
 export const dynamic = "force-dynamic";
 
@@ -26,14 +26,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LocalizedHomePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang) || lang === "ja") notFound();
-  const [siteSections, initialMenu] = await Promise.all([
+  const [siteSections, brandStores] = await Promise.all([
     getBrandSiteSections("maamaa", lang),
-    getMenuData("shimizu"),
+    getBrandStores(),
   ]);
 
   return (
     <LocalizedShell language={lang}>
-      <HomeContent siteSections={siteSections} initialMenu={initialMenu} />
+      <HomeContent siteSections={siteSections} brandStores={brandStores} />
     </LocalizedShell>
   );
 }
