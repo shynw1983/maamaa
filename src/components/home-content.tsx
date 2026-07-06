@@ -21,7 +21,7 @@ const stores: StorePreview[] = [
     label: "受付中",
     title: "pickup-store",
     address: "福岡市南区清水 1-2-8-103",
-    body: "Web予約、デリバリー、テイクアウトをご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
+    body: "Web予約、デリバリーをご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
     actionLabel: "{storeName}の受け取り予約",
     actionUrl: "/stores/shimizu/menu",
   },
