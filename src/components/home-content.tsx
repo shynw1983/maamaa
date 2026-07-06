@@ -26,8 +26,9 @@ const stores: StorePreview[] = [
     actionUrl: "/stores/shimizu/menu",
   },
   {
-    label: "Eat in",
-    title: "桜並木店",
+    label: "2026年8月OPEN",
+    title: "出来立て麻辣湯 まぁ麻 福岡桜並木店",
+    address: "福岡市博多区竹丘町2-1-14-101",
     body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。ゆっくり味わえるまぁ麻を広げていきます。",
   },
   {
