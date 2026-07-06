@@ -657,6 +657,15 @@ h2 {
   margin-bottom: 30px;
 }
 
+.storeIntroItem:first-child .storeVisual {
+  background: url("/images/maamaa-shimizu-storefront-day.png") center/cover no-repeat;
+}
+
+.storeIntroItem:first-child .storeVisual::before,
+.storeIntroItem:first-child .storeVisual::after {
+  content: none;
+}
+
 .storeIntroItem:last-child {
   border-right: 1px solid var(--line);
 }
