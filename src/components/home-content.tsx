@@ -21,7 +21,7 @@ const stores: StorePreview[] = [
     label: "受付中",
     title: "pickup-store",
     address: "福岡市南区清水 1-2-8-103",
-    body: "Web予約、デリバリー、テイクアウトを受付状況に合わせてご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
+    body: "Web予約、デリバリー、テイクアウトをご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
     actionLabel: "{storeName}の受け取り予約",
     actionUrl: "/stores/shimizu/menu",
   },
@@ -174,7 +174,7 @@ export function HomeContent({ siteSections = [], initialMenu }: { siteSections?:
         <div className="sectionIntro">
           <p className="kicker">{shops?.subtitle || "Shop information"}</p>
           <h2 id="storesTitle">{t(shops?.title || "お近くのまぁ麻へ。")}</h2>
-          <p>{t(shops?.body || "Web予約、デリバリー、店内飲食は、店舗ごとの受付状況に合わせてご利用いただけます。")}</p>
+          <p>{t(shops?.body || "Web予約、デリバリー、店内飲食をご利用いただけます。")}</p>
         </div>
         <div className="storeIntroGrid">
           {stores.map((item, index) => {
