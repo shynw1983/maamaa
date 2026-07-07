@@ -1544,8 +1544,9 @@ h3 {
 }
 
 .toppingRow.isSelected .quantityControl {
-  border-color: rgba(255, 255, 255, 0.58);
-  background: rgba(255, 255, 255, 0.14);
+  border-color: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(97, 0, 15, 0.18);
 }
 
 .quantityControl button {
@@ -1559,7 +1560,7 @@ h3 {
 }
 
 .toppingRow.isSelected .quantityControl button {
-  color: #ffffff;
+  color: var(--red);
 }
 
 .quantityControl span {
@@ -1569,7 +1570,7 @@ h3 {
 }
 
 .toppingRow.isSelected .quantityControl span {
-  color: #ffffff;
+  color: var(--red);
 }
 
 .formError {
