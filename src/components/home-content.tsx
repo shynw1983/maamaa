@@ -251,7 +251,7 @@ export function HomeContent({
                 <p className="pill">{t(item.label)}</p>
                 <div className="editorialVisual storeVisual" aria-hidden="true" />
                 <h3>{title}</h3>
-                {item.address ? <p className="storeAddress">{t(item.address)}</p> : null}
+                {item.address ? <p className="storeAddress">{item.address}</p> : null}
                 <p className="storeCopy">{t(item.body)}</p>
                 {item.actionUrl ? (
                   <a className="textLink" href={localizedPath(language, item.actionUrl)}>
