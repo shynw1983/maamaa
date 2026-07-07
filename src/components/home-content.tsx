@@ -13,6 +13,7 @@ type StorePreview = {
   label: string;
   title: string;
   address?: string;
+  mapUrl?: string;
   body: string;
   actionLabel?: string;
   actionUrl?: string;
@@ -27,6 +28,7 @@ const fallbackStoreCards: StorePreview[] = [
     label: "受付中",
     title: "出来立て麻辣湯 まぁ麻 福岡南店",
     address: "福岡市南区清水 1-2-8-103",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=%E7%A6%8F%E5%B2%A1%E5%B8%82%E5%8D%97%E5%8C%BA%E6%B8%85%E6%B0%B4%201-2-8-103",
     body: "Web予約、デリバリーをご利用いただけます。気軽な一食にも、しっかり食べたい日にも。",
     actionLabel: "{storeName}の受け取り予約",
     actionUrl: "/stores/shimizu/menu",
@@ -35,6 +37,7 @@ const fallbackStoreCards: StorePreview[] = [
     label: "2026年8月OPEN",
     title: "出来立て麻辣湯 まぁ麻 福岡桜並木店",
     address: "福岡市博多区竹丘町2-1-14-101",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=%E7%A6%8F%E5%B2%A1%E5%B8%82%E5%8D%9A%E5%A4%9A%E5%8C%BA%E7%AB%B9%E4%B8%98%E7%94%BA2-1-14-101",
     body: "店内でも、好きな具材を選ぶ楽しさと出来立ての香りをそのままに。ゆっくり味わえるまぁ麻を広げていきます。",
   },
 ];
@@ -250,7 +253,14 @@ export function HomeContent({
               <article className="storeIntroItem" key={item.title}>
                 <p className="pill">{t(item.label)}</p>
                 <div className="editorialVisual storeVisual" aria-hidden="true" />
-                <h3>{title}</h3>
+                <div className="storeTitleRow">
+                  <h3>{title}</h3>
+                  {item.mapUrl ? (
+                    <a className="storeMapLink" href={item.mapUrl} target="_blank" rel="noreferrer">
+                      {t("地図")}
+                    </a>
+                  ) : null}
+                </div>
                 {item.address ? <p className="storeAddress">{item.address}</p> : null}
                 <p className="storeCopy">{t(item.body)}</p>
                 {item.actionUrl ? (
