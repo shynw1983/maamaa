@@ -36,8 +36,7 @@ export function ClientLocaleRedirect({
     | "/stores/shimizu/menu"
     | "/stores/shimizu/legal/tokusho"
     | "/stores/shimizu/legal/terms"
-    | "/stores/shimizu/legal/privacy"
-    | "/stores/shimizu/login";
+    | "/stores/shimizu/legal/privacy";
 }) {
   const router = useRouter();
 

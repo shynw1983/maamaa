@@ -1,12 +1,10 @@
-import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { LocalizedShell } from "@/components/localized-shell";
 import { MenuPageContent } from "@/components/menu-page-content";
 import { resolveMenuStoreDisplayName } from "@/components/store-display-name";
 import { isLocale, languageAlternates, translatedLocales, withLocalePath } from "@/data/locales";
 import { getBrandSiteSections } from "@/server/brand-site-source";
 import { getMenuData } from "@/server/menu-source";
-import { isReservationAuthenticated } from "@/server/shimizu-reservation-auth";
 
 const shimizuMenuPath = "/stores/shimizu/menu";
 
@@ -32,11 +30,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LocalizedShimizuMenuPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang) || lang === "ja") notFound();
-  const cookieStore = await cookies();
-  const menuPath = withLocalePath(lang, shimizuMenuPath);
-  if (!isReservationAuthenticated(cookieStore)) {
-    redirect(`${withLocalePath(lang, "/stores/shimizu/login")}?next=${encodeURIComponent(menuPath)}`);
-  }
   const [initialMenu, siteSections] = await Promise.all([
     getMenuData("shimizu"),
     getBrandSiteSections("maamaa", lang),
