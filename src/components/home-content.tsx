@@ -279,17 +279,6 @@ export function HomeContent({
           <p className="footerLogo">{footer?.title || "まぁ麻"}</p>
           <p>{t(footer?.body || "選ぶ楽しさと出来立ての香りを届ける、麻辣湯専門店。")}</p>
           <p className="footerAffiliation">A Foundr1 Brand</p>
-          <div className="footerLegalLinks">
-            <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/tokusho")}>
-              {t("特定商取引法に基づく表記")}
-            </a>
-            <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/terms")}>
-              {t("利用規約")}
-            </a>
-            <a className="footerLegalLink" href={localizedPath(language, "/stores/shimizu/legal/privacy")}>
-              {t("プライバシーポリシー")}
-            </a>
-          </div>
         </div>
         <a className="button footerButton" href={footer?.actionUrl || "mailto:hello@maamaa.example"}>
           {footer?.actionLabel || "Contact"}
