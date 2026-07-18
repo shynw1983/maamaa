@@ -137,10 +137,10 @@ const normalizeStandardMenu = (payload) => {
   if (!Array.isArray(payload?.items) || !payload.items.length || !Array.isArray(payload.optionGroups)) return null;
   const baseItem = payload.items.find((item) => item.itemKind === "buildable_product") || payload.items[0];
   if (!baseItem) return null;
-  const groups = Array.isArray(payload.optionGroups) && payload.optionGroups.length
-    ? payload.optionGroups
-    : Array.isArray(baseItem.optionGroups)
-      ? baseItem.optionGroups
+  const groups = Array.isArray(baseItem.optionGroups)
+    ? baseItem.optionGroups
+    : Array.isArray(payload.optionGroups)
+      ? payload.optionGroups
       : [];
   const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor"]);
   const menuSections = groups
