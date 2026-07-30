@@ -19,11 +19,17 @@ export type PresetSoup = MenuChoice & {
   defaultNoodle: string;
 };
 
+export const menuCategories = [
+  { id: "base-soup", name: "🌶️旨味ベースの特別仕立てスープ", sortOrder: 10 },
+  { id: "chef-special", name: "👨‍🍳✨️シェフのスペシャル麻辣湯", sortOrder: 20 },
+  { id: "recommended-set", name: "🐉🌟おすすめ麻辣湯セット", sortOrder: 30 },
+] as const;
+
 // Web予約 prices are 80% of the corresponding Uber Eats prices, rounded to the nearest ¥10.
 // Source snapshot: Uber Menu Maker, 2026-07-30.
 export const baseSoup: MenuChoice = {
   id: "mala-soup",
-  name: "旨味マーラータンスープ",
+  name: "【自由にカスタム🤲】旨味マーラータンスープ",
   displayNames: {"zh":"麻辣烫汤底","ko":"마라탕 육수","en":"Mala Tang Broth"},
   price: 330,
   note: "ご注文を受けてから一杯ずつ仕上げる、まぁ麻のベーススープです。",
