@@ -1309,6 +1309,10 @@ h3 {
   font-weight: 400;
 }
 
+.menuHeroCard .menuHeroDescription {
+  white-space: pre-line;
+}
+
 .menuHeroCard strong {
   display: inline-flex;
   margin-top: 24px;

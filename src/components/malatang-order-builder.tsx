@@ -1315,7 +1315,7 @@ export function MalatangOrderBuilder({
           <ChoiceImage item={activeProduct} className="menuHeroImage" />
           <p className="kicker">{isPreset ? t("Set menu") : t("Base soup")}</p>
           <h1>{menuText(activeProduct)}</h1>
-          <p>{activeProductNote}</p>
+          <p className="menuHeroDescription">{activeProductNote}</p>
           <strong>{yen(activeProduct.price)}</strong>
         </div>
 
