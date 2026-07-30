@@ -575,11 +575,10 @@ export function MalatangOrderBuilder({
       windows: reservationWindowLabel || "-",
     });
   };
+  const remainingBowlAmount = Math.max(0, minimumBowlTotal - total);
   const addBowlButtonLabel =
     total < minimumBowlTotal
-      ? cartItems.length > 0 && !editingCartItemId
-        ? formatTemplate(t("次の一杯も{amount}以上で追加"), { amount: yen(minimumBowlTotal) })
-        : formatTemplate(t("{amount}以上で追加"), { amount: yen(minimumBowlTotal) })
+      ? formatTemplate(t("あと{amount}分お選びください"), { amount: yen(remainingBowlAmount) })
       : editingCartItemId
         ? t("変更を保存")
         : lastAddedTotal !== null
