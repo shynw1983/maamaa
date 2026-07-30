@@ -228,7 +228,7 @@ const normalizeStandardMenu = (payload) => {
         menuCatalogItemId: String(catalogItem?.id || ""),
         category: presentation.category || presetSoups[index]?.category || "recommended-set",
         defaultNoodle: String(presetSoups[index]?.defaultNoodle || "板春雨"),
-        note: String(presetSoups[index]?.note || catalogItem?.description || ""),
+        note: String(catalogItem?.description || presetSoups[index]?.note || ""),
         isAvailable: catalogItem?.storeSetting?.isAvailable !== false,
         websiteEnabled: catalogItem?.storeSetting?.websiteEnabled !== false,
       };
