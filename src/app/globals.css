@@ -2083,6 +2083,20 @@ h3 {
 }
 
 @media (max-width: 580px) {
+  .menuBuilder {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .orderSummary,
+  .menuHeroCard,
+  .menuPanel,
+  .currentBowlBar {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
   .siteHeader {
     padding: 14px 24px;
   }
