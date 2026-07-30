@@ -443,6 +443,8 @@ export const menuSections: MenuSection[] = [
       { id: "bamboo-shoots", name: "たけのこ", displayNames: {"zh":"竹笋","ko":"죽순","en":"Bamboo Shoots"}, price: 220 },
       { id: "nanohana", name: "菜の花", displayNames: {"zh":"菜心","ko":"유채나물","en":"Rapeseed Greens"}, price: 220 },
       { id: "komatsuna", name: "小松菜", displayNames: {"zh":"小松菜","ko":"고마쓰나","en":"Komatsuna Greens"}, price: 240 },
+      { id: "lettuce", name: "レタス", displayNames: {"zh":"生菜","ko":"상추","en":"Lettuce"}, price: 220 },
+      { id: "water-spinach", name: "空心菜", displayNames: {"zh":"空心菜","ko":"공심채","en":"Water Spinach"}, price: 220 },
     ],
   },
   {
@@ -466,6 +468,7 @@ export const menuSections: MenuSection[] = [
       { id: "beef-suji", name: "【厳選牛】とろとろ国産牛すじ(1人前約50g)", displayNames: {"zh":"软烂国产牛筋","ko":"부드러운 일본산 소힘줄","en":"Tender Japanese Beef Tendon"}, price: 560 },
       { id: "large-shrimp", name: "大海老1匹", displayNames: {"zh":"大虾","ko":"왕새우","en":"King Prawns"}, price: 460 },
       { id: "octopus", name: "【旨味が爆発💥】ぶつ切りたこ🐙（約50g）", displayNames: {"zh":"章鱼块","ko":"문어 조각","en":"Octopus Pieces"}, price: 560 },
+      { id: "squid", name: "イカ🦑（約50g）", displayNames: {"zh":"鱿鱼","ko":"오징어","en":"Squid"}, price: 560 },
       { id: "baby-octopus", name: "【주꾸미🐙】丸ごとイイダコ１匹", displayNames: {"zh":"整只小章鱼","ko":"통 쭈꾸미","en":"Whole Baby Octopus"}, price: 480 },
       { id: "surf-clam", name: "【旨味溢れる】ホッキ貝1個", displayNames: {"zh":"北寄贝","ko":"북방조개","en":"Surf Clam"}, price: 260 },
       { id: "beef-red-omasum", name: "【数量限定品】牛赤センマイ（約50g）", displayNames: {"zh":"牛红百叶","ko":"소 홍천엽","en":"Beef Red Omasum Tripe"}, price: 420 },
