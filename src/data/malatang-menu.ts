@@ -17,6 +17,7 @@ export type MenuSection = {
   title: string;
   displayNames?: Record<string, string>;
   limit: number;
+  perOptionMax: number;
   items: MenuChoice[];
 };
 
@@ -300,8 +301,12 @@ export const presetSoups: PresetSoup[] = [
   },
 ];
 
+export const noodleReplacementRule = {
+  limit: 2,
+  perOptionMax: 2,
+};
+
 export const noodleReplacementOptions: MenuChoice[] = [
-  { id: "replace-none", name: "変更なし（板春雨のまま）", displayNames: {"zh":"不更换（保留宽粉）","ko":"변경 없음 (넓적당면 유지)","en":"No Change (Keep Wide Sweet Potato Noodles)"}, price: 0 },
   { id: "replace-extra-wide-harusame", name: "板春雨追加", displayNames: {"zh":"加宽粉","ko":"넓적당면 추가","en":"Extra Wide Sweet Potato Noodles"}, price: 170 },
   { id: "replace-corn-noodle", name: "【お一人様1回限り】トウモロコシ麺", displayNames: {"zh":"玉米面","ko":"옥수수면","en":"Corn Noodles"}, price: 0 },
   { id: "replace-harusame", name: "春雨", displayNames: {"zh":"粉丝","ko":"당면","en":"Glass Noodles"}, price: 140 },
@@ -309,6 +314,8 @@ export const noodleReplacementOptions: MenuChoice[] = [
   { id: "replace-round-yam-sheet", name: "【数量限定】山芋粉皮（丸）", displayNames: {"zh":"圆形山药粉皮","ko":"둥근 참마 당면","en":"Round Chinese Yam Starch Sheets"}, price: 140 },
   { id: "replace-rice-noodle", name: "ビーフン", displayNames: {"zh":"米粉","ko":"쌀국수","en":"Rice Noodles"}, price: 140 },
   { id: "replace-yam-noodle", name: "山芋麺", displayNames: {"zh":"山药粉","ko":"마 산약 당면","en":"Chinese Yam Noodles"}, price: 140 },
+  { id: "replace-wide-sweet-potato-noodle", name: "さつまいも板春雨", displayNames: {"zh":"红薯宽粉","ko":"고구마 넓적당면","en":"Wide Sweet Potato Noodles"}, price: 170 },
+  { id: "replace-soybean-sprouts-noodle", name: "【ヘルシー】小大豆もやし", displayNames: {"zh":"黄豆芽","ko":"콩나물","en":"Soybean Sprouts"}, price: 140 },
   { id: "replace-tteokbokki", name: "トッポッキ", displayNames: {"zh":"韩式年糕","ko":"떡볶이떡","en":"Tteokbokki Rice Cakes"}, price: 170 },
   { id: "replace-knife-shaved-noodle", name: "【大盛り】刀削麺", displayNames: {"zh":"刀削面","ko":"칼국수면","en":"Knife-Shaved Noodles"}, price: 220 },
   { id: "replace-kishimen", name: "【もっちりつるん】きしめん", displayNames: {"zh":"宽乌冬面","ko":"기시멘","en":"Kishimen Noodles"}, price: 220 },
@@ -353,6 +360,7 @@ export const menuSections: MenuSection[] = [
     id: "noodles",
     title: "麺の種類",
     limit: 2,
+    perOptionMax: 2,
     items: [
       { id: "wide-harusame", name: "【おすすめ❗️】もちもち板春雨", displayNames: {"zh":"宽粉","ko":"넓적당면","en":"Wide Sweet Potato Noodles"}, price: 170, note: "おすすめ" },
       { id: "corn-noodle", name: "トウモロコシ麺", displayNames: {"zh":"玉米面","ko":"옥수수면","en":"Corn Noodles"}, price: 170 },
@@ -372,6 +380,7 @@ export const menuSections: MenuSection[] = [
     id: "base",
     title: "ベーシックトッピング",
     limit: 50,
+    perOptionMax: 50,
     items: [
       { id: "squid-ball", name: "特選イカ団子1個", displayNames: {"zh":"花枝丸","ko":"화지완(오징어 완자)","en":"Cuttlefish Ball"}, price: 200 },
       { id: "pork-ball", name: "特選豚団子1個", displayNames: {"zh":"猪肉贡丸","ko":"돼지고기 공완","en":"Taiwanese Pork Meatball"}, price: 200 },
@@ -397,6 +406,7 @@ export const menuSections: MenuSection[] = [
     id: "standard",
     title: "スタンダードトッピング",
     limit: 100,
+    perOptionMax: 10,
     items: [
       { id: "sausage", name: "ウインナー1個", displayNames: {"zh":"香肠","ko":"소시지","en":"Sausage"}, price: 120 },
       { id: "eringi", name: "エリンギ", displayNames: {"zh":"杏鲍菇","ko":"새송이버섯","en":"King Oyster Mushroom"}, price: 220 },
@@ -451,6 +461,7 @@ export const menuSections: MenuSection[] = [
     id: "premium",
     title: "プレミアムトッピング",
     limit: 20,
+    perOptionMax: 20,
     items: [
       { id: "pork-slice", name: "【厳選】豚肉スライス(1人前約50g)", displayNames: {"zh":"猪肉片","ko":"돼지고기 슬라이스","en":"Sliced Pork"}, price: 340 },
       { id: "lamb", name: "【高級NZ子羊】厳選ラム肉(1人前約50g)", displayNames: {"zh":"精选羊肉","ko":"엄선한 양고기","en":"Selected Lamb"}, price: 540 },
@@ -482,6 +493,7 @@ export const menuSections: MenuSection[] = [
     id: "vip",
     title: "VIP トッピング",
     limit: 10,
+    perOptionMax: 10,
     items: [
       { id: "oyster", name: "【期間限定品】🦪広島県産牡蠣(3個)", displayNames: {"zh":"广岛县产牡蛎（3个）","ko":"히로시마산 굴 (3개)","en":"Hiroshima Oysters (3 Pieces)"}, price: 700 },
       { id: "wagyu", name: "【厳選国産黒毛和牛🥩】極上の肉👑", displayNames: {"zh":"极品黑毛和牛","ko":"최고급 흑모와규","en":"Premium Japanese Black Wagyu"}, price: 2380 },
@@ -495,6 +507,7 @@ export const menuSections: MenuSection[] = [
     id: "royal-vip",
     title: "ロイヤルVIPトッピング",
     limit: 10,
+    perOptionMax: 10,
     items: [
       { id: "snow-crab-claw", name: "特大ずわい蟹爪1個", displayNames: {"zh":"特大雪蟹蟹钳","ko":"특대 대게 집게발","en":"Extra Large Snow Crab Claw"}, price: 860 },
     ],
@@ -503,6 +516,7 @@ export const menuSections: MenuSection[] = [
     id: "request",
     title: "リクエスト制トッピング",
     limit: 10,
+    perOptionMax: 10,
     items: [
       { id: "stem-lettuce", name: "山クラゲ🥇", displayNames: {"zh":"贡菜","ko":"궁채","en":"Gongcai (Dried Lettuce Stem)"}, price: 140 },
       { id: "bunmoja", name: "ブンモジャ1本🥈", displayNames: {"zh":"粉耗子","ko":"분모자","en":"Bunmoja Potato Noodles"}, price: 180 },
@@ -512,7 +526,8 @@ export const menuSections: MenuSection[] = [
   {
     id: "drink",
     title: "おすすめペアリング",
-    limit: 3,
+    limit: 5,
+    perOptionMax: 5,
     items: [
       { id: "cola-shot", name: "コーラ1ショット", displayNames: {"zh":"可乐","ko":"콜라","en":"Cola"}, price: 280 },
     ],
@@ -520,7 +535,8 @@ export const menuSections: MenuSection[] = [
   {
     id: "limited",
     title: "限定トッピング",
-    limit: 10,
+    limit: 1,
+    perOptionMax: 1,
     items: [
       { id: "spicy-meat-miso", name: "特製旨辛肉味噌", displayNames: {"zh":"特制香辣肉味噌","ko":"특제 매콤 고기 미소","en":"Special Savory Spicy Meat Miso Sauce"}, price: 320 },
     ],

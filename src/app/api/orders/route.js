@@ -81,9 +81,12 @@ const calculateBowlTotal = (item, menu, choiceById) => {
   const selections = item?.selections || {};
   const selectedProduct = choiceById.get(selections.productId) || menu.baseSoup;
   const isPreset = selectedProduct.id !== menu.baseSoup.id;
-  const noodleChange = isPreset
-    ? choiceById.get(selections.noodleChange || "replace-none")
-    : null;
+  const noodleChangeTotal = isPreset
+    ? Object.entries(selections.noodleChanges || {}).reduce((sum, [id, rawQuantity]) => {
+        const quantity = Math.max(0, Math.round(Number(rawQuantity) || 0));
+        return sum + Number(choiceById.get(id)?.price || 0) * quantity;
+      }, 0)
+    : 0;
   const selectedSpice = choiceById.get(selections.spice) || menu.medicinalSpiceOptions[0];
   const selectedHeat = choiceById.get(selections.heat) || menu.heatLevels.find((choice) => choice.id === "normal") || menu.heatLevels[0];
   const selectedNumb = choiceById.get(selections.numb) || menu.numbLevels.find((choice) => choice.id === "tiny") || menu.numbLevels[0];
@@ -96,7 +99,7 @@ const calculateBowlTotal = (item, menu, choiceById) => {
     }, 0);
 
   return Number(selectedProduct.price || 0) +
-    Number(noodleChange?.price || 0) +
+    noodleChangeTotal +
     Number(selectedSpice?.price || 0) +
     Number(selectedHeat?.price || 0) +
     Number(selectedNumb?.price || 0) +
@@ -119,9 +122,12 @@ const validateCartAgainstMenu = (items, menu, sectionByChoiceId) => {
       .filter(Boolean)
       .forEach((id) => {
         if (!validIds.has(id)) addUnavailable(id);
-      });
+    });
     if (selections.productId && !validIds.has(selections.productId)) addUnavailable(selections.productId);
-    if (selections.noodleChange && !validIds.has(selections.noodleChange)) addUnavailable(selections.noodleChange);
+    Object.entries(selections.noodleChanges || {}).forEach(([id, rawQuantity]) => {
+      const quantity = Math.max(0, Math.round(Number(rawQuantity) || 0));
+      if (quantity > 0 && !validIds.has(id)) addUnavailable(id);
+    });
     (Array.isArray(selections.flavors) ? selections.flavors : [])
       .filter(Boolean)
       .forEach((id) => {
@@ -149,13 +155,34 @@ const validateSectionLimits = (items, menu) => {
   const limitErrors = [];
   for (const [index, item] of (items || []).entries()) {
     const selections = item?.selections || {};
+    const noodleChanges = selections.noodleChanges || {};
+    const noodleCount = Object.values(noodleChanges)
+      .reduce((sum, rawQuantity) => sum + Math.max(0, Math.round(Number(rawQuantity) || 0)), 0);
+    const noodlePerOptionMax = Number(menu.noodleReplacementRule?.perOptionMax || 2);
+    const noodleLimit = Number(menu.noodleReplacementRule?.limit || 2);
+    if (
+      noodleCount > noodleLimit ||
+      Object.values(noodleChanges).some((rawQuantity) => Math.max(0, Math.round(Number(rawQuantity) || 0)) > noodlePerOptionMax)
+    ) {
+      limitErrors.push({
+        itemIndex: index + 1,
+        title: String(item?.title || menu.baseSoup.name),
+        sectionTitle: "麺の種類を変更する",
+        limit: noodleLimit,
+        count: noodleCount,
+      });
+    }
     const selectedItems = selections.items || {};
     for (const section of menu.menuSections) {
+      const perOptionMax = Number(section.perOptionMax || section.limit || 99);
       const count = section.items.reduce((sum, choice) => {
         const quantity = Math.max(0, Math.round(Number(selectedItems[choice.id]) || 0));
         return sum + quantity;
       }, 0);
-      if (count > Number(section.limit || 99)) {
+      const perOptionExceeded = section.items.some((choice) => (
+        Math.max(0, Math.round(Number(selectedItems[choice.id]) || 0)) > perOptionMax
+      ));
+      if (count > Number(section.limit || 99) || perOptionExceeded) {
         limitErrors.push({
           itemIndex: index + 1,
           title: String(item?.title || menu.baseSoup.name),
@@ -171,10 +198,14 @@ const validateSectionLimits = (items, menu) => {
 
 const toFoundr1Item = (item, menu, sectionByChoiceId) => {
   const selections = item?.selections || {};
+  const noodleChanges = Object.entries(selections.noodleChanges || {}).flatMap(([id, rawQuantity]) => {
+    const quantity = Math.max(0, Math.round(Number(rawQuantity) || 0));
+    return Array.from({ length: quantity }, () => id);
+  });
   return {
     title: item?.title || menu.baseSoup.name,
     productId: selections.productId || menu.baseSoup.id,
-    noodleChange: selections.noodleChange || "",
+    noodleChanges,
     medicinalSpice: selections.spice || menu.medicinalSpiceOptions[0]?.id || "",
     heat: selections.heat || menu.heatLevels.find((choice) => choice.id === "normal")?.id || menu.heatLevels[0]?.id || "",
     numb: selections.numb || menu.numbLevels.find((choice) => choice.id === "tiny")?.id || menu.numbLevels[0]?.id || "",

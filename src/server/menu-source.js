@@ -80,6 +80,7 @@ const fallbackMenu = () => ({
   specialFlavors: localMenu.specialFlavors,
   presetSoups: localMenu.presetSoups,
   noodleReplacementOptions: localMenu.noodleReplacementOptions,
+  noodleReplacementRule: localMenu.noodleReplacementRule,
   menuSections: localMenu.menuSections,
   stores: [{ id: "shimizu", label: "まぁ麻", osStoreId: fallbackStoreId() }],
   selectedStoreId: "shimizu",
@@ -174,14 +175,15 @@ const normalizeStandardMenu = (payload) => {
     : Array.isArray(payload.optionGroups)
       ? payload.optionGroups
       : [];
-  const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor"]);
+  const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor", "noodle-replacement"]);
   const menuSections = groups
     .filter((group) => !fixedGroupKeys.has(group.groupKey))
     .map((group) => ({
       id: String(group.groupKey || group.id || "").trim(),
       title: String(group.name || "").trim(),
       displayNames: group.displayNames || {},
-      limit: Math.max(1, Number(group.ruleJson?.limit || 99)),
+      limit: Math.max(1, Number(group.ruleJson?.maxSelections ?? group.ruleJson?.limit ?? 99)),
+      perOptionMax: Math.max(1, Number(group.ruleJson?.perOptionMax ?? group.ruleJson?.maxSelections ?? group.ruleJson?.limit ?? 99)),
       items: asChoices(group.options),
     }))
     .filter((section) => section.id && section.title && section.items.length);
@@ -190,6 +192,7 @@ const normalizeStandardMenu = (payload) => {
   const heatGroup = optionGroupByKey(groups, "heat");
   const numbGroup = optionGroupByKey(groups, "numb");
   const specialFlavorGroup = optionGroupByKey(groups, "special-flavor");
+  const noodleReplacementGroup = optionGroupByKey(groups, "noodle-replacement");
   const presetSoups = Array.isArray(baseItem.variableSchema?.presetSoups)
     ? baseItem.variableSchema.presetSoups
     : localMenu.presetSoups;
@@ -198,9 +201,13 @@ const normalizeStandardMenu = (payload) => {
       .filter((item) => item.itemKind === "fixed_product" && item.variableSchema?.preset === true)
       .map((item) => [String(item.externalId || ""), item]),
   );
-  const noodleReplacementOptions = Array.isArray(baseItem.variableSchema?.noodleReplacementOptions)
-    ? baseItem.variableSchema.noodleReplacementOptions
+  const noodleReplacementOptions = noodleReplacementGroup?.options?.length
+    ? noodleReplacementGroup.options
     : localMenu.noodleReplacementOptions;
+  const noodleReplacementRule = {
+    limit: Math.max(1, Number(noodleReplacementGroup?.ruleJson?.maxSelections ?? noodleReplacementGroup?.ruleJson?.limit ?? localMenu.noodleReplacementRule.limit)),
+    perOptionMax: Math.max(1, Number(noodleReplacementGroup?.ruleJson?.perOptionMax ?? localMenu.noodleReplacementRule.perOptionMax)),
+  };
   const basePresentation = websitePresentation(baseItem);
 
   return {
@@ -243,6 +250,7 @@ const normalizeStandardMenu = (payload) => {
       };
     }),
     noodleReplacementOptions: asChoices(noodleReplacementOptions),
+    noodleReplacementRule,
     menuSections,
     stores: Array.isArray(payload.stores) && payload.stores.length ? payload.stores : fallbackMenu().stores,
     selectedStoreId: payload.selectedStoreId || fallbackMenu().selectedStoreId,
@@ -301,11 +309,16 @@ const normalizeOsMenu = (payload) => {
       websiteEnabled: menu.presetSoups?.[index]?.websiteEnabled !== false,
     })),
     noodleReplacementOptions: asChoices(menu.noodleReplacementOptions),
+    noodleReplacementRule: {
+      limit: Math.max(1, Number(menu.noodleReplacementRule?.limit || localMenu.noodleReplacementRule.limit)),
+      perOptionMax: Math.max(1, Number(menu.noodleReplacementRule?.perOptionMax || localMenu.noodleReplacementRule.perOptionMax)),
+    },
     menuSections: menu.menuSections
       .map((section) => ({
         id: String(section?.id || "").trim(),
         title: String(section?.title || "").trim(),
         limit: Math.max(1, Number(section?.limit || 99)),
+        perOptionMax: Math.max(1, Number(section?.perOptionMax || section?.limit || 99)),
         items: asChoices(section?.items),
       }))
       .filter((section) => section.id && section.title),

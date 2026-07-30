@@ -191,7 +191,13 @@ const sanitizeSelections = (value: unknown): BowlSelections | null => {
     : {};
   return {
     productId: typeof value.productId === "string" ? value.productId : "",
-    noodleChange: typeof value.noodleChange === "string" ? value.noodleChange : "",
+    noodleChanges: isRecord(value.noodleChanges)
+      ? Object.fromEntries(
+          Object.entries(value.noodleChanges)
+            .map(([id, quantity]): [string, number] => [id, Math.max(0, Math.round(Number(quantity) || 0))])
+            .filter(([, quantity]) => quantity > 0),
+        )
+      : {},
     spice: typeof value.spice === "string" ? value.spice : "",
     heat: typeof value.heat === "string" ? value.heat : "",
     numb: typeof value.numb === "string" ? value.numb : "",
@@ -238,11 +244,12 @@ function menuSignature(menu: MalatangMenu) {
     base: productSignature(menu.baseSoup),
     presets: menu.presetSoups.map(productSignature),
     noodleReplacements: menu.noodleReplacementOptions.map((item) => [item.id, item.price]),
+    noodleReplacementRule: menu.noodleReplacementRule,
     spice: menu.medicinalSpiceOptions.map((item) => [item.id, item.price]),
     heat: menu.heatLevels.map((item) => [item.id, item.price]),
     numb: menu.numbLevels.map((item) => [item.id, item.price]),
     flavors: menu.specialFlavors.map((item) => [item.id, item.price]),
-    sections: menu.menuSections.map((section) => [section.id, section.items.map((item) => [item.id, item.price])]),
+    sections: menu.menuSections.map((section) => [section.id, section.limit, section.perOptionMax, section.items.map((item) => [item.id, item.price])]),
   });
 }
 
@@ -263,7 +270,9 @@ function unavailableCartItemLabels(cartItems: CartItem[], menu: MalatangMenu) {
     .map((item, index) => {
       const selectedIds = [
         item.selections.productId,
-        item.selections.noodleChange,
+        ...Object.entries(item.selections.noodleChanges)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([id]) => id),
         item.selections.spice,
         item.selections.heat,
         item.selections.numb,
@@ -306,7 +315,7 @@ type CartItem = {
 
 type BowlSelections = {
   productId: string;
-  noodleChange: string;
+  noodleChanges: Record<string, number>;
   spice: string;
   heat: string;
   numb: string;
@@ -356,6 +365,10 @@ export type MalatangMenu = {
     websiteEnabled?: boolean;
   }>;
   noodleReplacementOptions: MenuChoice[];
+  noodleReplacementRule: {
+    limit: number;
+    perOptionMax: number;
+  };
   menuSections: MenuSection[];
   selectedStoreId?: string;
   stores?: Array<{ id: string; label: string; osStoreId?: string }>;
@@ -403,7 +416,7 @@ export function MalatangOrderBuilder({
   );
   const [menu, setMenu] = useState(initialMenu);
   const [productId, setProductId] = useState(initialMenu.baseSoup.id);
-  const [noodleChange, setNoodleChange] = useState(defaultChoiceId(initialMenu.noodleReplacementOptions, "replace-none"));
+  const [noodleChanges, setNoodleChanges] = useState<Record<string, number>>({});
   const [spice, setSpice] = useState(defaultChoiceId(initialMenu.medicinalSpiceOptions));
   const [heat, setHeat] = useState(defaultChoiceId(initialMenu.heatLevels, "normal"));
   const [numb, setNumb] = useState(defaultChoiceId(initialMenu.numbLevels, "tiny"));
@@ -444,6 +457,7 @@ export function MalatangOrderBuilder({
     specialFlavors,
     presetSoups,
     noodleReplacementOptions,
+    noodleReplacementRule,
     menuSections,
   } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
@@ -504,9 +518,14 @@ export function MalatangOrderBuilder({
   const selectedSpice = choiceMap.get(spice) || medicinalSpiceOptions[0];
   const selectedHeat = choiceMap.get(heat) || heatLevels[0];
   const selectedNumb = choiceMap.get(numb) || numbLevels[0];
-  const selectedNoodleChange = isPreset
-    ? choiceMap.get(noodleChange) || noodleReplacementOptions[0]
-    : undefined;
+  const selectedNoodleChanges = isPreset
+    ? Object.entries(noodleChanges)
+        .map(([id, quantity]) => {
+          const item = choiceMap.get(id);
+          return item && quantity > 0 && isChoiceOpen(id) ? { ...item, quantity } : null;
+        })
+        .filter(Boolean) as Array<MenuChoice & { quantity: number }>
+    : [];
   const selectedFlavors = flavors
     .map((id) => choiceMap.get(id))
     .filter((item): item is MenuChoice => (item ? isChoiceOpen(item.id) : false));
@@ -519,7 +538,7 @@ export function MalatangOrderBuilder({
 
   const total =
     activeProduct.price +
-    Number(selectedNoodleChange?.price || 0) +
+    selectedNoodleChanges.reduce((sum, item) => sum + item.price * item.quantity, 0) +
     selectedSpice.price +
     selectedHeat.price +
     selectedNumb.price +
@@ -711,8 +730,10 @@ export function MalatangOrderBuilder({
       const firstAvailableProduct = allProducts.find((item) => item.isAvailable !== false);
       setProductId(firstAvailableProduct?.id || baseSoup.id);
     }
-    if (!isChoiceOpen(noodleChange)) setNoodleChange(defaultChoiceId(noodleReplacementOptions, "replace-none"));
-  }, [allProducts, baseSoup.id, heat, heatLevels, medicinalSpiceOptions, noodleChange, noodleReplacementOptions, numb, numbLevels, openChoiceIds, productId, spice]);
+    setNoodleChanges((current) =>
+      Object.fromEntries(Object.entries(current).filter(([id]) => isChoiceOpen(id))),
+    );
+  }, [allProducts, baseSoup.id, heat, heatLevels, medicinalSpiceOptions, numb, numbLevels, openChoiceIds, productId, spice]);
 
   const toggleFlavor = (id: string) => {
     setFlavors((current) =>
@@ -730,6 +751,24 @@ export function MalatangOrderBuilder({
         setSubmitError(t(sectionSelectionLimitError(menuText(section, section.title), section.limit)));
         return current;
       }
+      if (delta > 0 && next > section.perOptionMax) return current;
+      const copy = { ...current };
+      if (next) copy[id] = next;
+      else delete copy[id];
+      setSubmitError("");
+      return copy;
+    });
+  };
+
+  const changeNoodleQuantity = (id: string, delta: number) => {
+    setNoodleChanges((current) => {
+      const selectedCount = Object.values(current).reduce((sum, quantity) => sum + quantity, 0);
+      const next = Math.max(0, (current[id] || 0) + delta);
+      if (delta > 0 && selectedCount >= noodleReplacementRule.limit) {
+        setSubmitError(t(sectionSelectionLimitError(t("麺の種類を変更する"), noodleReplacementRule.limit)));
+        return current;
+      }
+      if (delta > 0 && next > noodleReplacementRule.perOptionMax) return current;
       const copy = { ...current };
       if (next) copy[id] = next;
       else delete copy[id];
@@ -741,14 +780,14 @@ export function MalatangOrderBuilder({
   const selectProduct = (id: string) => {
     if (id === productId) return;
     setProductId(id);
-    setNoodleChange(defaultChoiceId(noodleReplacementOptions, "replace-none"));
+    setNoodleChanges({});
     setItems({});
     setSubmitError("");
   };
 
   const resetCurrentBowl = () => {
     setProductId(baseSoup.id);
-    setNoodleChange(defaultChoiceId(noodleReplacementOptions, "replace-none"));
+    setNoodleChanges({});
     setSpice(defaultChoiceId(medicinalSpiceOptions));
     setHeat(defaultChoiceId(heatLevels, "normal"));
     setNumb(defaultChoiceId(numbLevels, "tiny"));
@@ -759,7 +798,7 @@ export function MalatangOrderBuilder({
 
   const getCurrentSelections = (): BowlSelections => ({
     productId: activeProduct.id,
-    noodleChange: isPreset ? noodleChange : "",
+    noodleChanges: isPreset ? noodleChanges : {},
     spice,
     heat,
     numb,
@@ -769,7 +808,7 @@ export function MalatangOrderBuilder({
 
   const applySelections = (selections: BowlSelections) => {
     setProductId(selections.productId || baseSoup.id);
-    setNoodleChange(selections.noodleChange || defaultChoiceId(noodleReplacementOptions, "replace-none"));
+    setNoodleChanges(selections.noodleChanges);
     setSpice(selections.spice);
     setHeat(selections.heat);
     setNumb(selections.numb);
@@ -782,7 +821,7 @@ export function MalatangOrderBuilder({
       menuText(selectedSpice),
       menuText(selectedHeat),
       menuText(selectedNumb),
-      selectedNoodleChange ? `麺の変更: ${menuText(selectedNoodleChange)}` : "",
+      ...selectedNoodleChanges.map((item) => `麺の変更: ${menuText(item)} x${item.quantity}`),
       ...selectedFlavors.map((item) => menuText(item)),
       ...selectedItems.map((item) => `${menuText(item)} x${item.quantity}`),
     ].filter(Boolean);
@@ -791,7 +830,7 @@ export function MalatangOrderBuilder({
     selectedSpice ? [selectedSpice.id, menuText(selectedSpice)] : null,
     selectedHeat ? [selectedHeat.id, menuText(selectedHeat)] : null,
     selectedNumb ? [selectedNumb.id, menuText(selectedNumb)] : null,
-    selectedNoodleChange ? [selectedNoodleChange.id, menuText(selectedNoodleChange)] : null,
+    ...selectedNoodleChanges.map((item) => [item.id, `${menuText(item)} x${item.quantity}`]),
     ...selectedFlavors.map((item) => [item.id, menuText(item)]),
     ...selectedItems.map((item) => [item.id, `${menuText(item)} x${item.quantity}`]),
   ].filter(Boolean) as Array<[string, string]>);
@@ -810,7 +849,9 @@ export function MalatangOrderBuilder({
       selections.spice ? formatCartChoiceLabel(item, selections.spice) : "",
       selections.heat ? formatCartChoiceLabel(item, selections.heat) : "",
       selections.numb ? formatCartChoiceLabel(item, selections.numb) : "",
-      selections.noodleChange ? `麺の変更: ${formatCartChoiceLabel(item, selections.noodleChange)}` : "",
+      ...Object.entries(selections.noodleChanges)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([id, quantity]) => `麺の変更: ${formatCartChoiceLabel(item, id, quantity)}`),
       ...selections.flavors.map((id) => formatCartChoiceLabel(item, id)),
       ...Object.entries(selections.items)
         .filter(([, quantity]) => quantity > 0)
@@ -823,6 +864,9 @@ export function MalatangOrderBuilder({
       item.selections.spice ? [item.selections.spice, formatCartChoiceLabel(item, item.selections.spice)] : null,
       item.selections.heat ? [item.selections.heat, formatCartChoiceLabel(item, item.selections.heat)] : null,
       item.selections.numb ? [item.selections.numb, formatCartChoiceLabel(item, item.selections.numb)] : null,
+      ...Object.entries(item.selections.noodleChanges)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([id, quantity]) => [id, formatCartChoiceLabel(item, id, quantity)]),
       ...item.selections.flavors.map((id) => [id, formatCartChoiceLabel(item, id)]),
       ...Object.entries(item.selections.items)
         .filter(([, quantity]) => quantity > 0)
@@ -927,7 +971,7 @@ export function MalatangOrderBuilder({
     } catch {
       // Continue without draft persistence.
     }
-  }, [cartItems, draftReady, flavors, heat, items, noodleChange, numb, pickupDate, pickupTime, productId, spice]);
+  }, [cartItems, draftReady, flavors, heat, items, noodleChanges, numb, pickupDate, pickupTime, productId, spice]);
 
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
@@ -1350,12 +1394,36 @@ export function MalatangOrderBuilder({
         <ChoiceGroup title={choiceGroupTitle(heatGroup, "辛さ")} items={heatLevels.filter((item) => isChoiceOpen(item.id))} value={heat} onChange={setHeat} />
         <ChoiceGroup title={choiceGroupTitle(numbGroup, "痺れ")} items={numbLevels.filter((item) => isChoiceOpen(item.id))} value={numb} onChange={setNumb} />
         {isPreset ? (
-          <ChoiceGroup
-            title={t("麺の種類を変更する（セットの板春雨と入れ替え）")}
-            items={noodleReplacementOptions.filter((item) => isChoiceOpen(item.id))}
-            value={noodleChange}
-            onChange={setNoodleChange}
-          />
+          <section className="menuPanel">
+            <div className="menuPanelHeader">
+              <p className="kicker">noodle-replacement</p>
+              <h2>{t("麺の種類を変更する（セットの板春雨と入れ替え）")}</h2>
+              <span>{noodleReplacementRule.limit}{t("個まで")}</span>
+            </div>
+            <div className="toppingList">
+              {noodleReplacementOptions.filter((item) => isChoiceOpen(item.id)).map((item) => {
+                const selectedCount = Object.values(noodleChanges).reduce((sum, quantity) => sum + quantity, 0);
+                const quantity = noodleChanges[item.id] || 0;
+                const canIncrease = selectedCount < noodleReplacementRule.limit && quantity < noodleReplacementRule.perOptionMax;
+                return (
+                  <div className={quantity > 0 ? "toppingRow isSelected" : "toppingRow"} key={item.id}>
+                    <button className={item.imageUrl ? "toppingItemButton hasImage" : "toppingItemButton"} type="button" onClick={() => changeNoodleQuantity(item.id, 1)} disabled={!canIncrease}>
+                      <ChoiceImage item={item} className="toppingImage" />
+                      <span className="toppingItemCopy">
+                        <strong><OptionName item={item} /></strong>
+                        <span>{yen(item.price)}</span>
+                      </span>
+                    </button>
+                    <div className="quantityControl">
+                      <button type="button" onClick={() => changeNoodleQuantity(item.id, -1)}>-</button>
+                      <span>{quantity}</span>
+                      <button type="button" onClick={() => changeNoodleQuantity(item.id, 1)} disabled={!canIncrease}>+</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         ) : null}
 
         <section className="menuPanel">
@@ -1394,8 +1462,8 @@ export function MalatangOrderBuilder({
             <div className="toppingList">
               {section.items.filter((item) => isChoiceOpen(item.id)).map((item) => {
                 const sectionSelectedCount = getSectionSelectedCount(section);
-                const canIncrease = sectionSelectedCount < section.limit;
                 const quantity = items[item.id] || 0;
+                const canIncrease = sectionSelectedCount < section.limit && quantity < section.perOptionMax;
                 return (
                 <div className={quantity > 0 ? "toppingRow isSelected" : "toppingRow"} key={item.id}>
                   <button className={item.imageUrl ? "toppingItemButton hasImage" : "toppingItemButton"} type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
