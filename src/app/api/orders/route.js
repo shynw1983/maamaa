@@ -56,24 +56,34 @@ const expandQuantitySelections = (items = {}, sectionByChoiceId) => {
 };
 
 const createValidSelectionIds = (menu) => new Set([
+  menu.baseSoup.id,
+  ...menu.presetSoups.map((choice) => choice.id),
   ...menu.medicinalSpiceOptions.map((choice) => choice.id),
   ...menu.heatLevels.map((choice) => choice.id),
   ...menu.numbLevels.map((choice) => choice.id),
   ...menu.specialFlavors.map((choice) => choice.id),
+  ...menu.noodleReplacementOptions.map((choice) => choice.id),
   ...menu.menuSections.flatMap((section) => section.items.map((choice) => choice.id)),
 ]);
 
 const createChoiceById = (menu) => new Map([
   [menu.baseSoup.id, menu.baseSoup],
+  ...menu.presetSoups.map((choice) => [choice.id, choice]),
   ...menu.medicinalSpiceOptions.map((choice) => [choice.id, choice]),
   ...menu.heatLevels.map((choice) => [choice.id, choice]),
   ...menu.numbLevels.map((choice) => [choice.id, choice]),
   ...menu.specialFlavors.map((choice) => [choice.id, choice]),
+  ...menu.noodleReplacementOptions.map((choice) => [choice.id, choice]),
   ...menu.menuSections.flatMap((section) => section.items.map((choice) => [choice.id, choice])),
 ]);
 
 const calculateBowlTotal = (item, menu, choiceById) => {
   const selections = item?.selections || {};
+  const selectedProduct = choiceById.get(selections.productId) || menu.baseSoup;
+  const isPreset = selectedProduct.id !== menu.baseSoup.id;
+  const noodleChange = isPreset
+    ? choiceById.get(selections.noodleChange || "replace-none")
+    : null;
   const selectedSpice = choiceById.get(selections.spice) || menu.medicinalSpiceOptions[0];
   const selectedHeat = choiceById.get(selections.heat) || menu.heatLevels.find((choice) => choice.id === "normal") || menu.heatLevels[0];
   const selectedNumb = choiceById.get(selections.numb) || menu.numbLevels.find((choice) => choice.id === "tiny") || menu.numbLevels[0];
@@ -85,7 +95,8 @@ const calculateBowlTotal = (item, menu, choiceById) => {
       return sum + Number(choiceById.get(id)?.price || 0) * quantity;
     }, 0);
 
-  return Number(menu.baseSoup.price || 0) +
+  return Number(selectedProduct.price || 0) +
+    Number(noodleChange?.price || 0) +
     Number(selectedSpice?.price || 0) +
     Number(selectedHeat?.price || 0) +
     Number(selectedNumb?.price || 0) +
@@ -109,6 +120,8 @@ const validateCartAgainstMenu = (items, menu, sectionByChoiceId) => {
       .forEach((id) => {
         if (!validIds.has(id)) addUnavailable(id);
       });
+    if (selections.productId && !validIds.has(selections.productId)) addUnavailable(selections.productId);
+    if (selections.noodleChange && !validIds.has(selections.noodleChange)) addUnavailable(selections.noodleChange);
     (Array.isArray(selections.flavors) ? selections.flavors : [])
       .filter(Boolean)
       .forEach((id) => {
@@ -160,6 +173,8 @@ const toFoundr1Item = (item, menu, sectionByChoiceId) => {
   const selections = item?.selections || {};
   return {
     title: item?.title || menu.baseSoup.name,
+    productId: selections.productId || menu.baseSoup.id,
+    noodleChange: selections.noodleChange || "",
     medicinalSpice: selections.spice || menu.medicinalSpiceOptions[0]?.id || "",
     heat: selections.heat || menu.heatLevels.find((choice) => choice.id === "normal")?.id || menu.heatLevels[0]?.id || "",
     numb: selections.numb || menu.numbLevels.find((choice) => choice.id === "tiny")?.id || menu.numbLevels[0]?.id || "",
@@ -258,7 +273,11 @@ export async function POST(request) {
   const foundr1Body = await foundr1Response.json().catch(() => ({}));
   if (!foundr1Response.ok || !foundr1Body.checkoutUrl) {
     const upstreamError = String(foundr1Body.error || "");
-    const isMenuSelectionError = upstreamError.includes("Invalid selection") || upstreamError.includes("Invalid special flavor");
+    const isMenuSelectionError =
+      upstreamError.includes("Invalid selection") ||
+      upstreamError.includes("Invalid special flavor") ||
+      upstreamError.includes("Invalid menu item") ||
+      upstreamError.includes("Invalid noodle replacement");
     const isSectionLimitError = upstreamError.includes("まで選択できます") || upstreamError.includes("can only select up to");
     const isReservationPaused = upstreamError.includes("Reservations are temporarily paused");
     const isPickupLeadTime = upstreamError.includes("Pickup time must be at least");

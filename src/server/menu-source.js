@@ -78,6 +78,8 @@ const fallbackMenu = () => ({
     displayNames: {},
   },
   specialFlavors: localMenu.specialFlavors,
+  presetSoups: localMenu.presetSoups,
+  noodleReplacementOptions: localMenu.noodleReplacementOptions,
   menuSections: localMenu.menuSections,
   stores: [{ id: "shimizu", label: "まぁ麻", osStoreId: fallbackStoreId() }],
   selectedStoreId: "shimizu",
@@ -158,6 +160,12 @@ const normalizeStandardMenu = (payload) => {
   const heatGroup = optionGroupByKey(groups, "heat");
   const numbGroup = optionGroupByKey(groups, "numb");
   const specialFlavorGroup = optionGroupByKey(groups, "special-flavor");
+  const presetSoups = Array.isArray(baseItem.variableSchema?.presetSoups)
+    ? baseItem.variableSchema.presetSoups
+    : localMenu.presetSoups;
+  const noodleReplacementOptions = Array.isArray(baseItem.variableSchema?.noodleReplacementOptions)
+    ? baseItem.variableSchema.noodleReplacementOptions
+    : localMenu.noodleReplacementOptions;
 
   return {
     ...fallbackMenu(),
@@ -182,6 +190,13 @@ const normalizeStandardMenu = (payload) => {
     numbLevels: asChoices(numbGroup?.options),
     specialFlavorGroup: asGroupLabel(specialFlavorGroup, "味変・追加調味"),
     specialFlavors: asChoices(specialFlavorGroup?.options),
+    presetSoups: asChoices(presetSoups).map((item, index) => ({
+      ...item,
+      category: presetSoups[index]?.category || "recommended-set",
+      defaultNoodle: String(presetSoups[index]?.defaultNoodle || "板春雨"),
+      note: String(presetSoups[index]?.note || ""),
+    })),
+    noodleReplacementOptions: asChoices(noodleReplacementOptions),
     menuSections,
     stores: Array.isArray(payload.stores) && payload.stores.length ? payload.stores : fallbackMenu().stores,
     selectedStoreId: payload.selectedStoreId || fallbackMenu().selectedStoreId,
@@ -221,6 +236,13 @@ const normalizeOsMenu = (payload) => {
     heatLevels: asChoices(menu.heatLevels),
     numbLevels: asChoices(menu.numbLevels),
     specialFlavors: asChoices(menu.specialFlavors),
+    presetSoups: asChoices(menu.presetSoups).map((item, index) => ({
+      ...item,
+      category: menu.presetSoups?.[index]?.category || "recommended-set",
+      defaultNoodle: String(menu.presetSoups?.[index]?.defaultNoodle || "板春雨"),
+      note: String(menu.presetSoups?.[index]?.note || ""),
+    })),
+    noodleReplacementOptions: asChoices(menu.noodleReplacementOptions),
     menuSections: menu.menuSections
       .map((section) => ({
         id: String(section?.id || "").trim(),
@@ -243,6 +265,8 @@ const normalizeOsMenu = (payload) => {
   if (!normalized.medicinalSpiceOptions.length) normalized.medicinalSpiceOptions = localMenu.medicinalSpiceOptions;
   if (!normalized.heatLevels.length) normalized.heatLevels = localMenu.heatLevels;
   if (!normalized.numbLevels.length) normalized.numbLevels = localMenu.numbLevels;
+  if (!normalized.presetSoups.length) normalized.presetSoups = localMenu.presetSoups;
+  if (!normalized.noodleReplacementOptions.length) normalized.noodleReplacementOptions = localMenu.noodleReplacementOptions;
   if (!normalized.menuSections.length) normalized.menuSections = localMenu.menuSections;
   return normalized;
 };
