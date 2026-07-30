@@ -1,6 +1,7 @@
 export type MenuChoice = {
   id: string;
   name: string;
+  imageUrl?: string;
   displayNames?: Record<string, string>;
   promotionPrefix?: string;
   promotionPrefixDisplayNames?: Record<string, string>;

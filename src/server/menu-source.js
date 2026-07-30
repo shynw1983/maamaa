@@ -139,6 +139,7 @@ const asChoice = (item) => {
     id: String(item?.optionKey || item?.externalId || item?.id || "").trim(),
     menuOptionId: String(item?.id || "").trim(),
     name: presentation.name,
+    imageUrl: String(item?.imageUrl || "").trim(),
     displayNames: item?.displayNames || {},
     promotionPrefix: presentation.promotionPrefix,
     promotionPrefixDisplayNames: item?.promotionPrefixDisplayNames || {},

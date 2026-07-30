@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuChoice, MenuSection } from "@/data/malatang-menu";
 import { useI18n } from "@/components/i18n-provider";
@@ -1290,12 +1291,17 @@ export function MalatangOrderBuilder({
               const unavailable = product.websiteEnabled === false || product.isAvailable === false;
               return (
                 <button
-                  className={activeProduct.id === product.id ? "optionButton selected" : "optionButton"}
+                  className={[
+                    "optionButton",
+                    activeProduct.id === product.id ? "selected" : "",
+                    product.imageUrl ? "hasImage" : "",
+                  ].filter(Boolean).join(" ")}
                   disabled={unavailable}
                   key={product.id}
                   onClick={() => selectProduct(product.id)}
                   type="button"
                 >
+                  <ChoiceImage item={product} className="optionImage" />
                   <OptionName item={product} />
                   <small>{yen(product.price)}{unavailable ? ` / ${t("売切")}` : ""}</small>
                 </button>
@@ -1305,6 +1311,7 @@ export function MalatangOrderBuilder({
         </section>
 
         <div className="menuHeroCard">
+          <ChoiceImage item={activeProduct} className="menuHeroImage" />
           <p className="kicker">{isPreset ? t("Set menu") : t("Base soup")}</p>
           <h1>{menuText(activeProduct)}</h1>
           <p>{activeProductNote}</p>
@@ -1360,11 +1367,16 @@ export function MalatangOrderBuilder({
           <div className="optionGrid">
             {specialFlavors.filter((item) => isChoiceOpen(item.id)).map((item) => (
               <button
-                className={flavors.includes(item.id) ? "optionButton selected" : "optionButton"}
+                className={[
+                  "optionButton",
+                  flavors.includes(item.id) ? "selected" : "",
+                  item.imageUrl ? "hasImage" : "",
+                ].filter(Boolean).join(" ")}
                 key={item.id}
                 onClick={() => toggleFlavor(item.id)}
                 type="button"
               >
+                <ChoiceImage item={item} className="optionImage" />
                 <OptionName item={item} />
                 <small>{optionPrice(item.price)}</small>
               </button>
@@ -1386,11 +1398,14 @@ export function MalatangOrderBuilder({
                 const quantity = items[item.id] || 0;
                 return (
                 <div className={quantity > 0 ? "toppingRow isSelected" : "toppingRow"} key={item.id}>
-                  <button className="toppingItemButton" type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
-                    <strong>
-                      <OptionName item={item} />
-                    </strong>
-                    <span>{yen(item.price)}</span>
+                  <button className={item.imageUrl ? "toppingItemButton hasImage" : "toppingItemButton"} type="button" onClick={() => changeQuantity(section, item.id, 1)} disabled={!canIncrease}>
+                    <ChoiceImage item={item} className="toppingImage" />
+                    <span className="toppingItemCopy">
+                      <strong>
+                        <OptionName item={item} />
+                      </strong>
+                      <span>{yen(item.price)}</span>
+                    </span>
                   </button>
                   <div className="quantityControl">
                     <button type="button" onClick={() => changeQuantity(section, item.id, -1)}>
@@ -1435,17 +1450,37 @@ function ChoiceGroup({
       <div className="optionGrid">
         {items.map((item) => (
           <button
-            className={value === item.id ? "optionButton selected" : "optionButton"}
+            className={[
+              "optionButton",
+              value === item.id ? "selected" : "",
+              item.imageUrl ? "hasImage" : "",
+            ].filter(Boolean).join(" ")}
             key={item.id}
             onClick={() => onChange(item.id)}
             type="button"
           >
+            <ChoiceImage item={item} className="optionImage" />
             <OptionName item={item} />
             <small>{optionPrice(item.price)}</small>
           </button>
         ))}
       </div>
     </section>
+  );
+}
+
+function ChoiceImage({ item, className }: { item: MenuChoice; className: string }) {
+  if (!item.imageUrl) return null;
+  return (
+    <Image
+      alt=""
+      className={className}
+      height={120}
+      sizes="(max-width: 720px) 72px, 96px"
+      src={item.imageUrl}
+      unoptimized
+      width={120}
+    />
   );
 }
 
