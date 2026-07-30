@@ -85,15 +85,36 @@ const sectionSelectionLimitError = (sectionTitle: string, limit: number) =>
   `${sectionTitle}は${limit}個まで選択できます。数量を減らしてから、もう一度お試しください。`;
 const optionPrice = (price: number) => `+${yen(price)}`;
 const isRecommended = (item: MenuChoice) => item.note === "おすすめ";
+const stripEmoji = (value: string) =>
+  value
+    .replace(/[\p{Extended_Pictographic}\uFE0F\u200D\u20E3]/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 const menuDisplayName = (
-  item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined,
+  item: {
+    name?: string;
+    title?: string;
+    displayNames?: Record<string, string>;
+    promotionPrefix?: string;
+    promotionPrefixDisplayNames?: Record<string, string>;
+    showPromotionPrefix?: boolean;
+    showEmoji?: boolean;
+  } | undefined,
   language: string,
   t: (value: string) => string,
   fallback = "",
 ) => {
   const original = fallback || item?.name || item?.title || "";
-  if (language === "ja") return t(original);
-  return item?.displayNames?.[language] || item?.displayNames?.en || t(original);
+  const name = language === "ja"
+    ? t(original)
+    : item?.displayNames?.[language] || item?.displayNames?.en || t(original);
+  const prefix = item?.showPromotionPrefix === false
+    ? ""
+    : language === "ja"
+      ? item?.promotionPrefix || ""
+      : item?.promotionPrefixDisplayNames?.[language] || item?.promotionPrefixDisplayNames?.en || "";
+  const value = `${prefix}${name}`;
+  return item?.showEmoji === false ? stripEmoji(value) : value;
 };
 const defaultChoiceId = (items: MenuChoice[], preferredId = "") =>
   items.find((item) => item.id === preferredId)?.id || items[0]?.id || "";
@@ -200,9 +221,21 @@ const sanitizeCartItems = (value: unknown): CartItem[] => {
 };
 
 function menuSignature(menu: MalatangMenu) {
+  const productSignature = (item: MenuChoice & { isAvailable?: boolean; websiteEnabled?: boolean }) => [
+    item.id,
+    item.name,
+    item.displayNames,
+    item.promotionPrefix,
+    item.promotionPrefixDisplayNames,
+    item.showPromotionPrefix,
+    item.showEmoji,
+    item.price,
+    item.isAvailable,
+    item.websiteEnabled,
+  ];
   return JSON.stringify({
-    base: [menu.baseSoup.id, menu.baseSoup.price, menu.baseSoup.isAvailable, menu.baseSoup.websiteEnabled],
-    presets: menu.presetSoups.map((item) => [item.id, item.price, item.isAvailable, item.websiteEnabled]),
+    base: productSignature(menu.baseSoup),
+    presets: menu.presetSoups.map(productSignature),
     noodleReplacements: menu.noodleReplacementOptions.map((item) => [item.id, item.price]),
     spice: menu.medicinalSpiceOptions.map((item) => [item.id, item.price]),
     heat: menu.heatLevels.map((item) => [item.id, item.price]),
@@ -214,8 +247,9 @@ function menuSignature(menu: MalatangMenu) {
 
 function unavailableCartItemLabels(cartItems: CartItem[], menu: MalatangMenu) {
   const availableIds = new Set([
-    menu.baseSoup.id,
-    ...menu.presetSoups.map((item) => item.id),
+    ...[menu.baseSoup, ...menu.presetSoups]
+      .filter((item) => item.websiteEnabled !== false && item.isAvailable !== false)
+      .map((item) => item.id),
     ...menu.medicinalSpiceOptions.map((item) => item.id),
     ...menu.heatLevels.map((item) => item.id),
     ...menu.numbLevels.map((item) => item.id),
@@ -344,7 +378,15 @@ export function MalatangOrderBuilder({
 }) {
   const { language, t } = useI18n();
   const reservationSummary = siteContent.reservationSummary;
-  const menuText = (item: { name?: string; title?: string; displayNames?: Record<string, string> } | undefined, fallback = "") =>
+  const menuText = (item: {
+    name?: string;
+    title?: string;
+    displayNames?: Record<string, string>;
+    promotionPrefix?: string;
+    promotionPrefixDisplayNames?: Record<string, string>;
+    showPromotionPrefix?: boolean;
+    showEmoji?: boolean;
+  } | undefined, fallback = "") =>
     menuDisplayName(item, language, t, fallback);
   const initialPickup = useMemo(
     () => {
@@ -431,8 +473,11 @@ export function MalatangOrderBuilder({
     : baseSoup.noteDisplayNames?.[language] ||
       baseSoup.noteDisplayNames?.en ||
       t(baseSoup.note || "");
-  const allProducts = [baseSoup, ...presetSoups];
-  const activeProduct = allProducts.find((item) => item.id === productId) || baseSoup;
+  const allProducts = useMemo(
+    () => [baseSoup, ...presetSoups].filter((item) => item.websiteEnabled !== false),
+    [baseSoup, presetSoups],
+  );
+  const activeProduct = allProducts.find((item) => item.id === productId) || allProducts[0] || baseSoup;
   const isPreset = activeProduct.id !== baseSoup.id;
   const activeProductNote = isPreset ? t(activeProduct.note || "") : baseSoupNote;
   const visibleMenuSections = isPreset
@@ -441,8 +486,7 @@ export function MalatangOrderBuilder({
 
   const allChoices = useMemo(
     () => [
-      baseSoup,
-      ...presetSoups,
+      ...allProducts,
       ...medicinalSpiceOptions,
       ...heatLevels,
       ...numbLevels,
@@ -450,7 +494,7 @@ export function MalatangOrderBuilder({
       ...noodleReplacementOptions,
       ...menuSections.flatMap((section) => section.items),
     ],
-    [baseSoup, heatLevels, medicinalSpiceOptions, menuSections, noodleReplacementOptions, numbLevels, presetSoups, specialFlavors],
+    [allProducts, heatLevels, medicinalSpiceOptions, menuSections, noodleReplacementOptions, numbLevels, specialFlavors],
   );
   const choiceMap = useMemo(() => new Map(allChoices.map((choice) => [choice.id, choice])), [allChoices]);
   const openChoiceIds = useMemo(() => new Set(allChoices.map((choice) => choice.id)), [allChoices]);
@@ -661,14 +705,13 @@ export function MalatangOrderBuilder({
     if (!isChoiceOpen(spice)) setSpice(defaultChoiceId(medicinalSpiceOptions));
     if (!isChoiceOpen(heat)) setHeat(defaultChoiceId(heatLevels, "normal"));
     if (!isChoiceOpen(numb)) setNumb(defaultChoiceId(numbLevels, "tiny"));
-    const currentProducts = [baseSoup, ...presetSoups];
-    const selectedProduct = currentProducts.find((item) => item.id === productId);
-    if (!selectedProduct || selectedProduct.websiteEnabled === false || selectedProduct.isAvailable === false) {
-      const firstAvailableProduct = currentProducts.find((item) => item.websiteEnabled !== false && item.isAvailable !== false);
+    const selectedProduct = allProducts.find((item) => item.id === productId);
+    if (!selectedProduct || selectedProduct.isAvailable === false) {
+      const firstAvailableProduct = allProducts.find((item) => item.isAvailable !== false);
       setProductId(firstAvailableProduct?.id || baseSoup.id);
     }
     if (!isChoiceOpen(noodleChange)) setNoodleChange(defaultChoiceId(noodleReplacementOptions, "replace-none"));
-  }, [baseSoup, heat, heatLevels, medicinalSpiceOptions, noodleChange, noodleReplacementOptions, numb, numbLevels, openChoiceIds, presetSoups, productId, spice]);
+  }, [allProducts, baseSoup.id, heat, heatLevels, medicinalSpiceOptions, noodleChange, noodleReplacementOptions, numb, numbLevels, openChoiceIds, productId, spice]);
 
   const toggleFlavor = (id: string) => {
     setFlavors((current) =>

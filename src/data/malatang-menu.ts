@@ -2,6 +2,10 @@ export type MenuChoice = {
   id: string;
   name: string;
   displayNames?: Record<string, string>;
+  promotionPrefix?: string;
+  promotionPrefixDisplayNames?: Record<string, string>;
+  showPromotionPrefix?: boolean;
+  showEmoji?: boolean;
   price: number;
   note?: string;
 };
