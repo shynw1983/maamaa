@@ -163,6 +163,11 @@ const normalizeStandardMenu = (payload) => {
   const presetSoups = Array.isArray(baseItem.variableSchema?.presetSoups)
     ? baseItem.variableSchema.presetSoups
     : localMenu.presetSoups;
+  const presetCatalogByExternalId = new Map(
+    payload.items
+      .filter((item) => item.itemKind === "fixed_product" && item.variableSchema?.preset === true)
+      .map((item) => [String(item.externalId || ""), item]),
+  );
   const noodleReplacementOptions = Array.isArray(baseItem.variableSchema?.noodleReplacementOptions)
     ? baseItem.variableSchema.noodleReplacementOptions
     : localMenu.noodleReplacementOptions;
@@ -179,8 +184,8 @@ const normalizeStandardMenu = (payload) => {
       price: menuPrice(baseItem, localMenu.baseSoup.price),
       note: String(baseItem.description || localMenu.baseSoup.note || ""),
       noteDisplayNames: baseItem.descriptionDisplayNames || {},
-      isAvailable: baseItem.isAvailable !== false,
-      websiteEnabled: baseItem.websiteEnabled !== false,
+      isAvailable: baseItem.storeSetting?.isAvailable !== false,
+      websiteEnabled: baseItem.storeSetting?.websiteEnabled !== false,
     },
     medicinalSpiceGroup: asGroupLabel(medicinalSpiceGroup, "薬膳スパイス"),
     medicinalSpiceOptions: asChoices(medicinalSpiceGroup?.options),
@@ -190,12 +195,18 @@ const normalizeStandardMenu = (payload) => {
     numbLevels: asChoices(numbGroup?.options),
     specialFlavorGroup: asGroupLabel(specialFlavorGroup, "味変・追加調味"),
     specialFlavors: asChoices(specialFlavorGroup?.options),
-    presetSoups: asChoices(presetSoups).map((item, index) => ({
-      ...item,
-      category: presetSoups[index]?.category || "recommended-set",
-      defaultNoodle: String(presetSoups[index]?.defaultNoodle || "板春雨"),
-      note: String(presetSoups[index]?.note || ""),
-    })),
+    presetSoups: asChoices(presetSoups).map((item, index) => {
+      const catalogItem = presetCatalogByExternalId.get(item.id);
+      return {
+        ...item,
+        menuCatalogItemId: String(catalogItem?.id || ""),
+        category: presetSoups[index]?.category || "recommended-set",
+        defaultNoodle: String(presetSoups[index]?.defaultNoodle || "板春雨"),
+        note: String(presetSoups[index]?.note || catalogItem?.description || ""),
+        isAvailable: catalogItem?.storeSetting?.isAvailable !== false,
+        websiteEnabled: catalogItem?.storeSetting?.websiteEnabled !== false,
+      };
+    }),
     noodleReplacementOptions: asChoices(noodleReplacementOptions),
     menuSections,
     stores: Array.isArray(payload.stores) && payload.stores.length ? payload.stores : fallbackMenu().stores,
@@ -238,9 +249,12 @@ const normalizeOsMenu = (payload) => {
     specialFlavors: asChoices(menu.specialFlavors),
     presetSoups: asChoices(menu.presetSoups).map((item, index) => ({
       ...item,
+      menuCatalogItemId: String(menu.presetSoups?.[index]?.menuCatalogItemId || ""),
       category: menu.presetSoups?.[index]?.category || "recommended-set",
       defaultNoodle: String(menu.presetSoups?.[index]?.defaultNoodle || "板春雨"),
       note: String(menu.presetSoups?.[index]?.note || ""),
+      isAvailable: menu.presetSoups?.[index]?.isAvailable !== false,
+      websiteEnabled: menu.presetSoups?.[index]?.websiteEnabled !== false,
     })),
     noodleReplacementOptions: asChoices(menu.noodleReplacementOptions),
     menuSections: menu.menuSections

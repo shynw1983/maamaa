@@ -661,9 +661,14 @@ export function MalatangOrderBuilder({
     if (!isChoiceOpen(spice)) setSpice(defaultChoiceId(medicinalSpiceOptions));
     if (!isChoiceOpen(heat)) setHeat(defaultChoiceId(heatLevels, "normal"));
     if (!isChoiceOpen(numb)) setNumb(defaultChoiceId(numbLevels, "tiny"));
-    if (!allProducts.some((item) => item.id === productId)) setProductId(baseSoup.id);
+    const currentProducts = [baseSoup, ...presetSoups];
+    const selectedProduct = currentProducts.find((item) => item.id === productId);
+    if (!selectedProduct || selectedProduct.websiteEnabled === false || selectedProduct.isAvailable === false) {
+      const firstAvailableProduct = currentProducts.find((item) => item.websiteEnabled !== false && item.isAvailable !== false);
+      setProductId(firstAvailableProduct?.id || baseSoup.id);
+    }
     if (!isChoiceOpen(noodleChange)) setNoodleChange(defaultChoiceId(noodleReplacementOptions, "replace-none"));
-  }, [baseSoup.id, heat, heatLevels, medicinalSpiceOptions, noodleChange, noodleReplacementOptions, numb, numbLevels, openChoiceIds, productId, spice]);
+  }, [baseSoup, heat, heatLevels, medicinalSpiceOptions, noodleChange, noodleReplacementOptions, numb, numbLevels, openChoiceIds, presetSoups, productId, spice]);
 
   const toggleFlavor = (id: string) => {
     setFlavors((current) =>
@@ -1238,17 +1243,21 @@ export function MalatangOrderBuilder({
             <span>{t("1つ選択")}</span>
           </div>
           <div className="optionGrid">
-            {allProducts.map((product) => (
-              <button
-                className={activeProduct.id === product.id ? "optionButton selected" : "optionButton"}
-                key={product.id}
-                onClick={() => selectProduct(product.id)}
-                type="button"
-              >
-                <OptionName item={product} />
-                <small>{yen(product.price)}</small>
-              </button>
-            ))}
+            {allProducts.map((product) => {
+              const unavailable = product.websiteEnabled === false || product.isAvailable === false;
+              return (
+                <button
+                  className={activeProduct.id === product.id ? "optionButton selected" : "optionButton"}
+                  disabled={unavailable}
+                  key={product.id}
+                  onClick={() => selectProduct(product.id)}
+                  type="button"
+                >
+                  <OptionName item={product} />
+                  <small>{yen(product.price)}{unavailable ? ` / ${t("売切")}` : ""}</small>
+                </button>
+              );
+            })}
           </div>
         </section>
 
