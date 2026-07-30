@@ -124,6 +124,13 @@ const websitePresentation = (item = {}) => {
     name: String(value.nameOverride || item?.name || item?.label || "").trim(),
     promotionPrefix: String(value.promotionPrefixOverride || item?.promotionPrefix || "").trim(),
     category: String(value.categoryOverride || item?.category || "").trim(),
+    description: String(value.descriptionOverride || item?.description || "").trim(),
+    descriptionDisplayNames:
+      value.descriptionDisplayNamesOverride &&
+      typeof value.descriptionDisplayNamesOverride === "object" &&
+      !Array.isArray(value.descriptionDisplayNamesOverride)
+        ? value.descriptionDisplayNamesOverride
+        : item?.descriptionDisplayNames || {},
     showPromotionPrefix: value.showPromotionPrefix === undefined
       ? item?.showPromotionPrefix !== false
       : value.showPromotionPrefix !== false,
@@ -194,6 +201,7 @@ const normalizeStandardMenu = (payload) => {
   const noodleReplacementOptions = Array.isArray(baseItem.variableSchema?.noodleReplacementOptions)
     ? baseItem.variableSchema.noodleReplacementOptions
     : localMenu.noodleReplacementOptions;
+  const basePresentation = websitePresentation(baseItem);
 
   return {
     ...fallbackMenu(),
@@ -204,8 +212,8 @@ const normalizeStandardMenu = (payload) => {
       id: String(baseItem.externalId || baseItem.id || "mala-soup"),
       menuCatalogItemId: String(baseItem.id || ""),
       price: menuPrice(baseItem, localMenu.baseSoup.price),
-      note: String(baseItem.description || localMenu.baseSoup.note || ""),
-      noteDisplayNames: baseItem.descriptionDisplayNames || {},
+      note: String(basePresentation.description || localMenu.baseSoup.note || ""),
+      noteDisplayNames: basePresentation.descriptionDisplayNames,
       isAvailable: baseItem.storeSetting?.isAvailable !== false,
       websiteEnabled: baseItem.storeSetting?.websiteEnabled !== false,
     },
@@ -228,7 +236,8 @@ const normalizeStandardMenu = (payload) => {
         menuCatalogItemId: String(catalogItem?.id || ""),
         category: presentation.category || presetSoups[index]?.category || "recommended-set",
         defaultNoodle: String(presetSoups[index]?.defaultNoodle || "板春雨"),
-        note: String(catalogItem?.description || presetSoups[index]?.note || ""),
+        note: String(presentation.description || presetSoups[index]?.note || ""),
+        noteDisplayNames: presentation.descriptionDisplayNames || {},
         isAvailable: catalogItem?.storeSetting?.isAvailable !== false,
         websiteEnabled: catalogItem?.storeSetting?.websiteEnabled !== false,
       };
@@ -283,6 +292,7 @@ const normalizeOsMenu = (payload) => {
       category: menu.presetSoups?.[index]?.category || "recommended-set",
       defaultNoodle: String(menu.presetSoups?.[index]?.defaultNoodle || "板春雨"),
       note: String(menu.presetSoups?.[index]?.note || ""),
+      noteDisplayNames: menu.presetSoups?.[index]?.noteDisplayNames || {},
       promotionPrefix: String(menu.presetSoups?.[index]?.promotionPrefix || ""),
       promotionPrefixDisplayNames: menu.presetSoups?.[index]?.promotionPrefixDisplayNames || {},
       showPromotionPrefix: menu.presetSoups?.[index]?.showPromotionPrefix !== false,

@@ -9,6 +9,7 @@ export type MenuChoice = {
   showEmoji?: boolean;
   price: number;
   note?: string;
+  noteDisplayNames?: Record<string, string>;
 };
 
 export type MenuSection = {

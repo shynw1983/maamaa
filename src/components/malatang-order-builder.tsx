@@ -469,18 +469,19 @@ export function MalatangOrderBuilder({
     const groupName = menuText(group, fallback);
     return t("{name}を選ぶ").replace("{name}", groupName);
   };
-  const baseSoupNote = language === "ja"
-    ? t(baseSoup.note || "")
-    : baseSoup.noteDisplayNames?.[language] ||
-      baseSoup.noteDisplayNames?.en ||
-      t(baseSoup.note || "");
+  const productNote = (item: MenuChoice) => language === "ja"
+    ? t(item.note || "")
+    : item.noteDisplayNames?.[language] ||
+      item.noteDisplayNames?.en ||
+      t(item.note || "");
+  const baseSoupNote = productNote(baseSoup);
   const allProducts = useMemo(
     () => [baseSoup, ...presetSoups].filter((item) => item.websiteEnabled !== false),
     [baseSoup, presetSoups],
   );
   const activeProduct = allProducts.find((item) => item.id === productId) || allProducts[0] || baseSoup;
   const isPreset = activeProduct.id !== baseSoup.id;
-  const activeProductNote = isPreset ? t(activeProduct.note || "") : baseSoupNote;
+  const activeProductNote = isPreset ? productNote(activeProduct) : baseSoupNote;
   const visibleMenuSections = isPreset
     ? menuSections.filter((section) => section.id !== "noodles")
     : menuSections;
