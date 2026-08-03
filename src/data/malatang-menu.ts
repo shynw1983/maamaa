@@ -366,6 +366,7 @@ export const menuSections: MenuSection[] = [
       { id: "corn-noodle", name: "トウモロコシ麺", displayNames: {"zh":"玉米面","ko":"옥수수면","en":"Corn Noodles"}, price: 170 },
       { id: "harusame", name: "春雨", displayNames: {"zh":"粉丝","ko":"당면","en":"Glass Noodles"}, price: 140 },
       { id: "sweet-potato-noodle", name: "さつまいも麺", displayNames: {"zh":"红薯粉","ko":"고구마당면","en":"Sweet Potato Noodles"}, price: 140 },
+      { id: "rice-noodle", name: "ビーフン", displayNames: {"zh":"米粉","ko":"쌀국수","en":"Rice Noodles"}, price: 140 },
       { id: "beef-noodle", name: "【もちもちつるん】牛筋麺", displayNames: {"zh":"牛筋面","ko":"우근면","en":"Niujin Noodles"}, price: 220 },
       { id: "tteokbokki", name: "トッポッキ", displayNames: {"zh":"韩式年糕","ko":"떡볶이떡","en":"Tteokbokki Rice Cakes"}, price: 170 },
       { id: "soybean-sprouts-noodle", name: "【ヘルシー】小大豆もやし", displayNames: {"zh":"黄豆芽","ko":"콩나물","en":"Soybean Sprouts"}, price: 140 },
