@@ -307,7 +307,7 @@ export const noodleReplacementRule = {
 };
 
 export const noodleReplacementOptions: MenuChoice[] = [
-  { id: "replace-extra-wide-harusame", name: "板春雨に変更", displayNames: {"zh":"更换为宽粉","ko":"넓적당면으로 변경","en":"Change to Wide Sweet Potato Noodles"}, price: 170 },
+  { id: "replace-extra-wide-harusame", name: "板春雨追加", displayNames: {"zh":"加宽粉","ko":"넓적당면 추가","en":"Extra Wide Sweet Potato Noodles"}, price: 170 },
   { id: "replace-corn-noodle", name: "【お一人様1回限り】トウモロコシ麺に変更", displayNames: {"zh":"更换为玉米面","ko":"옥수수면으로 변경","en":"Change to Corn Noodles"}, price: 0 },
   { id: "replace-harusame", name: "春雨に変更", displayNames: {"zh":"更换为粉丝","ko":"당면으로 변경","en":"Change to Glass Noodles"}, price: 140 },
   { id: "replace-sweet-potato-noodle", name: "さつまいも麺に変更", displayNames: {"zh":"更换为红薯粉","ko":"고구마당면으로 변경","en":"Change to Sweet Potato Noodles"}, price: 140 },
