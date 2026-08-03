@@ -307,19 +307,19 @@ export const noodleReplacementRule = {
 };
 
 export const noodleReplacementOptions: MenuChoice[] = [
-  { id: "replace-extra-wide-harusame", name: "板春雨追加", displayNames: {"zh":"加宽粉","ko":"넓적당면 추가","en":"Extra Wide Sweet Potato Noodles"}, price: 170 },
-  { id: "replace-corn-noodle", name: "【お一人様1回限り】トウモロコシ麺", displayNames: {"zh":"玉米面","ko":"옥수수면","en":"Corn Noodles"}, price: 0 },
-  { id: "replace-harusame", name: "春雨", displayNames: {"zh":"粉丝","ko":"당면","en":"Glass Noodles"}, price: 140 },
-  { id: "replace-sweet-potato-noodle", name: "さつまいも麺", displayNames: {"zh":"红薯粉","ko":"고구마당면","en":"Sweet Potato Noodles"}, price: 140 },
-  { id: "replace-round-yam-sheet", name: "【数量限定】山芋粉皮（丸）", displayNames: {"zh":"圆形山药粉皮","ko":"둥근 참마 당면","en":"Round Chinese Yam Starch Sheets"}, price: 140 },
-  { id: "replace-rice-noodle", name: "ビーフン", displayNames: {"zh":"米粉","ko":"쌀국수","en":"Rice Noodles"}, price: 140 },
-  { id: "replace-yam-noodle", name: "山芋麺", displayNames: {"zh":"山药粉","ko":"마 산약 당면","en":"Chinese Yam Noodles"}, price: 140 },
-  { id: "replace-wide-sweet-potato-noodle", name: "さつまいも板春雨", displayNames: {"zh":"红薯宽粉","ko":"고구마 넓적당면","en":"Wide Sweet Potato Noodles"}, price: 170 },
-  { id: "replace-soybean-sprouts-noodle", name: "【ヘルシー】小大豆もやし", displayNames: {"zh":"黄豆芽","ko":"콩나물","en":"Soybean Sprouts"}, price: 140 },
-  { id: "replace-tteokbokki", name: "トッポッキ", displayNames: {"zh":"韩式年糕","ko":"떡볶이떡","en":"Tteokbokki Rice Cakes"}, price: 170 },
-  { id: "replace-knife-shaved-noodle", name: "【大盛り】刀削麺", displayNames: {"zh":"刀削面","ko":"칼국수면","en":"Knife-Shaved Noodles"}, price: 220 },
-  { id: "replace-kishimen", name: "【もっちりつるん】きしめん", displayNames: {"zh":"宽乌冬面","ko":"기시멘","en":"Kishimen Noodles"}, price: 220 },
-  { id: "replace-beef-noodle", name: "【もちもちつるん】牛筋麺", displayNames: {"zh":"牛筋面","ko":"우근면","en":"Niujin Noodles"}, price: 220 },
+  { id: "replace-extra-wide-harusame", name: "板春雨に変更", displayNames: {"zh":"更换为宽粉","ko":"넓적당면으로 변경","en":"Change to Wide Sweet Potato Noodles"}, price: 170 },
+  { id: "replace-corn-noodle", name: "【お一人様1回限り】トウモロコシ麺に変更", displayNames: {"zh":"更换为玉米面","ko":"옥수수면으로 변경","en":"Change to Corn Noodles"}, price: 0 },
+  { id: "replace-harusame", name: "春雨に変更", displayNames: {"zh":"更换为粉丝","ko":"당면으로 변경","en":"Change to Glass Noodles"}, price: 140 },
+  { id: "replace-sweet-potato-noodle", name: "さつまいも麺に変更", displayNames: {"zh":"更换为红薯粉","ko":"고구마당면으로 변경","en":"Change to Sweet Potato Noodles"}, price: 140 },
+  { id: "replace-round-yam-sheet", name: "【数量限定】山芋粉皮（丸）に変更", displayNames: {"zh":"更换为圆形山药粉皮","ko":"둥근 참마 당면으로 변경","en":"Change to Round Chinese Yam Starch Sheets"}, price: 140 },
+  { id: "replace-rice-noodle", name: "ビーフンに変更", displayNames: {"zh":"更换为米粉","ko":"쌀국수로 변경","en":"Change to Rice Noodles"}, price: 140 },
+  { id: "replace-yam-noodle", name: "山芋麺に変更", displayNames: {"zh":"更换为山药粉","ko":"마 산약 당면으로 변경","en":"Change to Chinese Yam Noodles"}, price: 140 },
+  { id: "replace-wide-sweet-potato-noodle", name: "さつまいも板春雨に変更", displayNames: {"zh":"更换为红薯宽粉","ko":"고구마 넓적당면으로 변경","en":"Change to Wide Sweet Potato Noodles"}, price: 170 },
+  { id: "replace-soybean-sprouts-noodle", name: "【ヘルシー】小大豆もやしに変更", displayNames: {"zh":"更换为黄豆芽","ko":"콩나물로 변경","en":"Change to Soybean Sprouts"}, price: 140 },
+  { id: "replace-tteokbokki", name: "トッポッキに変更", displayNames: {"zh":"更换为韩式年糕","ko":"떡볶이떡으로 변경","en":"Change to Tteokbokki Rice Cakes"}, price: 170 },
+  { id: "replace-knife-shaved-noodle", name: "【大盛り】刀削麺に変更", displayNames: {"zh":"更换为刀削面","ko":"칼국수면으로 변경","en":"Change to Knife-Shaved Noodles"}, price: 220 },
+  { id: "replace-kishimen", name: "【もっちりつるん】きしめんに変更", displayNames: {"zh":"更换为宽乌冬面","ko":"기시멘으로 변경","en":"Change to Kishimen Noodles"}, price: 220 },
+  { id: "replace-beef-noodle", name: "【もちもちつるん】牛筋麺に変更", displayNames: {"zh":"更换为牛筋面","ko":"우근면으로 변경","en":"Change to Niujin Noodles"}, price: 220 },
 ];
 
 export const medicinalSpiceOptions: MenuChoice[] = [
