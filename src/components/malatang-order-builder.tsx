@@ -445,6 +445,7 @@ export function MalatangOrderBuilder({
   const [showCheckoutFallback, setShowCheckoutFallback] = useState(false);
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const [lastAddedTotal, setLastAddedTotal] = useState<number | null>(null);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
   const reserveButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -514,7 +515,12 @@ export function MalatangOrderBuilder({
   const hasActiveGroup = (key: string) => activeGroupKeys.has(key);
   const activeMinimumOrderAmount = Math.max(0, Number(activeProduct.minimumOrderAmount ?? minimumBowlTotal) || 0);
   const activeProductNote = isPreset ? productNote(activeProduct) : baseSoupNote;
+  const showDescriptionToggle = activeProductNote.trim().length > 72 || activeProductNote.split(/\r?\n/).length > 3;
   const visibleMenuSections = menuSections.filter((section) => hasActiveGroup(section.id));
+
+  useEffect(() => {
+    setDescriptionExpanded(false);
+  }, [activeProduct.id]);
   const groupedProducts = useMemo(() => {
     const categoryById = new Map((menu.menuCategories || []).map((category) => [category.id, category]));
     const groups = new Map<string, typeof allProducts>();
@@ -1390,7 +1396,27 @@ export function MalatangOrderBuilder({
           <ChoiceImage item={activeProduct} className="menuHeroImage" />
           <p className="kicker">{isPreset ? t("Set menu") : t("Base soup")}</p>
           <h1>{menuText(activeProduct)}</h1>
-          <p className="menuHeroDescription">{activeProductNote}</p>
+          {activeProductNote ? (
+            <>
+              <p
+                className={`menuHeroDescription${showDescriptionToggle && !descriptionExpanded ? " isCollapsed" : ""}`}
+                id="active-product-description"
+              >
+                {activeProductNote}
+              </p>
+              {showDescriptionToggle ? (
+                <button
+                  aria-controls="active-product-description"
+                  aria-expanded={descriptionExpanded}
+                  className="menuDescriptionToggle"
+                  onClick={() => setDescriptionExpanded((current) => !current)}
+                  type="button"
+                >
+                  {descriptionExpanded ? t("説明を閉じる") : t("説明をもっと見る")}
+                </button>
+              ) : null}
+            </>
+          ) : null}
           <strong>{yen(activeProduct.price)}</strong>
         </div>
 

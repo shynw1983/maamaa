@@ -104,6 +104,8 @@
   "コーラ1ショット": "1 shot cola",
   "Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受け取り時間は受付中に選択できます。": "Đặt trước trên web chỉ nhận trong ngày và tùy theo tình trạng tiếp nhận của cửa hàng. Có thể chọn giờ nhận khi cửa hàng đang nhận đặt.",
   "Web予約は現在の営業日の受付状況に合わせて承ります。受け取り時間は受付中に選択できます。": "Đặt trước trên web được mở theo tình trạng tiếp nhận của ngày kinh doanh hiện tại. Có thể chọn giờ nhận khi cửa hàng đang nhận đặt.",
+  "説明をもっと見る": "Xem thêm mô tả",
+  "説明を閉じる": "Thu gọn mô tả",
   "Web予約は店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。": "Đặt trước trên web được mở theo tình trạng tiếp nhận của cửa hàng. Vui lòng chờ đến khi bắt đầu nhận đặt.",
   "{date} の受け取り時間: {windows}": "Giờ nhận ngày {date}: {windows}",
   "選択できる受け取り時間はありません。": "Không có giờ nhận nào có thể chọn.",

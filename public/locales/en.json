@@ -87,6 +87,8 @@
   "電話番号": "Phone number",
   "受け取り日": "Pickup date",
   "受け取り時間": "Pickup time",
+  "説明をもっと見る": "Show full description",
+  "説明を閉じる": "Collapse description",
   "Web予約は現在の営業日の受付状況に合わせて承ります。受け取り時間は受付中に選択できます。": "Web reservations follow the shop's current business-day availability. Pickup times can be selected while reservations are open.",
   "Web予約は店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。": "Web reservations follow the shop's availability. Please wait until reservations open.",
   "{date} の受け取り時間: {windows}": "Pickup times for {date}: {windows}",

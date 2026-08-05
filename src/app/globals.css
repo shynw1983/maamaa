@@ -1313,6 +1313,49 @@ h3 {
   white-space: pre-line;
 }
 
+.menuHeroCard .menuHeroDescription.isCollapsed {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.menuDescriptionToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  margin-top: 6px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.menuDescriptionToggle::after {
+  content: "＋";
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.menuDescriptionToggle[aria-expanded="true"]::after {
+  content: "−";
+}
+
+.menuDescriptionToggle:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.menuDescriptionToggle:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
 .menuHeroCard strong {
   display: inline-flex;
   margin-top: 24px;
