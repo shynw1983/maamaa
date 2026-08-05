@@ -78,7 +78,9 @@ const fallbackMenu = () => ({
     displayNames: {},
   },
   specialFlavors: localMenu.specialFlavors,
-  presetSoups: localMenu.presetSoups,
+  // Preset products are store-controlled in Foundr1 OS. Fail closed during an API outage
+  // so a locally bundled preset cannot reappear after being set to Web非表示.
+  presetSoups: [],
   menuCategories: localMenu.menuCategories,
   noodleReplacementOptions: localMenu.noodleReplacementOptions,
   noodleReplacementRule: localMenu.noodleReplacementRule,
@@ -202,6 +204,7 @@ const normalizeStandardMenu = (payload) => {
   const catalogProducts = payload.items.filter((item) => (
     item.id !== baseItem.id &&
     item.itemKind !== "information" &&
+    item.storeSetting?.websiteEnabled !== false &&
     item.variableSchema?.websiteEnabled !== false
   ));
   const categoryKeyByName = new Map(
@@ -307,20 +310,22 @@ const normalizeOsMenu = (payload) => {
     heatLevels: asChoices(menu.heatLevels),
     numbLevels: asChoices(menu.numbLevels),
     specialFlavors: asChoices(menu.specialFlavors),
-    presetSoups: asChoices(menu.presetSoups).map((item, index) => ({
-      ...item,
-      menuCatalogItemId: String(menu.presetSoups?.[index]?.menuCatalogItemId || ""),
-      category: menu.presetSoups?.[index]?.category || "recommended-set",
-      defaultNoodle: String(menu.presetSoups?.[index]?.defaultNoodle || "板春雨"),
-      note: String(menu.presetSoups?.[index]?.note || ""),
-      noteDisplayNames: menu.presetSoups?.[index]?.noteDisplayNames || {},
-      promotionPrefix: String(menu.presetSoups?.[index]?.promotionPrefix || ""),
-      promotionPrefixDisplayNames: menu.presetSoups?.[index]?.promotionPrefixDisplayNames || {},
-      showPromotionPrefix: menu.presetSoups?.[index]?.showPromotionPrefix !== false,
-      showEmoji: menu.presetSoups?.[index]?.showEmoji !== false,
-      isAvailable: menu.presetSoups?.[index]?.isAvailable !== false,
-      websiteEnabled: menu.presetSoups?.[index]?.websiteEnabled !== false,
-    })),
+    presetSoups: asChoices(menu.presetSoups)
+      .map((item, index) => ({
+        ...item,
+        menuCatalogItemId: String(menu.presetSoups?.[index]?.menuCatalogItemId || ""),
+        category: menu.presetSoups?.[index]?.category || "recommended-set",
+        defaultNoodle: String(menu.presetSoups?.[index]?.defaultNoodle || "板春雨"),
+        note: String(menu.presetSoups?.[index]?.note || ""),
+        noteDisplayNames: menu.presetSoups?.[index]?.noteDisplayNames || {},
+        promotionPrefix: String(menu.presetSoups?.[index]?.promotionPrefix || ""),
+        promotionPrefixDisplayNames: menu.presetSoups?.[index]?.promotionPrefixDisplayNames || {},
+        showPromotionPrefix: menu.presetSoups?.[index]?.showPromotionPrefix !== false,
+        showEmoji: menu.presetSoups?.[index]?.showEmoji !== false,
+        isAvailable: menu.presetSoups?.[index]?.isAvailable !== false,
+        websiteEnabled: menu.presetSoups?.[index]?.websiteEnabled !== false,
+      }))
+      .filter((item) => item.websiteEnabled !== false),
     noodleReplacementOptions: asChoices(menu.noodleReplacementOptions),
     noodleReplacementRule: {
       limit: Math.max(1, Number(menu.noodleReplacementRule?.limit || localMenu.noodleReplacementRule.limit)),
@@ -349,7 +354,6 @@ const normalizeOsMenu = (payload) => {
   if (!normalized.medicinalSpiceOptions.length) normalized.medicinalSpiceOptions = localMenu.medicinalSpiceOptions;
   if (!normalized.heatLevels.length) normalized.heatLevels = localMenu.heatLevels;
   if (!normalized.numbLevels.length) normalized.numbLevels = localMenu.numbLevels;
-  if (!normalized.presetSoups.length) normalized.presetSoups = localMenu.presetSoups;
   if (!normalized.noodleReplacementOptions.length) normalized.noodleReplacementOptions = localMenu.noodleReplacementOptions;
   if (!normalized.menuSections.length) normalized.menuSections = localMenu.menuSections;
   return normalized;

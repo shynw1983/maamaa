@@ -505,7 +505,7 @@ export function MalatangOrderBuilder({
       t(item.note || "");
   const baseSoupNote = productNote(baseSoup);
   const allProducts = useMemo(
-    () => [baseSoup, ...presetSoups],
+    () => [baseSoup, ...presetSoups].filter((item) => item.websiteEnabled !== false),
     [baseSoup, presetSoups],
   );
   const activeProduct = allProducts.find((item) => item.id === productId) || allProducts[0] || baseSoup;
@@ -1361,7 +1361,7 @@ export function MalatangOrderBuilder({
                 <h3>{t(category.name)}</h3>
                 <div className="optionGrid">
             {category.products.map((product) => {
-              const unavailable = product.websiteEnabled === false || product.isAvailable === false;
+              const unavailable = product.isAvailable === false;
               return (
                 <button
                   className={[
