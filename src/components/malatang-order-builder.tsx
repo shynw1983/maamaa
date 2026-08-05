@@ -222,13 +222,20 @@ const sanitizeCartItems = (value: unknown): CartItem[] => {
         selectionLabels: isRecord(item.selectionLabels)
           ? Object.fromEntries(Object.entries(item.selectionLabels).map(([id, label]) => [id, String(label)]))
           : {},
+        minimumOrderAmount: Math.max(0, Number(item.minimumOrderAmount ?? minimumBowlTotal) || 0),
       };
     })
     .filter((item): item is CartItem => Boolean(item));
 };
 
 function menuSignature(menu: MalatangMenu) {
-  const productSignature = (item: MenuChoice & { isAvailable?: boolean; websiteEnabled?: boolean }) => [
+  const productSignature = (item: MenuChoice & {
+    isAvailable?: boolean;
+    websiteEnabled?: boolean;
+    category?: string;
+    customizationGroupKeys?: string[];
+    minimumOrderAmount?: number;
+  }) => [
     item.id,
     item.name,
     item.displayNames,
@@ -239,6 +246,9 @@ function menuSignature(menu: MalatangMenu) {
     item.price,
     item.isAvailable,
     item.websiteEnabled,
+    item.category,
+    item.customizationGroupKeys,
+    item.minimumOrderAmount,
   ];
   return JSON.stringify({
     base: productSignature(menu.baseSoup),
@@ -311,6 +321,7 @@ type CartItem = {
   summary: string[];
   selections: BowlSelections;
   selectionLabels: Record<string, string>;
+  minimumOrderAmount: number;
 };
 
 type BowlSelections = {
@@ -349,6 +360,9 @@ export type MalatangMenu = {
     isAvailable?: boolean;
     websiteEnabled?: boolean;
     noteDisplayNames?: Record<string, string>;
+    category?: string;
+    customizationGroupKeys?: string[];
+    minimumOrderAmount?: number;
   };
   medicinalSpiceGroup?: MenuGroupLabel;
   medicinalSpiceOptions: MenuChoice[];
@@ -361,9 +375,12 @@ export type MalatangMenu = {
   presetSoups: Array<MenuChoice & {
     category: string;
     defaultNoodle: string;
+    customizationGroupKeys?: string[];
+    minimumOrderAmount?: number;
     isAvailable?: boolean;
     websiteEnabled?: boolean;
   }>;
+  menuCategories?: Array<{ id: string; name: string; sortOrder: number }>;
   noodleReplacementOptions: MenuChoice[];
   noodleReplacementRule: {
     limit: number;
@@ -490,15 +507,30 @@ export function MalatangOrderBuilder({
       t(item.note || "");
   const baseSoupNote = productNote(baseSoup);
   const allProducts = useMemo(
-    () => [baseSoup, ...presetSoups].filter((item) => item.websiteEnabled !== false),
+    () => [baseSoup, ...presetSoups],
     [baseSoup, presetSoups],
   );
   const activeProduct = allProducts.find((item) => item.id === productId) || allProducts[0] || baseSoup;
   const isPreset = activeProduct.id !== baseSoup.id;
+  const activeGroupKeys = new Set(activeProduct.customizationGroupKeys || []);
+  const hasActiveGroup = (key: string) => activeGroupKeys.has(key);
+  const activeMinimumOrderAmount = Math.max(0, Number(activeProduct.minimumOrderAmount ?? minimumBowlTotal) || 0);
   const activeProductNote = isPreset ? productNote(activeProduct) : baseSoupNote;
-  const visibleMenuSections = isPreset
-    ? menuSections.filter((section) => section.id !== "noodles")
-    : menuSections;
+  const visibleMenuSections = menuSections.filter((section) => hasActiveGroup(section.id));
+  const groupedProducts = useMemo(() => {
+    const categoryById = new Map((menu.menuCategories || []).map((category) => [category.id, category]));
+    const groups = new Map<string, typeof allProducts>();
+    for (const product of allProducts) {
+      const category = product.category || "その他";
+      groups.set(category, [...(groups.get(category) || []), product]);
+    }
+    return Array.from(groups, ([id, products]) => ({
+      id,
+      name: categoryById.get(id)?.name || id,
+      sortOrder: categoryById.get(id)?.sortOrder ?? 9999,
+      products,
+    })).sort((left, right) => left.sortOrder - right.sortOrder);
+  }, [allProducts, menu.menuCategories]);
 
   const allChoices = useMemo(
     () => [
@@ -518,7 +550,7 @@ export function MalatangOrderBuilder({
   const selectedSpice = choiceMap.get(spice) || medicinalSpiceOptions[0];
   const selectedHeat = choiceMap.get(heat) || heatLevels[0];
   const selectedNumb = choiceMap.get(numb) || numbLevels[0];
-  const selectedNoodleChanges = isPreset
+  const selectedNoodleChanges = hasActiveGroup("noodle-replacement")
     ? Object.entries(noodleChanges)
         .map(([id, quantity]) => {
           const item = choiceMap.get(id);
@@ -539,10 +571,10 @@ export function MalatangOrderBuilder({
   const total =
     activeProduct.price +
     selectedNoodleChanges.reduce((sum, item) => sum + item.price * item.quantity, 0) +
-    selectedSpice.price +
-    selectedHeat.price +
-    selectedNumb.price +
-    selectedFlavors.reduce((sum, item) => sum + item.price, 0) +
+    (hasActiveGroup("medicinal-spice") ? selectedSpice.price : 0) +
+    (hasActiveGroup("heat") ? selectedHeat.price : 0) +
+    (hasActiveGroup("numb") ? selectedNumb.price : 0) +
+    (hasActiveGroup("special-flavor") ? selectedFlavors.reduce((sum, item) => sum + item.price, 0) : 0) +
     selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => sum + item.total, 0);
   const memberCoupons = memberProfile?.coupons ?? [];
@@ -572,7 +604,7 @@ export function MalatangOrderBuilder({
       ? t("現在このメニューは販売停止中")
     : !cartItems.length
       ? t("メニューを追加してください")
-      : cartItems.some((item) => item.total < minimumBowlTotal)
+      : cartItems.some((item) => item.total < (item.minimumOrderAmount ?? minimumBowlTotal))
         ? t(minimumBowlTotalError)
       : !name || !phone
         ? t("お名前・電話番号を入力")
@@ -594,9 +626,9 @@ export function MalatangOrderBuilder({
       windows: reservationWindowLabel || "-",
     });
   };
-  const remainingBowlAmount = Math.max(0, minimumBowlTotal - total);
+  const remainingBowlAmount = Math.max(0, activeMinimumOrderAmount - total);
   const addBowlButtonLabel =
-    total < minimumBowlTotal
+    total < activeMinimumOrderAmount
       ? formatTemplate(t("あと{amount}分お選びください"), { amount: yen(remainingBowlAmount) })
       : editingCartItemId
         ? t("変更を保存")
@@ -799,10 +831,10 @@ export function MalatangOrderBuilder({
   const getCurrentSelections = (): BowlSelections => ({
     productId: activeProduct.id,
     noodleChanges: isPreset ? noodleChanges : {},
-    spice,
-    heat,
-    numb,
-    flavors,
+    spice: hasActiveGroup("medicinal-spice") ? spice : "",
+    heat: hasActiveGroup("heat") ? heat : "",
+    numb: hasActiveGroup("numb") ? numb : "",
+    flavors: hasActiveGroup("special-flavor") ? flavors : [],
     items,
   });
 
@@ -818,11 +850,11 @@ export function MalatangOrderBuilder({
 
   const buildCurrentSummary = () =>
     [
-      menuText(selectedSpice),
-      menuText(selectedHeat),
-      menuText(selectedNumb),
+      hasActiveGroup("medicinal-spice") ? menuText(selectedSpice) : "",
+      hasActiveGroup("heat") ? menuText(selectedHeat) : "",
+      hasActiveGroup("numb") ? menuText(selectedNumb) : "",
       ...selectedNoodleChanges.map((item) => `麺の変更: ${menuText(item)} x${item.quantity}`),
-      ...selectedFlavors.map((item) => menuText(item)),
+      ...(hasActiveGroup("special-flavor") ? selectedFlavors.map((item) => menuText(item)) : []),
       ...selectedItems.map((item) => `${menuText(item)} x${item.quantity}`),
     ].filter(Boolean);
 
@@ -976,8 +1008,8 @@ export function MalatangOrderBuilder({
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
     const currentTotal = total;
-    if (currentTotal < minimumBowlTotal) {
-      setSubmitError(t(minimumBowlTotalError));
+    if (currentTotal < activeMinimumOrderAmount) {
+      setSubmitError(t(`この商品は${yen(activeMinimumOrderAmount)}以上になるようにお選びください。`));
       return;
     }
     const nextItem = {
@@ -987,6 +1019,7 @@ export function MalatangOrderBuilder({
       summary: buildCurrentSummary(),
       selections: getCurrentSelections(),
       selectionLabels: buildCurrentSelectionLabels(),
+      minimumOrderAmount: activeMinimumOrderAmount,
     };
 
     if (editingCartItemId) {
@@ -1041,7 +1074,7 @@ export function MalatangOrderBuilder({
       selectionLabels: formatCartSelectionLabels(item),
     }));
     const underMinimumItems = localizedCartItems
-      .map((item, index) => (item.total < minimumBowlTotal ? `${index + 1}. ${item.title} ${yen(item.total)}` : ""))
+      .map((item, index) => (item.total < (item.minimumOrderAmount ?? minimumBowlTotal) ? `${index + 1}. ${item.title} ${yen(item.total)}` : ""))
       .filter(Boolean);
     if (underMinimumItems.length) {
       setSubmitError(formatTemplate(t("一杯あたり¥800以上になるように具材を追加してください。対象: {items}"), {
@@ -1285,7 +1318,7 @@ export function MalatangOrderBuilder({
         <button
           ref={reserveButtonRef}
           className="button primary reserveButton"
-          disabled={reservationsPaused || sameDayBookingClosed || isPickupOutsideReservationWindows || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < minimumBowlTotal) || isSubmitting || Boolean(checkoutUrl)}
+          disabled={reservationsPaused || sameDayBookingClosed || isPickupOutsideReservationWindows || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < (item.minimumOrderAmount ?? minimumBowlTotal)) || isSubmitting || Boolean(checkoutUrl)}
           onClick={createReservation}
         >
           {reserveButtonLabel}
@@ -1327,11 +1360,15 @@ export function MalatangOrderBuilder({
         <section className="menuPanel">
           <div className="menuPanelHeader">
             <p className="kicker">{t("Menu")}</p>
-            <h2>{t("スープまたはセットを選ぶ")}</h2>
+            <h2>{t("商品を選ぶ")}</h2>
             <span>{t("1つ選択")}</span>
           </div>
-          <div className="optionGrid">
-            {allProducts.map((product) => {
+          <div className="productCategoryList">
+            {groupedProducts.map((category) => (
+              <section className="productCategoryGroup" key={category.id}>
+                <h3>{t(category.name)}</h3>
+                <div className="optionGrid">
+            {category.products.map((product) => {
               const unavailable = product.websiteEnabled === false || product.isAvailable === false;
               return (
                 <button
@@ -1351,6 +1388,9 @@ export function MalatangOrderBuilder({
                 </button>
               );
             })}
+                </div>
+              </section>
+            ))}
           </div>
         </section>
 
@@ -1390,10 +1430,10 @@ export function MalatangOrderBuilder({
           </div>
         </section>
 
-        <ChoiceGroup title={choiceGroupTitle(medicinalSpiceGroup, "薬膳スパイス")} items={medicinalSpiceOptions.filter((item) => isChoiceOpen(item.id))} value={spice} onChange={setSpice} />
-        <ChoiceGroup title={choiceGroupTitle(heatGroup, "辛さ")} items={heatLevels.filter((item) => isChoiceOpen(item.id))} value={heat} onChange={setHeat} />
-        <ChoiceGroup title={choiceGroupTitle(numbGroup, "痺れ")} items={numbLevels.filter((item) => isChoiceOpen(item.id))} value={numb} onChange={setNumb} />
-        {isPreset ? (
+        {hasActiveGroup("medicinal-spice") ? <ChoiceGroup title={choiceGroupTitle(medicinalSpiceGroup, "薬膳スパイス")} items={medicinalSpiceOptions.filter((item) => isChoiceOpen(item.id))} value={spice} onChange={setSpice} /> : null}
+        {hasActiveGroup("heat") ? <ChoiceGroup title={choiceGroupTitle(heatGroup, "辛さ")} items={heatLevels.filter((item) => isChoiceOpen(item.id))} value={heat} onChange={setHeat} /> : null}
+        {hasActiveGroup("numb") ? <ChoiceGroup title={choiceGroupTitle(numbGroup, "痺れ")} items={numbLevels.filter((item) => isChoiceOpen(item.id))} value={numb} onChange={setNumb} /> : null}
+        {hasActiveGroup("noodle-replacement") ? (
           <section className="menuPanel">
             <div className="menuPanelHeader">
               <p className="kicker">noodle-replacement</p>
@@ -1426,7 +1466,7 @@ export function MalatangOrderBuilder({
           </section>
         ) : null}
 
-        <section className="menuPanel">
+        {hasActiveGroup("special-flavor") ? <section className="menuPanel">
           <div className="menuPanelHeader">
             <p className="kicker">{specialFlavorGroup?.id || "special-flavor"}</p>
             <h2>{menuText(specialFlavorGroup, "味変・追加調味")}</h2>
@@ -1450,7 +1490,7 @@ export function MalatangOrderBuilder({
               </button>
             ))}
           </div>
-        </section>
+        </section> : null}
 
         {visibleMenuSections.map((section) => (
           <section className="menuPanel" key={section.id}>

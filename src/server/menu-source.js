@@ -79,6 +79,7 @@ const fallbackMenu = () => ({
   },
   specialFlavors: localMenu.specialFlavors,
   presetSoups: localMenu.presetSoups,
+  menuCategories: localMenu.menuCategories,
   noodleReplacementOptions: localMenu.noodleReplacementOptions,
   noodleReplacementRule: localMenu.noodleReplacementRule,
   menuSections: localMenu.menuSections,
@@ -155,6 +156,15 @@ const asChoice = (item) => {
     showEmoji: presentation.showEmoji,
     price: menuPrice(item),
     note: item?.note ? String(item.note) : undefined,
+    category: String(item?.variableSchema?.categoryKey || item?.category || "").trim(),
+    customizationGroupKeys: Array.isArray(item?.customizationGroups)
+      ? item.customizationGroups.map((group) => String(group?.groupKey || "").trim()).filter(Boolean)
+      : Array.isArray(item?.variableSchema?.customizationGroupKeys)
+        ? item.variableSchema.customizationGroupKeys.map(String)
+        : [],
+    minimumOrderAmount: Math.max(0, Number(item?.variableSchema?.minimumOrderAmount ?? 800) || 0),
+    isAvailable: item?.storeSetting?.isAvailable !== false,
+    websiteEnabled: item?.storeSetting?.websiteEnabled !== false && item?.variableSchema?.websiteEnabled !== false,
   };
 };
 
@@ -170,11 +180,7 @@ const normalizeStandardMenu = (payload) => {
   if (!Array.isArray(payload?.items) || !payload.items.length || !Array.isArray(payload.optionGroups)) return null;
   const baseItem = payload.items.find((item) => item.itemKind === "buildable_product") || payload.items[0];
   if (!baseItem) return null;
-  const groups = Array.isArray(baseItem.optionGroups)
-    ? baseItem.optionGroups
-    : Array.isArray(payload.optionGroups)
-      ? payload.optionGroups
-      : [];
+  const groups = Array.isArray(payload.optionGroups) ? payload.optionGroups : [];
   const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor", "noodle-replacement"]);
   const menuSections = groups
     .filter((group) => !fixedGroupKeys.has(group.groupKey))
@@ -193,13 +199,15 @@ const normalizeStandardMenu = (payload) => {
   const numbGroup = optionGroupByKey(groups, "numb");
   const specialFlavorGroup = optionGroupByKey(groups, "special-flavor");
   const noodleReplacementGroup = optionGroupByKey(groups, "noodle-replacement");
-  const presetSoups = Array.isArray(baseItem.variableSchema?.presetSoups)
-    ? baseItem.variableSchema.presetSoups
-    : localMenu.presetSoups;
-  const presetCatalogByExternalId = new Map(
+  const catalogProducts = payload.items.filter((item) => (
+    item.id !== baseItem.id &&
+    item.itemKind !== "information" &&
+    item.variableSchema?.websiteEnabled !== false
+  ));
+  const categoryKeyByName = new Map(
     payload.items
-      .filter((item) => item.itemKind === "fixed_product" && item.variableSchema?.preset === true)
-      .map((item) => [String(item.externalId || ""), item]),
+      .map((item) => [String(item.category || "").trim(), String(item.variableSchema?.categoryKey || "").trim()])
+      .filter(([name, key]) => name && key),
   );
   const noodleReplacementOptions = noodleReplacementGroup?.options?.length
     ? noodleReplacementGroup.options
@@ -232,23 +240,28 @@ const normalizeStandardMenu = (payload) => {
     numbLevels: asChoices(numbGroup?.options),
     specialFlavorGroup: asGroupLabel(specialFlavorGroup, "味変・追加調味"),
     specialFlavors: asChoices(specialFlavorGroup?.options),
-    presetSoups: asChoices(presetSoups).map((item, index) => {
-      const catalogItem = presetCatalogByExternalId.get(item.id);
-      const presentedItem = catalogItem ? asChoice(catalogItem) : item;
-      const presentation = catalogItem ? websitePresentation(catalogItem) : {};
+    presetSoups: catalogProducts.map((catalogItem) => {
+      const presentedItem = asChoice(catalogItem);
+      const presentation = websitePresentation(catalogItem);
       return {
-        ...item,
         ...presentedItem,
-        id: item.id,
+        id: String(catalogItem.externalId || catalogItem.id || ""),
         menuCatalogItemId: String(catalogItem?.id || ""),
-        category: presentation.category || presetSoups[index]?.category || "recommended-set",
-        defaultNoodle: String(presetSoups[index]?.defaultNoodle || "板春雨"),
-        note: String(presentation.description || presetSoups[index]?.note || ""),
+        category: String(catalogItem.variableSchema?.categoryKey || presentation.category || catalogItem.category || "recommended-set"),
+        defaultNoodle: String(catalogItem.variableSchema?.defaultNoodle || "板春雨"),
+        note: String(presentation.description || catalogItem.description || ""),
         noteDisplayNames: presentation.descriptionDisplayNames || {},
         isAvailable: catalogItem?.storeSetting?.isAvailable !== false,
-        websiteEnabled: catalogItem?.storeSetting?.websiteEnabled !== false,
+        websiteEnabled: catalogItem?.storeSetting?.websiteEnabled !== false && catalogItem.variableSchema?.websiteEnabled !== false,
       };
     }),
+    menuCategories: (Array.isArray(payload.categories) ? payload.categories : [])
+      .map((category) => ({
+        id: categoryKeyByName.get(String(category.name || "").trim()) || String(category.externalId || category.id || ""),
+        name: String(category.name || "").trim(),
+        sortOrder: Number(category.sortOrder || 100),
+      }))
+      .filter((category) => category.id && category.name),
     noodleReplacementOptions: asChoices(noodleReplacementOptions),
     noodleReplacementRule,
     menuSections,

@@ -1423,6 +1423,22 @@ h3 {
   padding: 16px;
 }
 
+.productCategoryList {
+  display: grid;
+  gap: 24px;
+}
+
+.productCategoryGroup {
+  display: grid;
+  gap: 12px;
+}
+
+.productCategoryGroup h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .optionButton {
   display: grid;
   gap: 6px;

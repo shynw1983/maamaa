@@ -257,8 +257,9 @@ export async function POST(request) {
       itemIndex: index + 1,
       title: String(item?.title || menu.baseSoup.name),
       total: calculateBowlTotal(item, menu, choiceById),
+      minimumOrderAmount: Math.max(0, Number(choiceById.get(item?.selections?.productId)?.minimumOrderAmount ?? minimumBowlTotal) || 0),
     }))
-    .filter((item) => item.total < minimumBowlTotal);
+    .filter((item) => item.total < item.minimumOrderAmount);
   if (underMinimumItems.length) {
     return Response.json({
       code: "BOWL_TOTAL_TOO_LOW",
