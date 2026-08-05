@@ -488,7 +488,7 @@ export function MalatangOrderBuilder({
   const latestReservationTime = reservationWindows[reservationWindows.length - 1]?.end ?? minimumPickup.time;
   const reservationWindowLabel = formatReservationWindows(reservationWindows);
   const isPickupOutsideReservationWindows = hasReservationWindows ? !isPickupInReservationWindows(pickupTime, reservationWindows) : true;
-  const hasOvernightContinuation = selectableReservationWindows.some(
+  const hasOvernightContinuation = (menu.storeOperation?.reservationWindows ?? []).some(
     (window) => window.date === currentTokyo.date && window.start <= currentTokyo.time && window.end >= currentTokyo.time,
   );
   const isBeforeSameDayReception = currentTokyo.time < sameDayReceptionStartTime && !hasOvernightContinuation;
@@ -722,7 +722,7 @@ export function MalatangOrderBuilder({
       const nextPickupDate = nextDates.includes(pickupDate) ? pickupDate : nextDates[0] ?? nextMinimum.date;
       const nextDateWindows = getReservationWindowsForDate(nextReservationWindows, nextPickupDate);
       const nextTokyo = getTokyoDateTimeParts();
-      const nextHasOvernightContinuation = nextReservationWindows.some(
+      const nextHasOvernightContinuation = (menu.storeOperation?.reservationWindows ?? []).some(
         (window) => window.date === nextTokyo.date && window.start <= nextTokyo.time && window.end >= nextTokyo.time,
       );
       const nextSameDayBookingClosed =
