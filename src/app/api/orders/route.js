@@ -8,7 +8,7 @@ const reservationPausedError = "現在予約受付を停止しています。店
 const pickupLeadTimeError = "受け取り時間が早すぎます。最新の選択可能時間を確認して、もう一度お試しください。";
 const pickupBusinessHoursError = "選択した受け取り時間は営業時間外です。別の時間を選択してください。";
 const pickupStaffScheduleError = "選択した受け取り時間は現在の受付枠外です。受付中の時間を選択してください。";
-const sameDayPickupError = "Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付中の受け取り時間を選択してください。";
+const receptionWindowError = "Web予約は現在の営業日の受付状況に合わせて承ります。受付中の受け取り時間を選択してください。";
 
 const localePrefix = (language) => {
   if (language === "en") return "/en";
@@ -313,8 +313,8 @@ export async function POST(request) {
     const isSectionLimitError = upstreamError.includes("まで選択できます") || upstreamError.includes("can only select up to");
     const isReservationPaused = upstreamError.includes("Reservations are temporarily paused");
     const isPickupLeadTime = upstreamError.includes("Pickup time must be at least");
-    const isSameDayPickup = upstreamError.includes("same-day pickup") || upstreamError.includes("available from") || upstreamError.includes("available until 23:00");
-    const isBusinessHours = upstreamError.includes("outside store business hours");
+    const isSameDayPickup = upstreamError.includes("same-day pickup") || upstreamError.includes("available from");
+    const isBusinessHours = upstreamError.includes("outside store business hours") || upstreamError.includes("outside the current business day");
     const isStaffSchedule = upstreamError.includes("outside confirmed staff schedule");
     const isPaymentSetupError =
       foundr1Body.code === "STORE_PAYMENT_NOT_CONFIGURED" ||
@@ -347,7 +347,7 @@ export async function POST(request) {
         : isPickupLeadTime
         ? pickupLeadTimeError
         : isSameDayPickup
-        ? sameDayPickupError
+        ? receptionWindowError
         : isBusinessHours
         ? pickupBusinessHoursError
         : isStaffSchedule

@@ -14,8 +14,6 @@ const formatTemplate = (template: string, values: Record<string, string>) =>
 const defaultMinimumPickupMinutes = 15;
 // Conservative launch setting while staffing/opening time is unstable; consider allowing pre-open reservations after operations stabilize.
 const sameDayReceptionStartTime = "12:00";
-const sameDayPickupStartTime = "12:00";
-const sameDayPickupCutoffTime = "23:00";
 const minimumBowlTotal = 800;
 const getTokyoDateTimeParts = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("sv-SE", {
@@ -43,32 +41,20 @@ const getMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) =>
   getTokyoDateTimeParts(new Date(Date.now() + leadMinutes * 60 * 1000));
 const compareDateTime = (leftDate: string, leftTime: string, rightDate: string, rightTime: string) =>
   `${leftDate}T${leftTime}`.localeCompare(`${rightDate}T${rightTime}`);
-const addMinutesToTime = (time: string, minutes: number) => {
-  const [hour, minute] = time.split(":").map(Number);
-  const total = hour * 60 + minute + minutes;
-  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-};
-const getSameDayMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) => {
-  const current = getMinimumPickupDateTime(leadMinutes);
-  const today = getTokyoDateTimeParts().date;
-  const earliestPickupTime = addMinutesToTime(sameDayPickupStartTime, leadMinutes);
-  if (current.date !== today || current.time < earliestPickupTime) {
-    return { date: today, time: earliestPickupTime };
-  }
-  return current;
-};
+const getSameDayMinimumPickupDateTime = (leadMinutes = defaultMinimumPickupMinutes) =>
+  getMinimumPickupDateTime(leadMinutes);
 const getReservationWindowsForDate = (windows: ReservationWindow[] | undefined, date: string) =>
   (Array.isArray(windows) ? windows : [])
     .filter((window) => window.date === date && /^\d{2}:\d{2}$/.test(window.start) && /^\d{2}:\d{2}$/.test(window.end) && window.end > window.start)
     .sort((left, right) => left.start.localeCompare(right.start));
-const capReservationWindows = (windows: ReservationWindow[], cutoffTime: string) =>
+const getSelectableReservationWindows = (windows: ReservationWindow[], minimumDate: string, minimumTime: string) =>
   windows
-    .map((window) => ({ ...window, end: window.end > cutoffTime ? cutoffTime : window.end }))
-    .filter((window) => window.end >= window.start);
-const getSelectableReservationWindows = (windows: ReservationWindow[], minimumTime: string, cutoffTime: string) =>
-  capReservationWindows(windows, cutoffTime)
-    .map((window) => ({ ...window, start: window.start < minimumTime ? minimumTime : window.start }))
-    .filter((window) => window.end >= window.start);
+    .map((window) => ({
+      ...window,
+      start: window.date === minimumDate && window.start < minimumTime ? minimumTime : window.start,
+    }))
+    .filter((window) => `${window.date}T${window.end}` >= `${minimumDate}T${minimumTime}` && window.end >= window.start)
+    .sort((left, right) => `${left.date}T${left.start}`.localeCompare(`${right.date}T${right.start}`));
 const formatReservationWindows = (windows: ReservationWindow[]) =>
   windows.length ? windows.map((window) => `${window.start}-${window.end}`).join(" / ") : "";
 const isPickupInReservationWindows = (time: string, windows: ReservationWindow[]) =>
@@ -423,11 +409,13 @@ export function MalatangOrderBuilder({
     () => {
       const minimum = getSameDayMinimumPickupDateTime(normalizeMinimumPickupMinutes(initialMenu.storeOperation?.minimumPickupMinutes));
       const windows = getSelectableReservationWindows(
-        getReservationWindowsForDate(initialMenu.storeOperation?.reservationWindows, minimum.date),
+        initialMenu.storeOperation?.reservationWindows ?? [],
+        minimum.date,
         minimum.time,
-        sameDayPickupCutoffTime,
       );
-      return { date: minimum.date, time: getPickupTimeFromSchedule(minimum.time, windows) };
+      return windows.length
+        ? { date: windows[0].date, time: windows[0].start }
+        : { date: minimum.date, time: "" };
     },
     [initialMenu.storeOperation?.minimumPickupMinutes, initialMenu.storeOperation?.reservationWindows],
   );
@@ -479,22 +467,32 @@ export function MalatangOrderBuilder({
   } = menu;
   const minimumPickupMinutes = normalizeMinimumPickupMinutes(menu.storeOperation?.minimumPickupMinutes);
   const currentTokyo = getTokyoDateTimeParts();
-  const reservationWindows = useMemo(
+  const selectableReservationWindows = useMemo(
     () => getSelectableReservationWindows(
-      getReservationWindowsForDate(menu.storeOperation?.reservationWindows, minimumPickup.date),
+      menu.storeOperation?.reservationWindows ?? [],
+      minimumPickup.date,
       minimumPickup.time,
-      sameDayPickupCutoffTime,
     ),
     [menu.storeOperation?.reservationWindows, minimumPickup.date, minimumPickup.time],
   );
+  const reservationWindows = useMemo(
+    () => getReservationWindowsForDate(selectableReservationWindows, pickupDate),
+    [pickupDate, selectableReservationWindows],
+  );
+  const availablePickupDates = useMemo(
+    () => Array.from(new Set(selectableReservationWindows.map((window) => window.date))),
+    [selectableReservationWindows],
+  );
   const hasReservationWindows = reservationWindows.length > 0;
   const earliestReservationTime = reservationWindows[0]?.start ?? minimumPickup.time;
-  const latestReservationWindowEnd = reservationWindows[reservationWindows.length - 1]?.end ?? sameDayPickupCutoffTime;
-  const latestReservationTime = latestReservationWindowEnd > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : latestReservationWindowEnd;
+  const latestReservationTime = reservationWindows[reservationWindows.length - 1]?.end ?? minimumPickup.time;
   const reservationWindowLabel = formatReservationWindows(reservationWindows);
   const isPickupOutsideReservationWindows = hasReservationWindows ? !isPickupInReservationWindows(pickupTime, reservationWindows) : true;
-  const isBeforeSameDayReception = currentTokyo.time < sameDayReceptionStartTime;
-  const isAfterSameDayReception = minimumPickup.date !== currentTokyo.date || minimumPickup.time > sameDayPickupCutoffTime || !hasReservationWindows;
+  const hasOvernightContinuation = selectableReservationWindows.some(
+    (window) => window.date === currentTokyo.date && window.start <= currentTokyo.time && window.end >= currentTokyo.time,
+  );
+  const isBeforeSameDayReception = currentTokyo.time < sameDayReceptionStartTime && !hasOvernightContinuation;
+  const isAfterSameDayReception = selectableReservationWindows.length === 0;
   const sameDayBookingClosed = isBeforeSameDayReception || isAfterSameDayReception;
   const choiceGroupTitle = (group: MenuGroupLabel | undefined, fallback: string) => {
     const groupName = menuText(group, fallback);
@@ -597,7 +595,7 @@ export function MalatangOrderBuilder({
     : sameDayBookingClosed
       ? isBeforeSameDayReception
         ? t("本日のWeb予約は準備中です")
-        : t("本日のWeb予約受付は終了しました")
+        : t("この営業日のWeb予約受付は終了しました")
     : isPickupOutsideReservationWindows
       ? t("受付中の時間を選択してください")
     : baseUnavailable
@@ -613,14 +611,14 @@ export function MalatangOrderBuilder({
     datetime: `${minimumPickup.date} ${minimumPickup.time}`,
   });
   const pickupSameDayErrorMessage = isBeforeSameDayReception
-    ? t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
-    : t("本日のWeb予約受付は終了しました。");
+    ? t("Web予約は店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。")
+    : t("この営業日のWeb予約受付は終了しました。");
   const getPickupScheduleErrorMessage = (time: string) => {
-    if (time > sameDayPickupCutoffTime || (hasReservationWindows && time > latestReservationTime)) {
-      return t("本日のWeb予約受付は終了しました。");
+    if (hasReservationWindows && time > latestReservationTime) {
+      return t("この営業日のWeb予約受付は終了しました。");
     }
     if (hasReservationWindows && time < earliestReservationTime) {
-      return t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。");
+      return t("Web予約は店舗の受付状況に合わせて承ります。受付開始までしばらくお待ちください。");
     }
     return formatTemplate(t("選択した受け取り時間は現在の受付枠外です。受付中の時間: {windows}"), {
       windows: reservationWindowLabel || "-",
@@ -642,32 +640,32 @@ export function MalatangOrderBuilder({
 
   const enforceMinimumPickup = (nextDate: string, nextTime: string) => {
     const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
-    const safeDate = nextDate < nextMinimum.date ? nextMinimum.date : nextDate;
-    const safeTime =
-      safeDate === nextMinimum.date && (!nextTime || nextTime < nextMinimum.time)
-        ? nextMinimum.time
-        : nextTime || nextMinimum.time;
-    const sameDaySafeDate = safeDate > nextMinimum.date ? nextMinimum.date : safeDate;
-    const cutoffSafeTime = sameDaySafeDate === nextMinimum.date && safeTime > sameDayPickupCutoffTime ? sameDayPickupCutoffTime : safeTime;
-    const scheduleSafeTime = sameDaySafeDate === nextMinimum.date ? getPickupTimeFromSchedule(cutoffSafeTime, reservationWindows) : cutoffSafeTime;
+    const nextWindows = getSelectableReservationWindows(
+      menu.storeOperation?.reservationWindows ?? [],
+      nextMinimum.date,
+      nextMinimum.time,
+    );
+    const nextDates = Array.from(new Set(nextWindows.map((window) => window.date)));
+    const safeDate = nextDates.includes(nextDate) ? nextDate : nextDates[0] ?? nextMinimum.date;
+    const dateWindows = getReservationWindowsForDate(nextWindows, safeDate);
+    const safeTime = nextTime || dateWindows[0]?.start || "";
+    const scheduleSafeTime = getPickupTimeFromSchedule(safeTime, dateWindows);
 
     setMinimumPickup(nextMinimum);
-    setPickupDate(sameDaySafeDate);
+    setPickupDate(safeDate);
     setPickupTime(scheduleSafeTime);
 
-    const changed = sameDaySafeDate !== nextDate || scheduleSafeTime !== nextTime;
+    const changed = safeDate !== nextDate || scheduleSafeTime !== nextTime;
     setPickupError(
       sameDayBookingClosed
         ? ""
         : changed
-          ? scheduleSafeTime !== cutoffSafeTime
-            ? getPickupScheduleErrorMessage(cutoffSafeTime)
-            : sameDaySafeDate !== safeDate || cutoffSafeTime !== safeTime
-              ? pickupSameDayErrorMessage
-              : pickupTimeErrorMessage
+          ? scheduleSafeTime !== safeTime
+            ? getPickupScheduleErrorMessage(safeTime)
+            : pickupTimeErrorMessage
           : "",
     );
-    return { safeDate: sameDaySafeDate, safeTime: scheduleSafeTime, changed };
+    return { safeDate, safeTime: scheduleSafeTime, changed };
   };
 
   useEffect(() => {
@@ -715,27 +713,26 @@ export function MalatangOrderBuilder({
   useEffect(() => {
     const updateMinimumPickup = () => {
       const nextMinimum = getSameDayMinimumPickupDateTime(minimumPickupMinutes);
-      const nextPickupDate = pickupDate < nextMinimum.date || pickupDate > nextMinimum.date ? nextMinimum.date : pickupDate;
       const nextReservationWindows = getSelectableReservationWindows(
-        getReservationWindowsForDate(menu.storeOperation?.reservationWindows, nextMinimum.date),
+        menu.storeOperation?.reservationWindows ?? [],
+        nextMinimum.date,
         nextMinimum.time,
-        sameDayPickupCutoffTime,
       );
+      const nextDates = Array.from(new Set(nextReservationWindows.map((window) => window.date)));
+      const nextPickupDate = nextDates.includes(pickupDate) ? pickupDate : nextDates[0] ?? nextMinimum.date;
+      const nextDateWindows = getReservationWindowsForDate(nextReservationWindows, nextPickupDate);
       const nextTokyo = getTokyoDateTimeParts();
+      const nextHasOvernightContinuation = nextReservationWindows.some(
+        (window) => window.date === nextTokyo.date && window.start <= nextTokyo.time && window.end >= nextTokyo.time,
+      );
       const nextSameDayBookingClosed =
-        nextTokyo.time < sameDayReceptionStartTime ||
-        nextMinimum.date !== nextTokyo.date ||
-        nextMinimum.time > sameDayPickupCutoffTime ||
+        (nextTokyo.time < sameDayReceptionStartTime && !nextHasOvernightContinuation) ||
         !nextReservationWindows.length;
       setMinimumPickup(nextMinimum);
       setPickupDate(nextPickupDate);
       setPickupTime((currentTime) => {
-        const nextTime = nextPickupDate === nextMinimum.date && (!currentTime || currentTime < nextMinimum.time)
-          ? nextMinimum.time
-          : currentTime > sameDayPickupCutoffTime
-            ? sameDayPickupCutoffTime
-            : currentTime;
-        return getPickupTimeFromSchedule(nextTime, nextReservationWindows);
+        const nextTime = currentTime || nextDateWindows[0]?.start || "";
+        return getPickupTimeFromSchedule(nextTime, nextDateWindows);
       });
       setPickupError((current) => {
         if (nextSameDayBookingClosed) return "";
@@ -1109,11 +1106,6 @@ export function MalatangOrderBuilder({
         }));
         return;
       }
-      if (pickupDate !== nextMinimum.date || pickupTime > sameDayPickupCutoffTime || nextMinimum.time > sameDayPickupCutoffTime) {
-        enforceMinimumPickup(pickupDate, pickupTime);
-        setSubmitError(pickupSameDayErrorMessage);
-        return;
-      }
       const safePickupDate = pickupDate;
       const safePickupTime = pickupTime || nextMinimum.time;
       setMinimumPickup(nextMinimum);
@@ -1229,14 +1221,14 @@ export function MalatangOrderBuilder({
             </div>
           ) : null}
           <p className="pickupNotice">
-            {t("Web予約は当日分のみ、店舗の受付状況に合わせて承ります。受け取り時間は受付中に選択できます。")}
+            {t("Web予約は現在の営業日の受付状況に合わせて承ります。受け取り時間は受付中に選択できます。")}
           </p>
           <label>
             {t("受け取り日")}
             <input
               type="date"
-              min={minimumPickup.date}
-              max={minimumPickup.date}
+              min={availablePickupDates[0] ?? minimumPickup.date}
+              max={availablePickupDates.at(-1) ?? minimumPickup.date}
               value={pickupDate}
               onChange={(event) => enforceMinimumPickup(event.target.value, pickupTime)}
             />
@@ -1258,11 +1250,11 @@ export function MalatangOrderBuilder({
           </label>
           {reservationWindowLabel ? (
             <p className="pickupWindowHint">
-              {formatTemplate(t("本日選択できる受け取り時間: {windows}"), { windows: reservationWindowLabel })}
+              {formatTemplate(t("{date} の受け取り時間: {windows}"), { date: pickupDate, windows: reservationWindowLabel })}
             </p>
           ) : (
             <p className="pickupWindowHint">
-              {t("本日選択できる受け取り時間はありません。")}
+              {t("選択できる受け取り時間はありません。")}
             </p>
           )}
           {!sameDayBookingClosed && pickupError ? <p className="formError">{pickupError}</p> : null}
