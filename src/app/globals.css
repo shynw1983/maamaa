@@ -1426,6 +1426,7 @@ h3 {
 .productCategoryList {
   display: grid;
   gap: 24px;
+  padding-top: 16px;
 }
 
 .productCategoryGroup {
@@ -1435,6 +1436,7 @@ h3 {
 
 .productCategoryGroup h3 {
   margin: 0;
+  padding-inline: 16px;
   font-size: 1rem;
   font-weight: 600;
 }
