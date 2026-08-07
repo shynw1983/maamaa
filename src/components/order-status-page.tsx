@@ -116,12 +116,52 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
 
   useEffect(() => {
     let active = true;
+    let pusher: any;
+    let channel: any;
+    let fallbackTimer = 0;
+    let fallbackStartedAt = Date.now();
+    let realtimeConnected = false;
 
     const refresh = async () => {
       const response = await fetch(`/api/orders/${order.orderId}`, { cache: "no-store" });
       if (!active || !response.ok) return;
       const body = await response.json();
       if (body.order) setOrder(body.order);
+    };
+
+    const clearFallback = () => {
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+      fallbackTimer = 0;
+    };
+    const scheduleFallback = () => {
+      clearFallback();
+      if (!active || realtimeConnected || document.visibilityState !== "visible") return;
+      const disconnectedFor = Date.now() - fallbackStartedAt;
+      const delay = disconnectedFor >= 15 * 60_000 ? 5 * 60_000 : disconnectedFor >= 5 * 60_000 ? 60_000 : disconnectedFor >= 60_000 ? 30_000 : 15_000;
+      fallbackTimer = window.setTimeout(async () => {
+        await refresh();
+        scheduleFallback();
+      }, delay);
+    };
+    const startFallback = (immediate = false) => {
+      if (!fallbackStartedAt) fallbackStartedAt = Date.now();
+      realtimeConnected = false;
+      if (active) setConnection("polling");
+      if (immediate && document.visibilityState === "visible") void refresh();
+      scheduleFallback();
+    };
+    const stopFallback = () => {
+      realtimeConnected = true;
+      fallbackStartedAt = 0;
+      clearFallback();
+    };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState !== "visible") {
+        clearFallback();
+        return;
+      }
+      void refresh();
+      if (!realtimeConnected) scheduleFallback();
     };
 
     const connectRealtime = async () => {
@@ -132,37 +172,40 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
         if (!config.available) throw new Error("realtime unavailable");
 
         const { default: Pusher } = await import("pusher-js");
-        const pusher = new Pusher(config.key, {
+        pusher = new Pusher(config.key, {
           cluster: config.cluster,
           forceTLS: true,
         });
-        const channel = pusher.subscribe(config.channel);
+        pusher.connection.bind("unavailable", () => startFallback(true));
+        pusher.connection.bind("failed", () => startFallback(true));
+        pusher.connection.bind("disconnected", () => startFallback(true));
+        channel = pusher.subscribe(config.channel);
         channel.bind("order.created", ({ order: nextOrder }: { order: PublicOrder }) => setOrder(nextOrder));
         channel.bind("order.updated", ({ order: nextOrder }: { order: PublicOrder }) => setOrder(nextOrder));
         channel.bind("pusher:subscription_succeeded", () => {
-          if (active) setConnection("live");
+          if (!active) return;
+          stopFallback();
+          setConnection("live");
+          void refresh();
         });
-
-        return () => {
-          pusher.unsubscribe(config.channel);
-          pusher.disconnect();
-        };
       } catch {
-        if (active) setConnection("polling");
-        const interval = window.setInterval(refresh, 8000);
-        refresh();
-        return () => window.clearInterval(interval);
+        startFallback(true);
       }
     };
 
-    let cleanup: (() => void) | undefined;
-    connectRealtime().then((nextCleanup) => {
-      cleanup = nextCleanup;
-    });
+    scheduleFallback();
+    void connectRealtime();
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
 
     return () => {
       active = false;
-      cleanup?.();
+      clearFallback();
+      channel?.unbind_all?.();
+      if (channel) pusher?.unsubscribe(channel.name);
+      pusher?.disconnect();
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
   }, [order.orderId]);
 

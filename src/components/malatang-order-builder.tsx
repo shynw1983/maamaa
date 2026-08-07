@@ -110,7 +110,6 @@ const unsafeErrorPattern = /(FOUNDR1|Foundr1|KOMOJU|Square|configured|configurat
 const minimumBowlTotalError = `一杯あたり${yen(minimumBowlTotal)}以上になるように具材を追加してください。`;
 const unavailableSelectionError = "選択したトッピング・オプションの一部が現在販売停止または品切れです。予約リストから該当する一杯を削除して、もう一度選び直してください。";
 const menuRefreshNotice = "メニュー状態が更新されました。販売中の内容を最新にしました。";
-const menuRefreshIntervalMs = 15000;
 const draftStorageKey = "maamaa-shimizu-menu-draft-v2";
 const textValue = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 const memberContactName = (profile: MemberProfile) =>
@@ -448,6 +447,7 @@ export function MalatangOrderBuilder({
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const menuSignatureRef = useRef(menuSignature(initialMenu));
+  const cartItemsRef = useRef(cartItems);
   const reserveButtonRef = useRef<HTMLButtonElement | null>(null);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const phoneInputRef = useRef<HTMLInputElement | null>(null);
@@ -675,7 +675,16 @@ export function MalatangOrderBuilder({
   };
 
   useEffect(() => {
+    cartItemsRef.current = cartItems;
+  }, [cartItems]);
+
+  useEffect(() => {
     let active = true;
+    let pusher: any;
+    let channel: any;
+    let fallbackTimer = 0;
+    let fallbackStartedAt = Date.now();
+    let realtimeConnected = false;
 
     const loadMenu = (showNotice: boolean) => {
       fetch("/api/menu?store=shimizu", { cache: "no-store" })
@@ -689,7 +698,7 @@ export function MalatangOrderBuilder({
           setMenu(nextMenu);
           menuSignatureRef.current = nextSignature;
           if (showNotice && changed) {
-            const affected = unavailableCartItemLabels(cartItems, nextMenu);
+            const affected = unavailableCartItemLabels(cartItemsRef.current, nextMenu);
             setMenuNotice(
               affected.length
                 ? `${menuRefreshNotice} 現在選べないトッピング・オプションが含まれています。対象: ${affected.join("、")}。予約リストから該当する一杯を削除して、もう一度選び直してください。`
@@ -701,14 +710,75 @@ export function MalatangOrderBuilder({
         .catch(() => {});
     };
 
+    const clearFallback = () => {
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+      fallbackTimer = 0;
+    };
+    const scheduleFallback = () => {
+      clearFallback();
+      if (!active || realtimeConnected || document.visibilityState !== "visible") return;
+      const disconnectedFor = Date.now() - fallbackStartedAt;
+      const delay = disconnectedFor >= 15 * 60_000 ? 5 * 60_000 : disconnectedFor >= 5 * 60_000 ? 2 * 60_000 : 60_000;
+      fallbackTimer = window.setTimeout(() => {
+        loadMenu(true);
+        scheduleFallback();
+      }, delay);
+    };
+    const startFallback = (immediate = false) => {
+      if (!fallbackStartedAt) fallbackStartedAt = Date.now();
+      realtimeConnected = false;
+      if (immediate && document.visibilityState === "visible") loadMenu(true);
+      scheduleFallback();
+    };
+    const stopFallback = () => {
+      realtimeConnected = true;
+      fallbackStartedAt = 0;
+      clearFallback();
+    };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState !== "visible") {
+        clearFallback();
+        return;
+      }
+      loadMenu(true);
+      if (!realtimeConnected) scheduleFallback();
+    };
+
     loadMenu(false);
-    const interval = window.setInterval(() => loadMenu(true), menuRefreshIntervalMs);
+    scheduleFallback();
+    const osStoreId = String(initialMenu.stores?.find((item) => item.osStoreId)?.osStoreId || "").trim();
+    fetch(`/api/menu/realtime-config?storeId=${encodeURIComponent(osStoreId)}`, { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then(async (config) => {
+        if (!active || !config?.key || !config?.cluster || !config?.menuChannel) return;
+        const { default: Pusher } = await import("pusher-js");
+        if (!active) return;
+        pusher = new Pusher(config.key, { cluster: config.cluster, forceTLS: true });
+        pusher.connection.bind("unavailable", () => startFallback(true));
+        pusher.connection.bind("failed", () => startFallback(true));
+        pusher.connection.bind("disconnected", () => startFallback(true));
+        channel = pusher.subscribe(config.menuChannel);
+        channel.bind("pusher:subscription_succeeded", () => {
+          stopFallback();
+          loadMenu(true);
+        });
+        channel.bind("pusher:subscription_error", () => startFallback(true));
+        channel.bind("menu.updated", () => loadMenu(true));
+      })
+      .catch(() => startFallback());
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
 
     return () => {
       active = false;
-      window.clearInterval(interval);
+      clearFallback();
+      channel?.unbind_all?.();
+      if (channel) pusher?.unsubscribe(channel.name);
+      pusher?.disconnect();
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
-  }, [cartItems]);
+  }, [initialMenu.stores]);
 
   useEffect(() => {
     if (!menuNotice) return;
