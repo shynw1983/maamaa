@@ -471,7 +471,7 @@ export const menuSections: MenuSection[] = [
       { id: "pork-slice", name: "【厳選】豚肉スライス(1人前約50g)", displayNames: {"zh":"猪肉片","ko":"돼지고기 슬라이스","en":"Sliced Pork"}, price: 400 },
       { id: "lamb", name: "【高級NZ子羊】厳選ラム肉(1人前約50g)", displayNames: {"zh":"精选羊肉","ko":"엄선한 양고기","en":"Selected Lamb"}, price: 540 },
       { id: "scallop", name: "丸ごとホタテ1個", displayNames: {"zh":"整颗扇贝","ko":"통 가리비","en":"Whole Scallop"}, price: 400 },
-      { id: "squid-ring", name: "ヤリイカリング（1人前約50g）", displayNames: {"zh":"枪乌贼圈","ko":"한치 링","en":"Spear Squid Rings"}, price: 310 },
+      { id: "squid-ring", name: "ヤリイカリング（1人前約50g）", displayNames: {"zh":"枪乌贼圈","ko":"한치 링","en":"Spear Squid Rings"}, price: 400 },
       { id: "white-fish", name: "白身魚", displayNames: {"zh":"白身鱼","ko":"흰살생선","en":"White Fish"}, price: 310 },
       { id: "clam", name: "たっぷりあさり", displayNames: {"zh":"蛤蜊（多份）","ko":"바지락 듬뿍","en":"Extra Clams"}, price: 320 },
       { id: "chicken-slice", name: "【高たんぱく💪】国産とりむねスライス約50g", displayNames: {}, price: 320 },
