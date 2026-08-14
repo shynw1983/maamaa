@@ -10,7 +10,7 @@ type PublicOrder = {
   pickupCode: string;
   storeName: string;
   status: "pending_payment" | "checkout_failed" | "payment_failed" | "refund_pending" | "new" | "preparing" | "ready" | "completed" | "cancelled";
-  paymentStatus: "pending" | "paid" | "failed" | "canceled" | "refunded";
+  paymentStatus: "pending" | "paid" | "failed" | "canceled" | "refunded" | "partial_refunded";
   refundStatus: string;
   refundError: string;
   refundedAt: string;
@@ -78,7 +78,8 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
   const [connection, setConnection] = useState<"connecting" | "live" | "polling">("connecting");
   const [cancelState, setCancelState] = useState<"idle" | "submitting">("idle");
   const [cancelMessage, setCancelMessage] = useState("");
-  const currentRank = statusRank[order.status] || (order.paymentStatus === "paid" ? 1 : 0);
+  const paymentSettled = ["paid", "partial_refunded", "refunded"].includes(order.paymentStatus);
+  const currentRank = statusRank[order.status] || (paymentSettled ? 1 : 0);
   const itemLines = useMemo(() => order.size.split("\n").filter(Boolean), [order.size]);
   const canCancelOrder = order.canCancel && cancelState !== "submitting";
   const receiptPreviewUrl = order.receiptPreviewUrl || `/api/orders/${order.orderId}/receipt-preview?pickupCode=${encodeURIComponent(order.pickupCode)}`;
@@ -256,7 +257,7 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
             })}
           </ol>
 
-          {order.paymentStatus !== "paid" ? (
+          {!paymentSettled ? (
             <div className="orderPaymentNotice">
               <strong>{t("お支払いがまだ完了していません")}</strong>
               <span>{t("決済完了後に注文が店舗へ送信されます。")}</span>
@@ -283,7 +284,7 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
             </div>
             <div>
               <dt>{t("支払い")}</dt>
-              <dd>{order.paymentStatus === "paid" ? t("支払い済み") : t("未決済")}</dd>
+              <dd>{order.paymentStatus === "partial_refunded" ? t("一部返金済み") : paymentSettled ? t("支払い済み") : t("未決済")}</dd>
             </div>
           </dl>
           <div className="orderItemSummary">
@@ -291,7 +292,7 @@ export function OrderStatusPage({ initialOrder }: { initialOrder: PublicOrder })
               <span key={`${line}-${index}`}>{t(line)}</span>
             ))}
           </div>
-          {order.paymentStatus === "paid" ? (
+          {paymentSettled ? (
             <a className="button primary orderReceiptLink" href={receiptPreviewUrl} target="_blank" rel="noreferrer">
               {t("領収書プレビュー")}
             </a>

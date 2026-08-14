@@ -324,6 +324,7 @@ type OrderDraft = {
   currentSelections?: BowlSelections;
   pickupDate?: string;
   pickupTime?: string;
+  shortagePreference?: "substitute_or_refund" | "refund" | "";
 };
 
 type MemberCoupon = NonNullable<MemberProfile["coupons"]>[number];
@@ -433,6 +434,7 @@ export function MalatangOrderBuilder({
   const [phone, setPhone] = useState("");
   const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
   const [selectedCouponId, setSelectedCouponId] = useState("");
+  const [shortagePreference, setShortagePreference] = useState<"substitute_or_refund" | "refund" | "">("");
   const [memberHref, setMemberHref] = useState("https://foundr1.jp/member");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [reservation, setReservation] = useState<Reservation | null>(null);
@@ -1043,6 +1045,7 @@ export function MalatangOrderBuilder({
       setMinimumPickup(nextMinimum);
       setPickupDate(safePickupDate);
       setPickupTime(scheduleSafePickupTime);
+      if (draft.shortagePreference === "substitute_or_refund" || draft.shortagePreference === "refund") setShortagePreference(draft.shortagePreference);
     } catch {
       try {
         window.sessionStorage.removeItem(draftStorageKey);
@@ -1071,12 +1074,13 @@ export function MalatangOrderBuilder({
         currentSelections: getCurrentSelections(),
         pickupDate,
         pickupTime,
+        shortagePreference,
       };
       window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
     } catch {
       // Continue without draft persistence.
     }
-  }, [cartItems, draftReady, flavors, heat, items, noodleChanges, numb, pickupDate, pickupTime, productId, spice]);
+  }, [cartItems, draftReady, flavors, heat, items, noodleChanges, numb, pickupDate, pickupTime, productId, shortagePreference, spice]);
 
   const addCurrentBowl = () => {
     if (baseUnavailable) return;
@@ -1139,6 +1143,10 @@ export function MalatangOrderBuilder({
   }, [lastAddedTotal]);
 
   const createReservation = async () => {
+    if (!shortagePreference) {
+      setSubmitError(t("欠品時の対応"));
+      return;
+    }
     if (!cartItems.length) return;
     const localizedCartItems = cartItems.map((item, index) => ({
       ...item,
@@ -1199,6 +1207,7 @@ export function MalatangOrderBuilder({
           memberPhone: memberProfile?.phone || "",
           memberName: memberProfile ? name : "",
           couponId: selectedCouponId,
+          shortagePreference,
           pickupDate: safePickupDate,
           pickupTime: safePickupTime,
           total: paymentTotal,
@@ -1367,6 +1376,18 @@ export function MalatangOrderBuilder({
           <strong>{yen(paymentTotal)}</strong>
           {couponDiscount ? <small>{t("クーポン値引き")} -{yen(couponDiscount)}</small> : null}
         </div>
+        <fieldset className="shortagePreference">
+          <legend>{t("欠品時の対応")}</legend>
+          <p>{t("複数の販売先で在庫を共有しているため、決済後に欠品が判明する場合があります。")}</p>
+          <label>
+            <input type="radio" name="shortagePreference" checked={shortagePreference === "substitute_or_refund"} onChange={() => setShortagePreference("substitute_or_refund")} />
+            <span><strong>{t("同類・同等以上の商品へ変更")}</strong><small>{t("安全に同類と判断できる代替品がない場合は、その商品・オプションを返金します。")}</small></span>
+          </label>
+          <label>
+            <input type="radio" name="shortagePreference" checked={shortagePreference === "refund"} onChange={() => setShortagePreference("refund")} />
+            <span><strong>{t("欠品した商品・オプションを返金")}</strong><small>{t("代替せず、提供できない分を返金します。")}</small></span>
+          </label>
+        </fieldset>
         {memberProfile && memberCoupons.length ? (
           <div className="memberCouponPanel">
             <span>{t("クーポン")}</span>
@@ -1386,7 +1407,7 @@ export function MalatangOrderBuilder({
         <button
           ref={reserveButtonRef}
           className="button primary reserveButton"
-          disabled={reservationsPaused || sameDayBookingClosed || isPickupOutsideReservationWindows || baseUnavailable || !name || !phone || !cartItems.length || cartItems.some((item) => item.total < (item.minimumOrderAmount ?? minimumBowlTotal)) || isSubmitting || Boolean(checkoutUrl)}
+          disabled={reservationsPaused || sameDayBookingClosed || isPickupOutsideReservationWindows || baseUnavailable || !name || !phone || !shortagePreference || !cartItems.length || cartItems.some((item) => item.total < (item.minimumOrderAmount ?? minimumBowlTotal)) || isSubmitting || Boolean(checkoutUrl)}
           onClick={createReservation}
         >
           {reserveButtonLabel}

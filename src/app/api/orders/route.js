@@ -289,6 +289,7 @@ export async function POST(request) {
       memberPhone: body.memberPhone || "",
       memberName: body.memberName || "",
       couponId: body.couponId || "",
+      shortagePreference: body.shortagePreference || "",
       items: body.items.map((item) => toFoundr1Item(item, menu, sectionByChoiceId)),
       completionUrl,
       completionSummary: {
