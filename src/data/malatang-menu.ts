@@ -142,7 +142,7 @@ const withUberRecommendedSetStory = (introduction: string) =>
   `${introduction}\n\n${uberRecommendedSetStory}`;
 
 // Web予約 prices are 80% of the corresponding Uber Eats prices, rounded to the nearest ¥10.
-// Source snapshot: Uber Menu Maker, 2026-08-08.
+// Source snapshot: Uber Menu Maker, 2026-08-17.
 export const baseSoup: MenuChoice = {
   id: "mala-soup",
   name: "【自由にカスタム🤲】旨味マーラータンスープ",
@@ -261,7 +261,7 @@ export const presetSoups: PresetSoup[] = [
     id: "set-vegetable",
     name: "野菜マーラータン",
     displayNames: {"zh":"蔬菜麻辣烫","ko":"야채 마라탕","en":"Vegetable Mala Tang"},
-    price: 1500,
+    price: 1820,
     category: "recommended-set",
     defaultNoodle: "板春雨",
     note: withUberRecommendedSetStory(`板春雨、根菜、かぼちゃ、青菜、きのこ、キクラゲ、プチトマトなどが入ったセットです。
@@ -375,6 +375,7 @@ export const menuSections: MenuSection[] = [
       { id: "yam-noodle", name: "山芋麺50g", displayNames: {"zh":"山药粉","ko":"마 산약 당면","en":"Chinese Yam Noodles"}, price: 140 },
       { id: "option-dcafe1ea", name: "【もっちりつるん】きしめん50g", displayNames: {"zh":"宽乌冬面","ko":"기시멘","en":"Kishimen Noodles"}, price: 220 },
       { id: "knife-shaved-noodle", name: "【大盛り】刀削麺100g", displayNames: {"zh":"刀削面","ko":"칼국수면","en":"Knife-Shaved Noodles"}, price: 220 },
+      { id: "hot-pot-wide-noodle", name: "火鍋板春雨", displayNames: {"zh":"火锅宽粉","ko":"훠궈 넓적당면","en":"Hot Pot Potato Wide Noodles"}, price: 170 },
     ],
   },
   {
@@ -401,10 +402,12 @@ export const menuSections: MenuSection[] = [
       { id: "dried-yuba", name: "乾燥腐竹", displayNames: {"zh":"干腐竹","ko":"건조 푸주","en":"Dried Tofu Skin"}, price: 170 },
       { id: "wheat-gluten", name: "小麦グルテン", displayNames: {"zh":"面筋","ko":"밀글루텐","en":"Wheat Gluten"}, price: 170 },
       { id: "traditional-tofu-skin", name: "【大サイズ】老豆皮1枚", displayNames: {"zh":"老豆皮","ko":"노두부피","en":"Traditional Tofu Skin"}, price: 220 },
+      { id: "shredded-tofu-skin", name: "豆腐皮の細切り", displayNames: {"zh":"百叶丝","ko":"두부채","en":"Shredded Tofu Skin"}, price: 170 },
+      { id: "kelp-knots-3", name: "昆布結び3個", displayNames: {"zh":"海带结3个","ko":"다시마 매듭 3개","en":"3 Kelp Knots"}, price: 220 },
       { id: "chicken-cartilage-meatball", name: "軟骨入り鶏肉団子", displayNames: {"zh":"鸡软骨丸","ko":"닭연골 완자","en":"Chicken Cartilage Meatball"}, price: 170 },
       { id: "shiitake-pork-meatball", name: "椎茸入り豚肉団子", displayNames: {"zh":"香菇猪肉贡丸","ko":"표고버섯 돼지고기 공완","en":"Taiwanese Pork Meatball with Shiitake"}, price: 200 },
       { id: "soft-boiled-egg", name: "半熟味玉", displayNames: {"zh":"半熟蛋","ko":"반숙계란","en":"Soft-boiled egg"}, price: 170 },
-      { id: "plain-wonton", name: "ワンタン", displayNames: {"zh":"云吞","ko":"완탕","en":"Wontons"}, price: 170 },
+      { id: "plain-wonton", name: "海老ワンタン", displayNames: {"zh":"虾肉云吞","ko":"새우 완탕","en":"Shrimp Wonton"}, price: 170 },
     ],
   },
   {
@@ -429,7 +432,8 @@ export const menuSections: MenuSection[] = [
       { id: "baby-corn", name: "ベビーコーン1本", displayNames: {"zh":"玉米笋","ko":"베이비콘","en":"Baby Corn"}, price: 210 },
       { id: "lotus", name: "れんこん1個", displayNames: {"zh":"莲藕","ko":"연근","en":"Lotus Root"}, price: 100 },
       { id: "wakame", name: "わかめ", displayNames: {"zh":"裙带菜","ko":"미역","en":"Wakame Seaweed"}, price: 140 },
-      { id: "cabbage-roll", name: "ロールキャベツ1個", displayNames: {"zh":"卷心菜卷","ko":"양배추 롤","en":"Cabbage Roll"}, price: 240 },
+      { id: "cabbage-roll", name: "ロールキャベツ1個", displayNames: {"zh":"卷心菜卷","ko":"양배추 롤","en":"Cabbage Roll"}, price: 250 },
+      { id: "half-onion", name: "玉ねぎ1/2個", displayNames: {"zh":"半颗洋葱","ko":"양파 반 개","en":"Half an Onion"}, price: 170 },
       { id: "pea-sprouts", name: "豆苗", displayNames: {"zh":"豆苗","ko":"완두순","en":"Pea Shoots"}, price: 220 },
       { id: "tofu", name: "豆腐", displayNames: {"zh":"豆腐","ko":"두부","en":"Tofu"}, price: 240 },
       { id: "white-negi", name: "白ネギ", displayNames: {"zh":"大葱","ko":"대파","en":"Welsh Onion"}, price: 220 },
@@ -443,7 +447,6 @@ export const menuSections: MenuSection[] = [
       { id: "shiitake", name: "しいたけ", displayNames: {"zh":"香菇","ko":"표고버섯","en":"Shiitake Mushroom"}, price: 260 },
       { id: "pumpkin", name: "かぼちゃ", displayNames: {"zh":"南瓜","ko":"단호박","en":"Kabocha Squash"}, price: 220 },
       { id: "white-wood-ear", name: "白きくらげ", displayNames: {"zh":"银耳","ko":"흰목이버섯","en":"White Fungus"}, price: 260 },
-      { id: "beef-slice", name: "牛肉スライス(1人前約50g)", displayNames: {"zh":"牛肉片","ko":"소고기 슬라이스","en":"Sliced Beef"}, price: 350 },
       { id: "mochi", name: "国産もち1個", displayNames: {"zh":"国产年糕","ko":"일본산 떡","en":"Japanese Rice Cake"}, price: 170 },
       { id: "spinach", name: "ほうれん草", displayNames: {"zh":"菠菜","ko":"시금치","en":"Spinach"}, price: 230 },
       { id: "eggplant", name: "茄子", displayNames: {"zh":"茄子","ko":"가지","en":"Eggplant"}, price: 220 },
@@ -475,7 +478,7 @@ export const menuSections: MenuSection[] = [
       { id: "white-fish", name: "白身魚", displayNames: {"zh":"白身鱼","ko":"흰살생선","en":"White Fish"}, price: 310 },
       { id: "clam", name: "たっぷりあさり", displayNames: {"zh":"蛤蜊（多份）","ko":"바지락 듬뿍","en":"Extra Clams"}, price: 320 },
       { id: "chicken-slice", name: "【高たんぱく💪】国産とりむねスライス約50g", displayNames: {}, price: 320 },
-      { id: "beef-tripe", name: "牛ハチノス約50g", displayNames: {"zh":"牛肚","ko":"소양","en":"Beef Tripe"}, price: 480 },
+      { id: "beef-tripe", name: "牛ハチノス約50g", displayNames: {"zh":"牛肚","ko":"소양","en":"Beef Tripe"}, price: 560 },
       { id: "beef-omasum", name: "【国産】牛センマイ約50g", displayNames: {"zh":"牛百叶","ko":"소 천엽","en":"Beef Omasum Tripe"}, price: 540 },
       { id: "pork-tongue", name: "【国産】豚タン約50g", displayNames: {"zh":"国产猪舌","ko":"일본산 돼지혀","en":"Japanese Pork Tongu e"}, price: 400 },
       { id: "pork-liver", name: "【スタミナ💪】国産豚レバー（1人前約50g）", displayNames: {"zh":"国产猪肝","ko":"일본산 돼지간","en":"Japanese Pork Liver"}, price: 320 },
@@ -492,6 +495,9 @@ export const menuSections: MenuSection[] = [
       { id: "smoked-duck", name: "🦆合鴨あぶりスモーク", displayNames: {"zh":"炙烤烟熏鸭胸","ko":"훈제 오리 가슴살","en":"Smoked Seared Duck Breast"}, price: 310 },
       { id: "chicken-liver-heart", name: "鶏レバー＆ハツ", displayNames: {"zh":"鸡肝&鸡心","ko":"닭간 & 닭심장","en":"Chicken Liver & Heart"}, price: 320 },
       { id: "mussels", name: "ムール貝", displayNames: {"zh":"青口贝","ko":"홍합","en":"Mussels"}, price: 320 },
+      { id: "beef-slice", name: "【厳選】牛肉スライス(1人前約50g)", displayNames: {"zh":"牛肉片","ko":"소고기 슬라이스","en":"Sliced Beef"}, price: 400 },
+      { id: "chicken-thigh", name: "鶏もも肉", displayNames: {"zh":"鸡腿肉","ko":"닭다리살","en":"Chicken Thigh"}, price: 320 },
+      { id: "large-peeled-shrimp", name: "むき海老（大）", displayNames: {"zh":"大虾仁","ko":"대형 새우살","en":"Large Peeled Shrimp"}, price: 480 },
       { id: "spicy-pollock-roe", name: "辛子明太子", displayNames: {"zh":"明太子","ko":"명란","en":"Spicy Pollock Roe"}, price: 320 },
     ],
   },
@@ -503,9 +509,12 @@ export const menuSections: MenuSection[] = [
     items: [
       { id: "oyster", name: "【期間限定品】🦪広島県産牡蠣(3個)", displayNames: {"zh":"广岛县产牡蛎（3个）","ko":"히로시마산 굴 (3개)","en":"Hiroshima Oysters (3 Pieces)"}, price: 700 },
       { id: "wagyu", name: "【厳選国産黒毛和牛🥩】極上の肉👑", displayNames: {"zh":"极品黑毛和牛","ko":"최고급 흑모와규","en":"Premium Japanese Black Wagyu"}, price: 2380 },
-      { id: "frankfurt", name: "【数量限定𓃟】糸島豚の特大フランクフルト1本", displayNames: {"zh":"糸岛猪特大香肠","ko":"이토시마 돼지 특대 프랑크푸르트","en":"Extra Large Itoshima Pork Frankfurter"}, price: 1000 },
+      { id: "frankfurt", name: "【数量限定𓃟】糸島豚の特大フランクフルト半本", displayNames: {"zh":"糸岛猪特大香肠半根","ko":"이토시마 돼지 특대 프랑크푸르트 소시지 반 개","en":"Half of an Extra Large Itoshima Pork Frankfurter"}, price: 480 },
       { id: "camembert", name: "【極上🧀】丸ごとカマンベール", displayNames: {"zh":"整颗卡芒贝尔奶酪","ko":"통 카망베르 치즈","en":"Whole Camembert Cheese"}, price: 1020 },
-      { id: "seafood-set", name: "特選海鮮3種盛り👑（大えび1匹、ほたて1個、イカリング約50g）", displayNames: {"zh":"精选三种海鲜拼盘（大虾1只、扇贝1个、鱿鱼圈约50克）","ko":"특선 해산물 3종 모둠 (왕새우 1마리, 가리비 1개, 오징어 링 약 50g)","en":"Premium Seafood Trio (1 King Prawns, 1 Scallop, Approx. 50g Squid Rings)"}, price: 1340 },
+      { id: "seafood-set", name: "特選海鮮3種盛り👑（大えび1匹、ほたて1個、ヤリイカリング約50g）", displayNames: {"zh":"精选三种海鲜拼盘（大虾1只、扇贝1个、枪乌贼圈约50克）","ko":"특선 해산물 3종 모둠 (왕새우 1마리, 가리비 1개, 한치 링 약 50g)","en":"Premium Seafood Trio (1 King Prawn, 1 Scallop, Approx. 50g Spear Squid Rings)"}, price: 1340 },
+      { id: "gout-seafood-five", name: "痛風海鮮5種盛り👑（広島県産牡蠣3個、丸ごとホタテ1個、大海老1尾、あさり身約50g、ぶつ切りたこ約50g）", displayNames: {"zh":"痛风海鲜五重奏👑（广岛县产牡蛎3个、整颗扇贝1个、大虾1只、蛤蜊约50克、章鱼块约50克）","ko":"통풍 해산물 5종 모둠（히로시마산 굴 3개, 통 가리비 1개, 왕새우 1마리, 바지락살 약 50g, 문어 조각 약 50g）","en":"Ultimate Seafood 5-Item Platter (3 Hiroshima Oysters, 1 Whole Scallop, 1 King Prawn, Approx. 50g Clam Meat, Approx. 50g Octopus Pieces)"}, price: 1780 },
+      { id: "tofu-products-trio", name: "大豆製品3種盛り👑（乾燥腐竹4本、揚げ腐竹1個、油揚げ1個）", displayNames: {"zh":"豆制品三种拼盘（干腐竹4根、鲜炸腐竹1个、油豆腐1个）","ko":"두부 제품 3종 모둠 (건조 푸주 4개, 튀긴 푸주 1개, 유부 1개)","en":"Premium Tofu Products Trio (4 Dried Tofu Skins, 1 Fried Tofu Skin, 1 Fried Tofu)"}, price: 480 },
+      { id: "random-vegetable-trio", name: "おまかせ野菜3種盛り👑（小松菜、ほうれん草、レタス、空心菜、青梗菜の5種類からランダムで3種類）", displayNames: {"zh":"蔬菜随机三种拼盘（从小松菜、菠菜、生菜、空心菜、上海青5种蔬菜中随机选择3种）","ko":"랜덤 채소 3종 모둠（고마쓰나, 시금치, 상추, 공심채, 청경채 5종 중 랜덤으로 3종 선택）","en":"Random Vegetable Trio (3 randomly selected from: Komatsuna Greens, Spinach, Lettuce, Water Spinach, Bok Choy)"}, price: 640 },
       { id: "mozzarella", name: "【ご褒美🫕】丸ごとモッツァレラ１個", displayNames: {"zh":"马苏里拉芝士","ko":"모차렐라 치즈","en":"Mozzarella Cheese Ball"}, price: 1020 },
     ],
   },

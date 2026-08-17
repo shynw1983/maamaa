@@ -171,6 +171,15 @@ const asChoice = (item) => {
 };
 
 const asChoices = (items) => (Array.isArray(items) ? items.map(asChoice).filter((item) => item.id && item.name) : []);
+const uniqueBy = (items, identity) => {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = String(identity(item) || "").trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
 const optionGroupByKey = (groups, key) => groups.find((group) => group.groupKey === key);
 const asGroupLabel = (group, fallbackName) => ({
   id: String(group?.groupKey || group?.id || "").trim(),
@@ -180,7 +189,8 @@ const asGroupLabel = (group, fallbackName) => ({
 const choicesForGroup = (groups, key) => asChoices(optionGroupByKey(groups, key)?.options);
 const normalizeStandardMenu = (payload) => {
   if (!Array.isArray(payload?.items) || !payload.items.length || !Array.isArray(payload.optionGroups)) return null;
-  const baseItem = payload.items.find((item) => item.itemKind === "buildable_product") || payload.items[0];
+  const items = uniqueBy(payload.items, (item) => item.id || item.externalId);
+  const baseItem = items.find((item) => item.itemKind === "buildable_product") || items[0];
   if (!baseItem) return null;
   const groups = Array.isArray(payload.optionGroups) ? payload.optionGroups : [];
   const fixedGroupKeys = new Set(["medicinal-spice", "heat", "numb", "special-flavor", "noodle-replacement"]);
@@ -201,14 +211,14 @@ const normalizeStandardMenu = (payload) => {
   const numbGroup = optionGroupByKey(groups, "numb");
   const specialFlavorGroup = optionGroupByKey(groups, "special-flavor");
   const noodleReplacementGroup = optionGroupByKey(groups, "noodle-replacement");
-  const catalogProducts = payload.items.filter((item) => (
+  const catalogProducts = items.filter((item) => (
     item.id !== baseItem.id &&
     item.itemKind !== "information" &&
     item.storeSetting?.websiteEnabled !== false &&
     item.variableSchema?.websiteEnabled !== false
   ));
   const categoryKeyByName = new Map(
-    payload.items
+    items
       .map((item) => [String(item.category || "").trim(), String(item.variableSchema?.categoryKey || "").trim()])
       .filter(([name, key]) => name && key),
   );
@@ -258,13 +268,16 @@ const normalizeStandardMenu = (payload) => {
         websiteEnabled: catalogItem?.storeSetting?.websiteEnabled !== false && catalogItem.variableSchema?.websiteEnabled !== false,
       };
     }),
-    menuCategories: (Array.isArray(payload.categories) ? payload.categories : [])
-      .map((category) => ({
-        id: categoryKeyByName.get(String(category.name || "").trim()) || String(category.externalId || category.id || ""),
-        name: String(category.name || "").trim(),
-        sortOrder: Number(category.sortOrder || 100),
-      }))
-      .filter((category) => category.id && category.name),
+    menuCategories: uniqueBy(
+      (Array.isArray(payload.categories) ? payload.categories : [])
+        .map((category) => ({
+          id: categoryKeyByName.get(String(category.name || "").trim()) || String(category.externalId || category.id || ""),
+          name: String(category.name || "").trim(),
+          sortOrder: Number(category.sortOrder || 100),
+        }))
+        .filter((category) => category.id && category.name),
+      (category) => category.name,
+    ),
     noodleReplacementOptions: asChoices(noodleReplacementOptions),
     noodleReplacementRule,
     menuSections,
